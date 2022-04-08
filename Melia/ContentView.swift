@@ -8,15 +8,20 @@
 import SwiftUI
 
 struct ContentView: View {
-    @Binding var document: MeliaDocument
+    @ObservedObject var document: MeliaDocument
+    @State private var code = ""
 
     var body: some View {
-        TextEditor(text: $document.text)
+        HStack {
+            TextEditor(text: $code)
+                .font(.custom("Fira Code", size: 14))
+            Rectangle()
+        }
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(document: .constant(MeliaDocument()))
+        ContentView(document: MeliaDocument())
     }
 }

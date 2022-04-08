@@ -10,8 +10,8 @@ import SwiftUI
 @main
 struct MeliaApp: App {
     var body: some Scene {
-        DocumentGroup(newDocument: MeliaDocument()) { file in
-            ContentView(document: file.$document)
+        DocumentGroup(newDocument: MeliaDocument.init) { file in
+            ContentView(document: file.document)
         }
     }
 }
