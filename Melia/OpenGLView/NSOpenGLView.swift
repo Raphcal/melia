@@ -30,12 +30,10 @@ extension OpenGLView: NSViewRepresentable {
 
         let coordinator = context.coordinator
         coordinator.openGLView = view
-        coordinator.renderer = renderer
         coordinator.runInOpenGLContext {
-            renderer.setup()
+            MELRendererInit()
+            coordinator.renderer.load(context: rendererContext)
         }
-
-        
 
         view.willDrawListener = {
             coordinator.renderFrame()
@@ -45,27 +43,28 @@ extension OpenGLView: NSViewRepresentable {
         return view
     }
 
-    func makeCoordinator() -> Coordinator<R> {
-        return Coordinator(renderer: renderer)
+    func makeCoordinator() -> Coordinator {
+        return Coordinator(rendererContext: rendererContext)
     }
 
     func updateNSView(_ nsView: MELOpenGLView, context: Context) {
+        let coordinator = context.coordinator
         nsView.gestureListener = gestureListener
 
-        if gestureListener.listenToMoves != (context.coordinator.mouseMoveMonitor != nil) {
-            listenToMouseMoveEvents(of: nsView, coordinator: context.coordinator)
+        if gestureListener.listenToMoves != (coordinator.mouseMoveMonitor != nil) {
+            listenToMouseMoveEvents(of: nsView, coordinator: coordinator)
             return
         }
 
-        if context.coordinator.rendererContext != rendererContext {
-            context.coordinator.rendererContext = rendererContext
-        } else {
-            renderer.update()
+        if coordinator.rendererContext != rendererContext {
+            coordinator.runInOpenGLContext {
+                coordinator.renderer.load(context: rendererContext)
+            }
+            coordinator.rendererContext = rendererContext
         }
-        context.coordinator.renderFrame()
     }
 
-    func listenToMouseMoveEvents(of nsView: MELOpenGLView, coordinator: Coordinator<R>) {
+    func listenToMouseMoveEvents(of nsView: MELOpenGLView, coordinator: Coordinator) {
         if gestureListener.listenToMoves && coordinator.mouseMoveMonitor == nil {
             coordinator.mouseMoveMonitor = NSEvent.addLocalMonitorForEvents(matching: [.mouseMoved]) { event in
                 let frame = nsView.frame
@@ -82,9 +81,9 @@ extension OpenGLView: NSViewRepresentable {
         }
     }
 
-    func initializeDisplayLink(coordinator: Coordinator<R>) {
-        guard let openGLContext = coordinator.openGLView?.openGLContext,
-              let pixelFormat = coordinator.openGLView?.pixelFormat else {
+    func initializeDisplayLink(coordinator: Coordinator) {
+        guard let openGLContext = coordinator.openGLView?.openGLContext
+        else {
             print("initializeDisplayLink: No OpenGLContext")
             return
         }
@@ -94,46 +93,60 @@ extension OpenGLView: NSViewRepresentable {
 
         CVDisplayLinkCreateWithActiveCGDisplays(&coordinator.displayLink)
 
-        CVDisplayLinkSetOutputCallback(coordinator.displayLink!, { (displayLink, now, outputTime, flagsIn, flagsOut, displayLinkContext) -> CVReturn in
-            if let renderer = displayLinkContext?.assumingMemoryBound(to: R.self) {
+        guard let displayLink = coordinator.displayLink,
+              let cglContextObj = openGLContext.cglContextObj,
+              let cglPixelFormatObj = openGLContext.pixelFormat.cglPixelFormatObj
+        else {
+            print("initializeDisplayLink: No displayLink or cglContextObj or cglPixelFormatObj")
+            return
+        }
+
+        var coordinatorRef = coordinator
+        CVDisplayLinkSetOutputCallback(displayLink, { (displayLink, now, outputTime, flagsIn, flagsOut, displayLinkContext) -> CVReturn in
+            if let coordinator = displayLinkContext?.assumingMemoryBound(to: Coordinator.self).pointee {
                 let time = TimeInterval(outputTime.pointee.videoTime) / TimeInterval(outputTime.pointee.videoTimeScale)
                 DispatchQueue.main.sync {
-                    renderer.pointee.update(elasped: time)
+                    coordinator.updateAndRenderFrame(elapsed: time)
                 }
                 return kCVReturnSuccess
             } else {
                 return kCVReturnError
             }
-        }, &coordinator.renderer)
+        }, &coordinatorRef)
         
-        CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(coordinator.displayLink!, openGLContext.cglContextObj!, pixelFormat.cglPixelFormatObj!)
+        CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, cglContextObj, cglPixelFormatObj)
         
-        CVDisplayLinkStart(coordinator.displayLink!)
+        CVDisplayLinkStart(displayLink)
     }
 
-    class Coordinator<R: Renderer> {
+    class Coordinator {
         weak var openGLView: MELOpenGLView?
-        var renderer: R
-        var rendererContext: R.Context = .empty
+        var renderer = Renderer()
+        var rendererContext: RendererContext
         var mouseMoveMonitor: Any?
         var displayLink: CVDisplayLink?
 
-        init(renderer: R) {
-            self.renderer = renderer
+        init(rendererContext: RendererContext) {
+            self.rendererContext = rendererContext
         }
 
         deinit {
             runInOpenGLContext {
-                renderer.shutdown()
+                renderer.unload()
             }
             if let mouseMoveMonitor = mouseMoveMonitor {
                 NSEvent.removeMonitor(mouseMoveMonitor)
             }
         }
 
+        func updateAndRenderFrame(elapsed time: TimeInterval) {
+            renderer.update(elasped: time)
+            renderer.renderFrame()
+        }
+
         func renderFrame() {
             runInOpenGLContext {
-                renderer.renderFrame(context: rendererContext)
+                renderer.renderFrame()
             }
         }
 

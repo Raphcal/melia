@@ -8,11 +8,10 @@
 import SwiftUI
 import MeliceFramework
 
-struct OpenGLView<R: Renderer> {
+struct OpenGLView {
     typealias ScrollListener = (_ motion: MELSize) -> Void
 
-    let renderer: R
-    let rendererContext: R.Context
+    let rendererContext: RendererContext
 
     var scrollListener: ScrollListener? = nil
     var gestureListener: GestureListener = NoGestureListener()
