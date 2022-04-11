@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MeliceFramework
 
 struct ContentView: View {
     @ObservedObject var document: MeliaDocument
@@ -17,7 +18,13 @@ struct ContentView: View {
         HStack {
             TextEditor(text: $code)
                 .font(.custom("Fira Code", size: 14))
-            OpenGLView(rendererContext: RendererContext(map: document.project.root.maps.memory![mapIndex], spriteDefinitions: document.project.root.sprites, definitionIndex: definitionIndex))
+            GeometryReader { geometry in
+                OpenGLView(rendererContext: RendererContext(
+                    map: document.project.root.maps.memory![mapIndex],
+                    spriteDefinitions: document.project.root.sprites,
+                    definitionIndex: definitionIndex,
+                    frameSize: MELSize(width: GLfloat(geometry.size.width), height: GLfloat(geometry.size.height))))
+            }
         }
     }
 }

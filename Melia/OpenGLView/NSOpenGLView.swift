@@ -28,11 +28,12 @@ extension OpenGLView: NSViewRepresentable {
         openGLContext.setValues([1], for: NSOpenGLContext.Parameter.swapInterval)
         view.prepareOpenGL()
 
-        let coordinator = context.coordinator
+        var coordinator = context.coordinator
         coordinator.openGLView = view
         coordinator.runInOpenGLContext {
             MELRendererInit()
             coordinator.renderer.load(context: rendererContext)
+            initializeDisplayLink(coordinator: &coordinator)
         }
 
         view.willDrawListener = {
@@ -62,6 +63,7 @@ extension OpenGLView: NSViewRepresentable {
             }
             coordinator.rendererContext = rendererContext
         }
+        coordinator.updateAndRenderFrame(elapsed: 0)
     }
 
     func listenToMouseMoveEvents(of nsView: MELOpenGLView, coordinator: Coordinator) {
@@ -81,12 +83,13 @@ extension OpenGLView: NSViewRepresentable {
         }
     }
 
-    func initializeDisplayLink(coordinator: Coordinator) {
+    func initializeDisplayLink(coordinator: inout Coordinator) {
         guard let openGLContext = coordinator.openGLView?.openGLContext
         else {
             print("initializeDisplayLink: No OpenGLContext")
             return
         }
+        print("initializeDisplayLink")
 
         var swapInt: GLint = 1
         openGLContext.setValues(&swapInt, for: NSOpenGLContext.Parameter.swapInterval)
@@ -101,19 +104,21 @@ extension OpenGLView: NSViewRepresentable {
             return
         }
 
-        var coordinatorRef = coordinator
+        print("coordinatorRef")
+        var coordinatorRef = UnsafeMutablePointer<Coordinator>.allocate(capacity: 1)
+        coordinatorRef.assign(from: &coordinator, count: 1)
+        // var coordinatorRef = coordinator
         CVDisplayLinkSetOutputCallback(displayLink, { (displayLink, now, outputTime, flagsIn, flagsOut, displayLinkContext) -> CVReturn in
-            if let coordinator = displayLinkContext?.assumingMemoryBound(to: Coordinator.self).pointee {
+            if let coordinatorRef = displayLinkContext?.assumingMemoryBound(to: Coordinator.self) {
+                let coordinator = coordinatorRef.pointee
                 let time = TimeInterval(outputTime.pointee.videoTime) / TimeInterval(outputTime.pointee.videoTimeScale)
-                DispatchQueue.main.sync {
-                    coordinator.updateAndRenderFrame(elapsed: time)
-                }
+                coordinator.updateAndRenderFrame(elapsed: time)
                 return kCVReturnSuccess
             } else {
                 return kCVReturnError
             }
-        }, &coordinatorRef)
-        
+        }, coordinatorRef)
+
         CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, cglContextObj, cglPixelFormatObj)
         
         CVDisplayLinkStart(displayLink)
@@ -127,10 +132,16 @@ extension OpenGLView: NSViewRepresentable {
         var displayLink: CVDisplayLink?
 
         init(rendererContext: RendererContext) {
+            print("init Coordinator")
             self.rendererContext = rendererContext
         }
 
         deinit {
+            print("deinit Coordinator")
+            if let displayLink = displayLink {
+                CVDisplayLinkStop(displayLink)
+            }
+            displayLink = nil
             runInOpenGLContext {
                 renderer.unload()
             }
@@ -140,13 +151,15 @@ extension OpenGLView: NSViewRepresentable {
         }
 
         func updateAndRenderFrame(elapsed time: TimeInterval) {
-            renderer.update(elasped: time)
-            renderer.renderFrame()
+            runInOpenGLContext {
+                renderer.update(elasped: time)
+                renderer.renderFrame(size: rendererContext.frameSize)
+            }
         }
 
         func renderFrame() {
             runInOpenGLContext {
-                renderer.renderFrame()
+                renderer.renderFrame(size: rendererContext.frameSize)
             }
         }
 
