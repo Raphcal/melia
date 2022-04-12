@@ -45,14 +45,18 @@ class Renderer {
 
         textureAtlas = createAtlas(mutableMap.palette, context.spriteDefinitions)
         melMapRenderer = MELMapRendererMakeWithRendererAndMapAndAtlas(&renderer, mutableMap.super, textureAtlas)
-        spriteManager = MELSpriteManagerMake(context.spriteDefinitions, textureAtlas, melMapRenderer.layerSurfaces!, 0, nil)
+        spriteManager = MELSpriteManagerMake(MELSpriteDefinitionListMakeWithListAndCopyFunction(context.spriteDefinitions, MELSpriteDefinitionMakeWithSpriteDefinition) , textureAtlas, melMapRenderer.layerSurfaces!, 0, nil)
 
         let solid = mutableMap.layers.firstIndex(where: { $0.isSolid }) ?? 0
 
-        let sprite = MELSpriteAlloc(&spriteManager, spriteManager.definitions[context.definitionIndex], UInt32(solid))
-        MELSpriteSetFrame(sprite, MELRectangle(x: 32, y: 32, width: 32, height: 32))
-        self.sprite = sprite
-        definitionIndex = context.definitionIndex
+        if context.definitionIndex < spriteManager.definitions.count && solid < mutableMap.layers.count {
+            let sprite = MELSpriteAlloc(&spriteManager, spriteManager.definitions[context.definitionIndex], UInt32(solid))
+            MELSpriteSetFrame(sprite, MELRectangle(x: 32, y: 32, width: 32, height: 32))
+            self.sprite = sprite
+            definitionIndex = context.definitionIndex
+        }
+
+        self.mutableMap = mutableMap
     }
 
     func unload() {

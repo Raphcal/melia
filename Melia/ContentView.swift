@@ -26,6 +26,15 @@ struct ContentView: View {
                     frameSize: MELSize(width: GLfloat(geometry.size.width), height: GLfloat(geometry.size.height))))
             }
         }
+        .toolbar {
+            ToolbarItem {
+                Picker("Map", selection: $mapIndex) {
+                    ForEach(0 ..< document.project.root.maps.count) { index in
+                        Label(document.project.root.maps[index].nameAsString, systemImage: "map")
+                    }
+                }
+            }
+        }
     }
 }
 
