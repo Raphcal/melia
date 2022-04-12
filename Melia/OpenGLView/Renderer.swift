@@ -82,9 +82,10 @@ class Renderer {
     }
 
     fileprivate func createAtlas(_ palette: MELPaletteRef, _ spriteDefinitions: MELSpriteDefinitionList) -> MELTextureAtlas {
-        print("Renderer#createAtlas")
+        // TODO: Faire une fonction C AtlasMake pour ça
         var elements = MELPackMapElementListEmpty
         MELPackMapElementListPushPalette(&elements, palette)
+        // TODO: Supprimer l'allocation des frames de cette méthode car l'indice dans l'atlas n'est pas bon. Elements ne contient pas les images vides de la palette donc les indices sont décalés.
         MELPackMapElementListPushSpriteDefinitionList(&elements, spriteDefinitions)
 
         var packMap = MELPackMapMakeWithElements(elements)
@@ -97,6 +98,7 @@ class Renderer {
         for spriteDefinition in spriteDefinitions {
             for animation in spriteDefinition.animations {
                 for index in 0 ..< Int(animation.frameCount) {
+                    animation.frames![index].atlasIndex = Int32(atlasContent.count)
                     MELRefListPush(&atlasContent, animation.images!.advanced(by: index))
                 }
             }
@@ -107,7 +109,6 @@ class Renderer {
         MELPackMapDeinit(&packMap)
 
         MELTextureLoad(&textureAtlas.texture)
-        print("Texture loaded: \(textureAtlas.texture.name != 0)")
 
         return textureAtlas
     }
