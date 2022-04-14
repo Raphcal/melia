@@ -12,7 +12,7 @@ enum Token {
     case declareStart, declareName, declareSeparator, declareType
     case stateStart, stateName, stateEnd
     case groupStart, groupEnd
-    case instructionStart, instructionArgStart,instructionArgName, instructionArgSeparator
+    case instructionStart, instructionArgName
     case setStart, setVariableName, setEqual
     case valuePoint, valueInt, valueDuration, valueDirection, valueAnimation, valueVariable
     case addOrSubstract, multiplyOrDivide, unaryOperator, braceOpen, braceClose
@@ -42,12 +42,8 @@ enum Token {
         case .groupEnd:
             return [.newLine, .instructionStart, .setStart]
         case .instructionStart:
-            return [.instructionArgStart, .newLine]
-        case .instructionArgStart:
-            return [.instructionArgName]
+            return [.instructionArgName, .newLine]
         case .instructionArgName:
-            return [.instructionArgSeparator]
-        case .instructionArgSeparator:
             return [.valueDuration, .valueInt, .valuePoint, .valueDirection, .valueAnimation, .valueVariable, .braceOpen]
         case .setStart:
             return [.setVariableName]
@@ -56,17 +52,17 @@ enum Token {
         case .setEqual:
             return [.valueDuration, .valueInt, .valuePoint, .valueDirection, .valueAnimation, .valueVariable, .braceOpen]
         case .valuePoint:
-            return [.addOrSubstract, .multiplyOrDivide, .braceClose, .instructionArgStart, .newLine]
+            return [.addOrSubstract, .multiplyOrDivide, .braceClose, .instructionArgName, .newLine]
         case .valueInt:
-            return [.addOrSubstract, .multiplyOrDivide, .braceClose, .instructionArgStart, .newLine]
+            return [.addOrSubstract, .multiplyOrDivide, .braceClose, .instructionArgName, .newLine]
         case .valueDuration:
-            return [.newLine, .groupEnd]
+            return [.instructionArgName, .newLine, .groupEnd]
         case .valueDirection:
-            return [.newLine]
+            return [.instructionArgName, .newLine]
         case .valueAnimation:
-            return [.newLine, .groupEnd]
+            return [.instructionArgName, .newLine, .groupEnd]
         case .valueVariable:
-            return [.addOrSubstract, .multiplyOrDivide, .braceClose, .instructionArgStart, .groupEnd, .newLine]
+            return [.addOrSubstract, .multiplyOrDivide, .braceClose, .instructionArgName, .groupEnd, .newLine]
         case .addOrSubstract:
             return [.valueInt, .valuePoint, .valueVariable, .braceOpen]
         case .multiplyOrDivide:
@@ -76,7 +72,7 @@ enum Token {
         case .braceOpen:
             return [.valueInt, .valuePoint, .valueVariable]
         case .braceClose:
-            return [.addOrSubstract, .multiplyOrDivide, .instructionArgStart, .newLine]
+            return [.addOrSubstract, .multiplyOrDivide, .instructionArgName, .newLine]
         }
     }
 
@@ -106,12 +102,8 @@ enum Token {
             return ": *"
         case .instructionStart:
             return "([a-z]+) *"
-        case .instructionArgStart:
-            return ", *"
         case .instructionArgName:
-            return "([a-z]+) *"
-        case .instructionArgSeparator:
-            return ": *"
+            return ", *([a-z]+) *: *"
         case .setStart:
             return "set +"
         case .setVariableName:

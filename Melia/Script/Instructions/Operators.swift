@@ -8,9 +8,18 @@
 import MeliceFramework
 
 protocol Operator: Instruction {
-    func apply(_ lhs: Int32, _ rhs: Int32) -> Int32
+    func apply<T: Operand>(_ lhs: T, _ rhs: T) -> T
     func apply(_ lhs: Value, _ rhs: Value) -> Value
 }
+
+protocol Operand {
+    static func + (lhs: Self, rhs: Self) -> Self
+    static func - (lhs: Self, rhs: Self) -> Self
+    static func * (lhs: Self, rhs: Self) -> Self
+    static func / (lhs: Self, rhs: Self) -> Self
+}
+extension Int32: Operand {}
+extension Float: Operand {}
 
 extension Operator {
     func apply(_ lhs: Value, _ rhs: Value) -> Value {
@@ -19,32 +28,32 @@ extension Operator {
             switch rhs {
             case let .integer(rhsValue):
                 return .integer(apply(lhsValue, rhsValue))
-            case let .duration(rhsValue, unit):
-                return .duration(apply(lhsValue, rhsValue), unit: unit)
+            case let .decimal(rhsValue):
+                return .decimal(apply(Float(lhsValue), rhsValue))
             case let .point(rhsValue):
-                return .point(MELIntPoint(x: apply(lhsValue, rhsValue.x), y: apply(lhsValue, rhsValue.y)))
+                return .point(MELPoint(x: apply(Float(lhsValue), rhsValue.x), y: apply(Float(lhsValue), rhsValue.y)))
             default:
                 return .null
             }
-        case let .duration(lhsValue, lhsUnit):
+        case let .decimal(lhsValue):
             switch rhs {
             case let .integer(rhsValue):
-                return .duration(apply(lhsValue, rhsValue), unit: lhsUnit)
-            case let .duration(rhsValue, rhsUnit):
-                if lhsUnit.toMilliseconds < rhsUnit.toMilliseconds {
-                    return .duration(apply(lhsValue, rhsValue * (rhsUnit.toMilliseconds / lhsUnit.toMilliseconds)), unit: lhsUnit)
-                } else {
-                    return .duration(apply(lhsValue * (lhsUnit.toMilliseconds / rhsUnit.toMilliseconds), rhsValue), unit: rhsUnit)
-                }
+                return .decimal(apply(lhsValue, Float(rhsValue)))
+            case let .decimal(rhsValue):
+                return .decimal(apply(lhsValue, rhsValue))
+            case let .point(rhsValue):
+                return .point(MELPoint(x: apply(lhsValue, rhsValue.x), y: apply(lhsValue, rhsValue.y)))
             default:
                 return .null
             }
         case let .point(lhsValue):
             switch rhs {
             case let .integer(rhsValue):
-                return .point(MELIntPoint(x: apply(lhsValue.x, rhsValue), y: apply(lhsValue.y, rhsValue)))
+                return .point(MELPoint(x: apply(lhsValue.x, Float(rhsValue)), y: apply(lhsValue.y, Float(rhsValue))))
+            case let .decimal(rhsValue):
+                return .point(MELPoint(x: apply(lhsValue.x, rhsValue), y: apply(lhsValue.y, rhsValue)))
             case let .point(rhsValue):
-                return .point(MELIntPoint(x: apply(lhsValue.x, rhsValue.x), y: apply(lhsValue.y, rhsValue.y)))
+                return .point(MELPoint(x: apply(lhsValue.x, rhsValue.x), y: apply(lhsValue.y, rhsValue.y)))
             default:
                 return .null
             }
@@ -53,10 +62,12 @@ extension Operator {
         }
     }
 
-    func update(stack: inout [Value], heap: inout [String : Value], delta: MELTimeInterval) {
-        let rhs = stack.removeLast()
-        let lhs = stack.removeLast()
-        stack.append(apply(lhs, rhs))
+    func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
+        var newContext = context
+        let rhs = newContext.stack.removeLast()
+        let lhs = newContext.stack.removeLast()
+        newContext.stack.append(apply(lhs, rhs))
+        return newContext
     }
 }
 
@@ -76,22 +87,22 @@ func operatorNamed(_ name: String) throws -> Operator {
 }
 
 struct Add: Operator {
-    func apply(_ lhs: Int32, _ rhs: Int32) -> Int32 {
+    func apply<T: Operand>(_ lhs: T, _ rhs: T) -> T {
         return lhs + rhs
     }
 }
 struct Substract: Operator {
-    func apply(_ lhs: Int32, _ rhs: Int32) -> Int32 {
+    func apply<T: Operand>(_ lhs: T, _ rhs: T) -> T {
         return lhs - rhs
     }
 }
 struct Multiply: Operator {
-    func apply(_ lhs: Int32, _ rhs: Int32) -> Int32 {
+    func apply<T: Operand>(_ lhs: T, _ rhs: T) -> T {
         return lhs * rhs
     }
 }
 struct Divide: Operator {
-    func apply(_ lhs: Int32, _ rhs: Int32) -> Int32 {
+    func apply<T: Operand>(_ lhs: T, _ rhs: T) -> T {
         return lhs / rhs
     }
 }

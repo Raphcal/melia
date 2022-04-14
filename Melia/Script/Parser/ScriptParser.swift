@@ -5,7 +5,7 @@
 //  Created by Raphaël Calabro on 13/04/2022.
 //
 
-import Foundation
+import MeliceFramework
 
 fileprivate func appendOperator(_ token: FoundToken, instructions: inout [Instruction]) throws {
     let anOperator = try operatorNamed(token.matches[1])
@@ -24,6 +24,7 @@ func parse(code: String) throws -> Script {
     var variables = [String: Kind]()
     var statePointers = [String: Int]()
     var instructions = [Instruction]()
+    var initialState: String?
 
     var groups = [Instruction]()
     var indentCount = 0
@@ -58,19 +59,24 @@ func parse(code: String) throws -> Script {
             case .stateStart:
                 let stateName = tokens[1].matches[1]
                 statePointers[stateName] = instructions.count
-                groups.append(LoadCurrentState())
+                groups.append(GoToCurrentState())
+                if initialState == nil {
+                    initialState = stateName
+                }
             case .groupStart:
                 switch tokens[0].matches[1] {
                 case "during":
-                    instructions.append(During())
-                case "if":
-                    instructions.append(If())
+                    // TODO: Gérer les arguments
+                    instructions.append(During(duration: 1, ease: false))
                 default:
                     throw LookUpError.badName(tokens[0].matches[1])
                 }
             case .setStart:
-                instructions.append(SetValue())
+                instructions.append(SetValue(path: tokens[1].matches[1].components(separatedBy: ".")))
             case .instructionStart:
+                if let last = tokens.last, last.token == .instructionArgName {
+                    instructions.append(PushArgument(name: last.matches[1]))
+                }
                 switch tokens[0].matches[1] {
                 case "wait":
                     instructions.append(Wait())
@@ -84,42 +90,45 @@ func parse(code: String) throws -> Script {
             tokens = []
             indentCount = 0
         case .groupStart:
-            groups.append(Jump(to: instructions.count))
+            groups.append(GoToGroupStart(groupStart: instructions.count))
         case .indent:
             indentCount = indentCount + 1
         case .valueInt:
-            instructions.append(Constant.integer(
-                try Int(current.matches[1], format: .number)))
+            instructions.append(Constant(value: .integer(
+                try Int32(current.matches[1], format: .number))))
         case .valueDuration:
             let duration = try DurationUnit.named(current.matches[2])
-            instructions.append(Constant.duration(
-                try Int(current.matches[1], format: .number),
-                unit: duration))
+            instructions.append(Constant(value: .decimal(
+                duration.toTimeInterval(try Int32(current.matches[1], format: .number)))))
         case .valueAnimation:
-            instructions.append(Constant.animation(
-                try Animation.named(current.matches[1])))
+            instructions.append(Constant(value: .string(current.matches[1])))
         case .valueDirection:
-            instructions.append(Constant.direction(
-                try Direction.named(current.matches[1])))
+            instructions.append(Constant(value: .direction(
+                try MELDirection.named(current.matches[1]))))
         case .valuePoint:
-            instructions.append(Constant.point(Point(
-                x: try Int(current.matches[1], format: .number),
-                y: try Int(current.matches[2], format: .number))))
-        case .valueVariable, .setVariableName:
-            instructions.append(Variable(name: current.matches[1]))
+            let intPoint = MELIntPoint(
+                x: try Int32(current.matches[1], format: .number),
+                y: try Int32(current.matches[2], format: .number))
+            instructions.append(Constant(value :.point(MELPoint(intPoint))))
+        case .valueVariable:
+            instructions.append(Variable(path: current.matches[1].components(separatedBy: ".")))
         case .addOrSubstract, .multiplyOrDivide:
             if let lastOperator = operators.last, lastOperator.token.priority >= current.token.priority {
                 operators.removeLast(1)
                 try appendOperator(lastOperator, instructions: &instructions)
             }
             operators.append(current)
-        case .instructionArgSeparator:
-            // TODO: Voir comment faire un dictionnaire des arguments pour simplifier la création ?
-            // Ne semble pas réaliste car ne permet pas l'utilisation d'opérations mathématique comme args
+        case .instructionArgName:
+            if let last = tokens.last, last.token == .instructionArgName {
+                instructions.append(PushArgument(name: last.matches[1]))
+            } else if let last = tokens.last, last.token == .instructionStart {
+                instructions.append(ClearArguments())
+            }
+            tokens.append(current)
             break
         default:
             tokens.append(current)
         }
     }
-    return Script(declare: variables, states: statePointers, instructions: instructions)
+    return Script(declare: variables, states: statePointers, instructions: instructions, initialState: initialState ?? "default")
 }

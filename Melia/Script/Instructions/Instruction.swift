@@ -8,5 +8,5 @@
 import MeliceFramework
 
 protocol Instruction {
-    func update(stack: inout [Value], heap: inout [String: Value], delta: MELTimeInterval)
+    func update(context: Script.ExecutionContext) -> Script.ExecutionContext
 }

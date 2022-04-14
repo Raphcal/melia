@@ -10,7 +10,9 @@ import MeliceFramework
 struct Constant: Instruction {
     var value: Value
 
-    func update(stack: inout [Value], heap: inout [String : Value], delta: MELTimeInterval) {
-        stack.append(value)
+    func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
+        var newContext = context
+        newContext.stack.append(value)
+        return newContext
     }
 }

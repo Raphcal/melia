@@ -8,7 +8,7 @@
 import Foundation
 
 enum Kind {
-    case point, integer, duration, direction, animation, sprite, null
+    case point, integer, decimal, direction, animation, sprite, string, null
 
     static func named(_ name: String) throws -> Kind {
         switch name {
@@ -16,12 +16,12 @@ enum Kind {
             return .point
         case "integer":
             return .integer
-        case "duration":
-            return .duration
-        case "animation":
-            return .animation
+        case "decimal":
+            return .decimal
         case "sprite":
             return .sprite
+        case "string":
+            return .string
         case "null":
             return .null
         default:

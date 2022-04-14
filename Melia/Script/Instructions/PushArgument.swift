@@ -1,19 +1,19 @@
 //
-//  Set.swift
+//  PushArgument.swift
 //  Melia
 //
-//  Created by Raphaël Calabro on 13/04/2022.
+//  Created by Raphaël Calabro on 14/04/2022.
 //
 
-import MeliceFramework
+import Foundation
 
-struct SetValue: Instruction {
-    var path: [String]
+struct PushArgument: Instruction {
+    var name: String
 
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         var newContext = context
         let value = newContext.stack.removeLast()
-        newContext.heap.setValue(value, at: path)
+        newContext.arguments[name] = value
         return newContext
     }
 }

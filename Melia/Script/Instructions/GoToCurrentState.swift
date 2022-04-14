@@ -1,18 +1,17 @@
 //
-//  Variable.swift
+//  LoadCurrentState.swift
 //  Melia
 //
 //  Created by Raphaël Calabro on 13/04/2022.
 //
 
-import MeliceFramework
+import Foundation
 
-struct Variable: Instruction {
-    var path: [String]
-
+struct GoToCurrentState: Instruction {
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         var newContext = context
-        newContext.stack.append(newContext.heap.value(at: path))
+        newContext.instructionPointer = newContext.script.states[context.state] ?? 0
+        newContext.yield = true
         return newContext
     }
 }

@@ -5,7 +5,7 @@
 //  Created by Raphaël Calabro on 13/04/2022.
 //
 
-import Foundation
+import MeliceFramework
 
 enum DurationUnit {
     case millisecond
@@ -34,6 +34,10 @@ enum DurationUnit {
         case .minute:
             return 60000
         }
+    }
+
+    func toTimeInterval(_ value: Int32) -> MELTimeInterval {
+        return MELTimeInterval(value * toMilliseconds) / 1000
     }
 }
 
