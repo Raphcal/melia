@@ -9,8 +9,7 @@ import Foundation
 
 struct Wait: Instruction {
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
-        var newContext = context
-        newContext.yield = true
-        return newContext
+        // Aucune action
+        return context
     }
 }

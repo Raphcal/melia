@@ -99,7 +99,7 @@ enum Token {
         case .groupEnd:
             return ": *"
         case .instructionStart:
-            return "(move|jump|shoot|new) *"
+            return "(move|jump|shoot|new|wait) *"
         case .instructionArgument:
             return ", *([a-z]+) *: *"
         case .setStart:

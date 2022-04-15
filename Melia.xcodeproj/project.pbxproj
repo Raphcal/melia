@@ -49,6 +49,7 @@
 		64C242DA27F8E1100018BE2B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64C242D927F8E1100018BE2B /* Assets.xcassets */; };
 		64C242DD27F8E1100018BE2B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64C242DC27F8E1100018BE2B /* Preview Assets.xcassets */; };
 		64F35DF62809E72900A5A620 /* MeliaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64F35DF52809E72900A5A620 /* MeliaTests.swift */; };
+		64F35E3A2809FFC200A5A620 /* GroupStart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64F35E392809FFC200A5A620 /* GroupStart.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -136,6 +137,7 @@
 		64C242DF27F8E1100018BE2B /* Melia.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Melia.entitlements; sourceTree = "<group>"; };
 		64F35DF32809E72900A5A620 /* MeliaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeliaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		64F35DF52809E72900A5A620 /* MeliaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeliaTests.swift; sourceTree = "<group>"; };
+		64F35E392809FFC200A5A620 /* GroupStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupStart.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,8 +189,9 @@
 				64A1CE5928098EAA0086D752 /* While.swift */,
 				6454DAB527FA1FAC00D5E92B /* If.swift */,
 				64A1CE4A2808412C0086D752 /* Wait.swift */,
-				64A1CE4828076D060086D752 /* GoToCurrentState.swift */,
+				64F35E392809FFC200A5A620 /* GroupStart.swift */,
 				64A1CE4C280843D40086D752 /* GoToGroupStart.swift */,
+				64A1CE4828076D060086D752 /* GoToCurrentState.swift */,
 				6454DAAC27FA1ED400D5E92B /* Jump.swift */,
 				6454DAB027FA1F0600D5E92B /* Move.swift */,
 				6454DABB27FA1FB600D5E92B /* Shoot.swift */,
@@ -451,6 +454,7 @@
 				64A1CE3E280768340086D752 /* Token.swift in Sources */,
 				64262C5027FC6D0F004E16D7 /* Renderer.swift in Sources */,
 				64A1CE4D280843D40086D752 /* GoToGroupStart.swift in Sources */,
+				64F35E3A2809FFC200A5A620 /* GroupStart.swift in Sources */,
 				64A1CE3128073E7E0086D752 /* Value.swift in Sources */,
 				64C242D427F8E10E0018BE2B /* MeliaApp.swift in Sources */,
 				6454DAAD27FA1ED400D5E92B /* Jump.swift in Sources */,

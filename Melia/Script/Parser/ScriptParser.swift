@@ -20,6 +20,20 @@ fileprivate func append(operator token: FoundToken, instructions: inout [Instruc
     }
 }
 
+fileprivate func onGroupEnd(groups: inout [Instruction], instructions: inout [Instruction], indentCount: Int = 0) {
+    if indentCount < groups.count {
+        for _ in indentCount ..< groups.count {
+            let gotoGroupStart = groups.removeLast()
+            instructions.append(gotoGroupStart)
+            if let gotoGroupStart = gotoGroupStart as? GoToGroupStart,
+               var groupStart = instructions[gotoGroupStart.groupStart] as? GroupStart {
+                groupStart.whenDoneSetInstructionPointerTo = instructions.count
+                instructions[gotoGroupStart.groupStart] = groupStart
+            }
+        }
+    }
+}
+
 func parse(code: String) throws -> Script {
     var statePointers = [String: Int]()
     var instructions = [Instruction]()
@@ -38,11 +52,7 @@ func parse(code: String) throws -> Script {
 
         if isAfterNewLine && !current.token.isBlank {
             isAfterNewLine = false
-            if indentCount < groups.count {
-                for _ in indentCount ..< groups.count {
-                    instructions.append(groups.popLast()!)
-                }
-            }
+            onGroupEnd(groups: &groups, instructions: &instructions, indentCount: indentCount)
         }
         switch current.token {
         case .newLine:
@@ -54,6 +64,9 @@ func parse(code: String) throws -> Script {
             }
             if tokenStack.isEmpty {
                 return
+            }
+            if tokenStack.last!.token == .instructionArgument {
+                instructions.append(PushArgument(name: tokenStack.last!.matches[1]))
             }
             switch tokenStack[0].token {
             case .stateStart:
@@ -67,7 +80,8 @@ func parse(code: String) throws -> Script {
                 switch tokenStack[0].matches[1] {
                 case "during":
                     // TODO: Gérer les arguments
-                    instructions.append(During(duration: 1, ease: false))
+                    groups.append(GoToGroupStart(groupStart: instructions.count))
+                    instructions.append(During())
                 default:
                     throw LookUpError.badName(tokenStack[0].matches[1])
                 }
@@ -90,7 +104,14 @@ func parse(code: String) throws -> Script {
             tokenStack = []
             indentCount = 0
         case .groupStart:
-            groups.append(GoToGroupStart(groupStart: instructions.count))
+            tokenStack.append(current)
+            instructions.append(ClearArguments())
+            switch current.matches[1] {
+            case "during":
+                tokenStack.append(FoundToken(token: .instructionArgument, matches: ["", "duration"], range: Range(0...0)))
+            default:
+                break
+            }
         case .indent:
             indentCount = indentCount + 1
         case .valueInt:
@@ -149,11 +170,11 @@ func parse(code: String) throws -> Script {
                 instructions.append(ClearArguments())
             }
             tokenStack.append(current)
-            break
         default:
             tokenStack.append(current)
         }
     }
+    onGroupEnd(groups: &groups, instructions: &instructions)
     return Script(states: statePointers, initialState: initialState ?? "default", instructions: instructions, tokens: tokens)
 }
 
