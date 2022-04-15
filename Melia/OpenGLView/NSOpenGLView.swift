@@ -166,6 +166,10 @@ extension OpenGLView: NSViewRepresentable {
         func runInOpenGLContext(_ block: () -> Void) {
             guard let openGLContext = openGLView?.openGLContext else {
                 NSLog("No openGLContext")
+                if let displayLink = displayLink {
+                    CVDisplayLinkStop(displayLink)
+                }
+                displayLink = nil
                 return
             }
             if Thread.isMainThread {

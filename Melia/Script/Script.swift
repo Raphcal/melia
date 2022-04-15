@@ -13,6 +13,7 @@ struct Script: Equatable {
     var instructions: [Instruction]
     var tokens: [FoundToken]
 
+    // TODO: Donner la map en argument
     func run(sprite: MELSpriteRef, resumeWith oldContext: ExecutionContext? = nil) -> ExecutionContext {
         var context = oldContext ?? ExecutionContext(script: self, state: initialState)
         context.yield = false

@@ -48,6 +48,7 @@
 		64C242D827F8E10E0018BE2B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C242D727F8E10E0018BE2B /* ContentView.swift */; };
 		64C242DA27F8E1100018BE2B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64C242D927F8E1100018BE2B /* Assets.xcassets */; };
 		64C242DD27F8E1100018BE2B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64C242DC27F8E1100018BE2B /* Preview Assets.xcassets */; };
+		64F35DF62809E72900A5A620 /* MeliaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64F35DF52809E72900A5A620 /* MeliaTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -78,6 +79,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 6452603E2614F88D00BB78AC;
 			remoteInfo = MeliceFramework;
+		};
+		64F35DF72809E72900A5A620 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 64C242C827F8E10E0018BE2B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 64C242CF27F8E10E0018BE2B;
+			remoteInfo = Melia;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -126,6 +134,8 @@
 		64C242DC27F8E1100018BE2B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		64C242DE27F8E1100018BE2B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		64C242DF27F8E1100018BE2B /* Melia.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Melia.entitlements; sourceTree = "<group>"; };
+		64F35DF32809E72900A5A620 /* MeliaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeliaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		64F35DF52809E72900A5A620 /* MeliaTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeliaTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +144,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				6454DAA527FA0FC500D5E92B /* MeliceFramework.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		64F35DF02809E72900A5A620 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -250,6 +267,7 @@
 			children = (
 				6454DA9727FA0FAA00D5E92B /* melice.xcodeproj */,
 				64C242D227F8E10E0018BE2B /* Melia */,
+				64F35DF42809E72900A5A620 /* MeliaTests */,
 				64C242D127F8E10E0018BE2B /* Products */,
 				6454DAA427FA0FC500D5E92B /* Frameworks */,
 			);
@@ -259,6 +277,7 @@
 			isa = PBXGroup;
 			children = (
 				64C242D027F8E10E0018BE2B /* Melia.app */,
+				64F35DF32809E72900A5A620 /* MeliaTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -288,6 +307,14 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		64F35DF42809E72900A5A620 /* MeliaTests */ = {
+			isa = PBXGroup;
+			children = (
+				64F35DF52809E72900A5A620 /* MeliaTests.swift */,
+			);
+			path = MeliaTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -309,6 +336,24 @@
 			productReference = 64C242D027F8E10E0018BE2B /* Melia.app */;
 			productType = "com.apple.product-type.application";
 		};
+		64F35DF22809E72900A5A620 /* MeliaTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 64F35DFE2809E72900A5A620 /* Build configuration list for PBXNativeTarget "MeliaTests" */;
+			buildPhases = (
+				64F35DEF2809E72900A5A620 /* Sources */,
+				64F35DF02809E72900A5A620 /* Frameworks */,
+				64F35DF12809E72900A5A620 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				64F35DF82809E72900A5A620 /* PBXTargetDependency */,
+			);
+			name = MeliaTests;
+			productName = MeliaTests;
+			productReference = 64F35DF32809E72900A5A620 /* MeliaTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -322,6 +367,10 @@
 					64C242CF27F8E10E0018BE2B = {
 						CreatedOnToolsVersion = 13.3;
 						LastSwiftMigration = 1330;
+					};
+					64F35DF22809E72900A5A620 = {
+						CreatedOnToolsVersion = 13.3.1;
+						TestTargetID = 64C242CF27F8E10E0018BE2B;
 					};
 				};
 			};
@@ -345,6 +394,7 @@
 			projectRoot = "";
 			targets = (
 				64C242CF27F8E10E0018BE2B /* Melia */,
+				64F35DF22809E72900A5A620 /* MeliaTests */,
 			);
 		};
 /* End PBXProject section */
@@ -380,6 +430,13 @@
 			files = (
 				64C242DD27F8E1100018BE2B /* Preview Assets.xcassets in Resources */,
 				64C242DA27F8E1100018BE2B /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		64F35DF12809E72900A5A620 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -431,6 +488,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		64F35DEF2809E72900A5A620 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				64F35DF62809E72900A5A620 /* MeliaTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -438,6 +503,11 @@
 			isa = PBXTargetDependency;
 			name = MeliceFramework;
 			targetProxy = 64262C3F27FC6B55004E16D7 /* PBXContainerItemProxy */;
+		};
+		64F35DF82809E72900A5A620 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 64C242CF27F8E10E0018BE2B /* Melia */;
+			targetProxy = 64F35DF72809E72900A5A620 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -616,6 +686,40 @@
 			};
 			name = Release;
 		};
+		64F35DF92809E72900A5A620 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = E6H8T594R7;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = fr.rca.MeliaTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Melia.app/Contents/MacOS/Melia";
+			};
+			name = Debug;
+		};
+		64F35DFA2809E72900A5A620 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = E6H8T594R7;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = fr.rca.MeliaTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Melia.app/Contents/MacOS/Melia";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -633,6 +737,15 @@
 			buildConfigurations = (
 				64C242E327F8E1100018BE2B /* Debug */,
 				64C242E427F8E1100018BE2B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		64F35DFE2809E72900A5A620 /* Build configuration list for PBXNativeTarget "MeliaTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				64F35DF92809E72900A5A620 /* Debug */,
+				64F35DFA2809E72900A5A620 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
