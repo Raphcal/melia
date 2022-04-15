@@ -8,29 +8,35 @@
 import Foundation
 
 enum Token {
+    // MARK: - Tokens
     case newLine, indent
-    case declareStart, declareName, declareSeparator, declareType
     case stateStart, stateName, stateEnd
     case groupStart, groupEnd
-    case instructionStart, instructionArgName
+    case instructionStart, instructionArgument
     case setStart, setVariableName, setEqual
-    case valuePoint, valueInt, valueDuration, valueDirection, valueAnimation, valueVariable
-    case addOrSubstract, multiplyOrDivide, unaryOperator, braceOpen, braceClose
+    case valueInt, valueDecimal, valueDuration, valueBoolean, valuePoint, valueDirection, valueAnimation, valueVariable, valueString
+    case braceOpen, braceClose
+    case addOrSubstract, multiplyOrDivide, unaryOperator
+    case andOrOr
 
+    // MARK: - Token classes
+    var anyValue: [Token] {
+        return [.valueDuration, .valueInt, .valueDecimal, .valueBoolean, .valuePoint, .valueDirection, .valueAnimation, .valueVariable, .valueString, .braceOpen]
+    }
+    var anyNumericValue: [Token] {
+        return [.valueDuration, .valueInt, .valueDecimal, .valuePoint, .valueVariable]
+    }
+    var anyBinaryOperator: [Token] {
+        return [.addOrSubstract, .multiplyOrDivide]
+    }
+
+    // MARK: - Syntax
     var expected: [Token] {
         switch self {
         case .newLine:
-            return [.indent, .declareStart, .stateStart, .setStart, .groupStart, .instructionStart]
+            return [.indent, .stateStart, .setStart, .groupStart, .instructionStart]
         case .indent:
             return [.setStart, .groupStart, .instructionStart]
-        case .declareStart:
-            return [.declareName]
-        case .declareName:
-            return [.declareSeparator]
-        case .declareSeparator:
-            return [.declareType]
-        case .declareType:
-            return [.newLine]
         case .stateStart:
             return [.stateName]
         case .stateName:
@@ -38,41 +44,41 @@ enum Token {
         case .stateEnd:
             return [.newLine, .instructionStart, .setStart]
         case .groupStart:
-            return [.valueDuration, .valueAnimation, .valueVariable]
+            return [.valueDuration,.valueBoolean, .valueVariable]
         case .groupEnd:
             return [.newLine, .instructionStart, .setStart]
         case .instructionStart:
-            return [.instructionArgName, .newLine]
-        case .instructionArgName:
-            return [.valueDuration, .valueInt, .valuePoint, .valueDirection, .valueAnimation, .valueVariable, .braceOpen]
+            return [.instructionArgument, .newLine]
+        case .instructionArgument:
+            return anyValue
         case .setStart:
             return [.setVariableName]
         case .setVariableName:
             return [.setEqual]
         case .setEqual:
-            return [.valueDuration, .valueInt, .valuePoint, .valueDirection, .valueAnimation, .valueVariable, .braceOpen]
-        case .valuePoint:
-            return [.addOrSubstract, .multiplyOrDivide, .braceClose, .instructionArgName, .newLine]
-        case .valueInt:
-            return [.addOrSubstract, .multiplyOrDivide, .braceClose, .instructionArgName, .newLine]
+            return [.instructionStart] + anyValue
+        case .valuePoint, .valueInt, .valueDecimal:
+            return anyBinaryOperator + [.braceClose, .instructionArgument, .newLine]
+        case .valueBoolean:
+            return [.andOrOr, .instructionArgument, .newLine, .groupEnd]
         case .valueDuration:
-            return [.instructionArgName, .newLine, .groupEnd]
+            return [.instructionArgument, .newLine, .groupEnd]
         case .valueDirection:
-            return [.instructionArgName, .newLine]
+            return [.instructionArgument, .newLine]
+        case .valueString:
+            return [.instructionArgument, .newLine]
         case .valueAnimation:
-            return [.instructionArgName, .newLine, .groupEnd]
+            return [.instructionArgument, .newLine, .groupEnd]
         case .valueVariable:
-            return [.addOrSubstract, .multiplyOrDivide, .braceClose, .instructionArgName, .groupEnd, .newLine]
-        case .addOrSubstract:
-            return [.valueInt, .valuePoint, .valueVariable, .braceOpen]
-        case .multiplyOrDivide:
-            return [.valueInt, .valuePoint, .valueVariable, .braceOpen]
-        case .unaryOperator:
-            return [.valueInt, .valuePoint, .valueVariable, .braceOpen]
+            return anyBinaryOperator + [.braceClose, .instructionArgument, .groupEnd, .newLine]
+        case .addOrSubstract, .multiplyOrDivide, .unaryOperator :
+            return anyNumericValue + [.braceOpen]
+        case .andOrOr:
+            return [.valueBoolean, .valueVariable]
         case .braceOpen:
-            return [.valueInt, .valuePoint, .valueVariable]
+            return anyNumericValue
         case .braceClose:
-            return [.addOrSubstract, .multiplyOrDivide, .instructionArgName, .newLine]
+            return anyBinaryOperator + [.instructionArgument, .newLine]
         }
     }
 
@@ -82,14 +88,6 @@ enum Token {
             return "\n"
         case .indent:
             return " +"
-        case .declareStart:
-            return "var +"
-        case .declareName:
-            return "([a-zA-Z][a-zA-Z0-9_]*) *"
-        case .declareSeparator:
-            return ": *"
-        case .declareType:
-            return "(sprite|int|point) *"
         case .stateStart:
             return "state +"
         case .stateName:
@@ -102,7 +100,7 @@ enum Token {
             return ": *"
         case .instructionStart:
             return "([a-z]+) *"
-        case .instructionArgName:
+        case .instructionArgument:
             return ", *([a-z]+) *: *"
         case .setStart:
             return "set +"
@@ -114,20 +112,28 @@ enum Token {
             return "\\(([0-9]+), *([0-9]+)\\) *"
         case .valueInt:
             return "([0-9][0-9_]*) *"
+        case .valueDecimal:
+            return "([0-9][0-9_]*\\.[0-9][0-9_]*) *"
         case .valueDuration:
             return "([0-9][0-9_]*)(ms|s|min) *"
         case .valueDirection:
-            return "(foward|backward|up|down|left|right) *"
+            return "(up|down|left|right) *"
         case .valueAnimation:
             return "(stand|walk|run|skid|jump|fall|shaky|bounce|duck|raise|appear|disappear|attack|hurt|die) *"
         case .valueVariable:
             return "([a-z][a-zA-Z0-9_.]*) *"
+        case .valueBoolean:
+            return "(true|false) *"
+        case .valueString:
+            return "\"([^\"]|\\\")\""
         case .addOrSubstract:
             return "([+-]) *"
         case .multiplyOrDivide:
             return "([*/]) *"
         case .unaryOperator:
-            return "-"
+            return "-|!"
+        case .andOrOr:
+            return "(and|&&|or|\\|\\|) *"
         case .braceOpen:
             return "\\( *"
         case .braceClose:

@@ -11,36 +11,13 @@ enum Value {
     case integer(_ value: Int32)
     case decimal(_ value: Float)
     case point(_ value: MELPoint)
+    case boolean(_ value: Bool)
     case string(_ value: String)
     case direction(_ value: MELDirection)
     case sprite(_ value: MELSpriteRef)
     case animation(_ value: MELAnimationDefinition)
     case animations(_ value: MELAnimationDefinitionList)
     case null
-
-    var kind: Kind {
-        switch self {
-        case .integer:
-            return .integer
-        case .decimal:
-            return .decimal
-        case .point:
-            return .point
-        case .string:
-            return .string
-        case .direction:
-            return .direction
-        case .sprite:
-            return .sprite
-        case .animation:
-            // TODO: Gérer un type Animation ? Faire un type Object ?
-            return .null
-        case .animations:
-            return .null
-        case .null:
-            return .null
-        }
-    }
 
     func value(for property: String) -> Value {
         switch self {

@@ -6,3 +6,18 @@
 //
 
 import Foundation
+
+struct Move: Instruction {
+    static let spriteArgument = "sprite"
+    static let byArgument = "by"
+    static let speedArgument = "speed"
+    static let directionArgument = "direction"
+
+    func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
+        var spriteName = "self"
+        if case let .string(name) = context.arguments[Move.spriteArgument] {
+            spriteName = name
+        }
+        return context
+    }
+}

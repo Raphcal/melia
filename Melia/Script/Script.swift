@@ -7,11 +7,11 @@
 
 import MeliceFramework
 
-struct Script {
-    var declare: [String: Kind]
+struct Script: Equatable {
     var states: [String: Int]
-    var instructions: [Instruction]
     var initialState: String
+    var instructions: [Instruction]
+    var tokens: [FoundToken]
 
     func run(sprite: MELSpriteRef, resumeWith oldContext: ExecutionContext? = nil) -> ExecutionContext {
         var context = oldContext ?? ExecutionContext(script: self, state: initialState)
@@ -25,6 +25,14 @@ struct Script {
             }
         }
         return context
+    }
+
+    static let empty = Script(states: [:], initialState: "default", instructions: [], tokens: [])
+
+    static func == (lhs: Script, rhs: Script) -> Bool {
+        return lhs.states == rhs.states
+        && lhs.initialState == rhs.initialState
+        && lhs.tokens == rhs.tokens
     }
 
     struct ExecutionContext {

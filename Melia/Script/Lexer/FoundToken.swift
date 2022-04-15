@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct FoundToken {
+struct FoundToken: Equatable {
     var token: Token
     var matches: [String]
     var range: Range<Int>

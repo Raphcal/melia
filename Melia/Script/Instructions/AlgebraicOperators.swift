@@ -7,21 +7,20 @@
 
 import MeliceFramework
 
-protocol Operator: Instruction {
-    func apply<T: Operand>(_ lhs: T, _ rhs: T) -> T
-    func apply(_ lhs: Value, _ rhs: Value) -> Value
+protocol AlgebraicOperator: Operator {
+    func apply<T: AlgebraicOperand>(_ lhs: T, _ rhs: T) -> T
 }
 
-protocol Operand {
+protocol AlgebraicOperand {
     static func + (lhs: Self, rhs: Self) -> Self
     static func - (lhs: Self, rhs: Self) -> Self
     static func * (lhs: Self, rhs: Self) -> Self
     static func / (lhs: Self, rhs: Self) -> Self
 }
-extension Int32: Operand {}
-extension Float: Operand {}
+extension Int32: AlgebraicOperand {}
+extension Float: AlgebraicOperand {}
 
-extension Operator {
+extension AlgebraicOperator {
     func apply(_ lhs: Value, _ rhs: Value) -> Value {
         switch lhs {
         case let .integer(lhsValue):
@@ -61,48 +60,25 @@ extension Operator {
             return .null
         }
     }
-
-    func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
-        var newContext = context
-        let rhs = newContext.stack.removeLast()
-        let lhs = newContext.stack.removeLast()
-        newContext.stack.append(apply(lhs, rhs))
-        return newContext
-    }
 }
 
-func operatorNamed(_ name: String) throws -> Operator {
-    switch name {
-    case "+":
-        return Add()
-    case "-":
-        return Substract()
-    case "*":
-        return Multiply()
-    case "/":
-        return Divide()
-    default:
-        throw LookUpError.badName(name)
-    }
-}
-
-struct Add: Operator {
-    func apply<T: Operand>(_ lhs: T, _ rhs: T) -> T {
+struct Add: AlgebraicOperator {
+    func apply<T: AlgebraicOperand>(_ lhs: T, _ rhs: T) -> T {
         return lhs + rhs
     }
 }
-struct Substract: Operator {
-    func apply<T: Operand>(_ lhs: T, _ rhs: T) -> T {
+struct Substract: AlgebraicOperator {
+    func apply<T: AlgebraicOperand>(_ lhs: T, _ rhs: T) -> T {
         return lhs - rhs
     }
 }
-struct Multiply: Operator {
-    func apply<T: Operand>(_ lhs: T, _ rhs: T) -> T {
+struct Multiply: AlgebraicOperator {
+    func apply<T: AlgebraicOperand>(_ lhs: T, _ rhs: T) -> T {
         return lhs * rhs
     }
 }
-struct Divide: Operator {
-    func apply<T: Operand>(_ lhs: T, _ rhs: T) -> T {
+struct Divide: AlgebraicOperator {
+    func apply<T: AlgebraicOperand>(_ lhs: T, _ rhs: T) -> T {
         return lhs / rhs
     }
 }
