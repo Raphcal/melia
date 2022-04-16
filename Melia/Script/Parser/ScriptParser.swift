@@ -70,6 +70,7 @@ func parse(code: String) throws -> Script {
             }
             switch tokenStack[0].token {
             case .stateStart:
+                guard tokenStack.count >= 2 else { return }
                 let stateName = tokenStack[1].matches[1]
                 statePointers[stateName] = instructions.count
                 groups.append(GoToCurrentState())
@@ -86,6 +87,7 @@ func parse(code: String) throws -> Script {
                     throw LookUpError.badName(tokenStack[0].matches[1])
                 }
             case .setStart:
+                guard tokenStack.count >= 2 else { return }
                 instructions.append(SetValue(path: tokenStack[1].matches[1].components(separatedBy: ".")))
             case .instructionStart:
                 if let last = tokenStack.last, last.token == .instructionArgument {

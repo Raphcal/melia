@@ -35,7 +35,7 @@ func lex(code: String, onToken: (FoundToken) throws -> Void) throws {
         }
         guard let next = next else {
             let startIndex = code.index(code.startIndex, offsetBy: from)
-            let endIndex = code.index(startIndex, offsetBy: 10)
+            let endIndex = code.index(startIndex, offsetBy: min(code.count - from, 10))
             throw LexerError.expectedTokenNotFound(current: current, expected: current.token.expected, found: String(code[startIndex ..< endIndex]))
         }
         current = next

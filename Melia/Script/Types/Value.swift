@@ -17,6 +17,7 @@ enum Value: Equatable {
     case sprite(_ value: MELSpriteRef)
     case animation(_ value: MELAnimationDefinition)
     case animations(_ value: MELAnimationDefinitionList)
+    case map(_ value: MELMap)
     case null
 
     func value(for property: String) -> Value {

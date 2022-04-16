@@ -23,7 +23,8 @@ struct ContentView: View {
                     map: document.project.root.maps.memory![mapIndex],
                     spriteDefinitions: document.project.root.sprites,
                     definitionIndex: definitionIndex,
-                    frameSize: MELSize(width: GLfloat(geometry.size.width), height: GLfloat(geometry.size.height))))
+                    frameSize: MELSize(width: GLfloat(geometry.size.width), height: GLfloat(geometry.size.height)),
+                    script: code.script))
             }
         }
         .toolbar {
@@ -31,6 +32,13 @@ struct ContentView: View {
                 Picker("Map", selection: $mapIndex) {
                     ForEach(0 ..< document.project.root.maps.count, id: \.self) { index in
                         Label(document.project.root.maps[index].nameAsString, systemImage: "map")
+                    }
+                }
+            }
+            ToolbarItem {
+                Picker("Sprite", selection: $definitionIndex) {
+                    ForEach(0 ..< document.project.root.sprites.count, id: \.self) { index in
+                        Label(document.project.root.sprites[index].nameAsString, systemImage: "location.north.line")
                     }
                 }
             }

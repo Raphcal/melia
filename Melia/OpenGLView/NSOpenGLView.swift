@@ -30,10 +30,11 @@ extension OpenGLView: NSViewRepresentable {
 
         var coordinator = context.coordinator
         coordinator.openGLView = view
+        coordinator.initializeDisplayLink()
         coordinator.runInOpenGLContext {
             MELRendererInit()
             coordinator.renderer.load(context: rendererContext)
-            initializeDisplayLink(coordinator: &coordinator)
+            coordinator.startDisplayLink()
         }
 
         view.willDrawListener = {
@@ -61,8 +62,8 @@ extension OpenGLView: NSViewRepresentable {
             coordinator.runInOpenGLContext {
                 coordinator.renderer.load(context: rendererContext)
             }
-            coordinator.rendererContext = rendererContext
         }
+        coordinator.rendererContext = rendererContext
         coordinator.updateAndRenderFrame(elapsed: 0)
     }
 
@@ -83,47 +84,6 @@ extension OpenGLView: NSViewRepresentable {
         }
     }
 
-    func initializeDisplayLink(coordinator: inout Coordinator) {
-        guard let openGLContext = coordinator.openGLView?.openGLContext
-        else {
-            print("initializeDisplayLink: No OpenGLContext")
-            return
-        }
-        print("initializeDisplayLink")
-
-        var swapInt: GLint = 1
-        openGLContext.setValues(&swapInt, for: NSOpenGLContext.Parameter.swapInterval)
-
-        CVDisplayLinkCreateWithActiveCGDisplays(&coordinator.displayLink)
-
-        guard let displayLink = coordinator.displayLink,
-              let cglContextObj = openGLContext.cglContextObj,
-              let cglPixelFormatObj = openGLContext.pixelFormat.cglPixelFormatObj
-        else {
-            print("initializeDisplayLink: No displayLink or cglContextObj or cglPixelFormatObj")
-            return
-        }
-
-        print("coordinatorRef")
-        var coordinatorRef = UnsafeMutablePointer<Coordinator>.allocate(capacity: 1)
-        coordinatorRef.assign(from: &coordinator, count: 1)
-        // var coordinatorRef = coordinator
-        CVDisplayLinkSetOutputCallback(displayLink, { (displayLink, now, outputTime, flagsIn, flagsOut, displayLinkContext) -> CVReturn in
-            if let coordinatorRef = displayLinkContext?.assumingMemoryBound(to: Coordinator.self) {
-                let coordinator = coordinatorRef.pointee
-                let time = TimeInterval(outputTime.pointee.videoTime) / TimeInterval(outputTime.pointee.videoTimeScale)
-                coordinator.updateAndRenderFrame(elapsed: time)
-                return kCVReturnSuccess
-            } else {
-                return kCVReturnError
-            }
-        }, coordinatorRef)
-
-        CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, cglContextObj, cglPixelFormatObj)
-        
-        CVDisplayLinkStart(displayLink)
-    }
-
     class Coordinator {
         weak var openGLView: MELOpenGLView?
         var renderer = Renderer()
@@ -138,16 +98,54 @@ extension OpenGLView: NSViewRepresentable {
 
         deinit {
             print("deinit Coordinator")
-            if let displayLink = displayLink {
-                CVDisplayLinkStop(displayLink)
-            }
-            displayLink = nil
+            stopDisplayLink()
             runInOpenGLContext {
                 renderer.unload()
             }
             if let mouseMoveMonitor = mouseMoveMonitor {
                 NSEvent.removeMonitor(mouseMoveMonitor)
             }
+        }
+
+        func initializeDisplayLink() {
+            guard let openGLContext = openGLView?.openGLContext,
+                  let cglContextObj = openGLContext.cglContextObj,
+                  let cglPixelFormatObj = openGLContext.pixelFormat.cglPixelFormatObj
+            else {
+                print("initializeDisplayLink: No OpenGLContext")
+                return
+            }
+
+            var swapInt: GLint = 1
+            openGLContext.setValues(&swapInt, for: NSOpenGLContext.Parameter.swapInterval)
+
+            CVDisplayLinkCreateWithActiveCGDisplays(&displayLink)
+
+            guard let displayLink = displayLink else {
+                print("initializeDisplayLink: No displayLink or cglContextObj or cglPixelFormatObj")
+                return
+            }
+
+            CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, cglContextObj, cglPixelFormatObj)
+
+            CVDisplayLinkSetOutputHandler(displayLink, { [weak self] (displayLink, now, outputTime, flagsIn, flagsOut) -> CVReturn in
+                let time = TimeInterval(outputTime.pointee.videoTime) / TimeInterval(outputTime.pointee.videoTimeScale)
+                self?.updateAndRenderFrame(elapsed: time)
+                return kCVReturnSuccess
+            })
+        }
+
+        func startDisplayLink() {
+            guard let displayLink = displayLink else {
+                return
+            }
+            CVDisplayLinkStart(displayLink)
+        }
+        func stopDisplayLink() {
+            guard let displayLink = displayLink else {
+                return
+            }
+            CVDisplayLinkStop(displayLink)
         }
 
         func updateAndRenderFrame(elapsed time: TimeInterval) {

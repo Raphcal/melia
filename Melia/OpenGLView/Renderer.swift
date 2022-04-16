@@ -13,6 +13,7 @@ struct RendererContext: Equatable {
     var spriteDefinitions: MELSpriteDefinitionList
     var definitionIndex: Int
     var frameSize: MELSize = .zero
+    var script: Script = .empty
 
     static func ==(lhs: RendererContext, rhs: RendererContext) -> Bool {
         return lhs.map.nameAsString == rhs.map.nameAsString
@@ -25,6 +26,8 @@ class Renderer {
     var mutableMap = MELMutableMapEmpty
     var sprite: MELSpriteRef?
     var definitionIndex = -1
+    var script: Script = .empty
+    var executionContext: Script.ExecutionContext?
 
     var textureAtlas = MELTextureAtlasEmpty
     var spriteManager = MELSpriteManagerEmpty
@@ -38,17 +41,19 @@ class Renderer {
     }
 
     func load(context: RendererContext) {
-        let mutableMap = context.map
-        if !MELPaletteRefEquals(self.mutableMap.palette, mutableMap.palette) || self.definitionIndex != context.definitionIndex {
+        if !MELPaletteRefEquals(mutableMap.palette, context.map.palette) || definitionIndex != context.definitionIndex {
             unload()
         }
+        mutableMap = context.map
 
-        textureAtlas = createAtlas(mutableMap.palette, context.spriteDefinitions)
-        melMapRenderer = MELMapRendererMakeWithRendererAndMapAndAtlas(&renderer, mutableMap.super, textureAtlas)
-        spriteManager = MELSpriteManagerMake(MELSpriteDefinitionListMakeWithListAndCopyFunction(context.spriteDefinitions, MELSpriteDefinitionMakeWithSpriteDefinition) , textureAtlas, melMapRenderer.layerSurfaces!, 0, nil)
+        if textureAtlas.texture.pixels == nil {
+            textureAtlas = createAtlas(mutableMap.palette, context.spriteDefinitions)
+
+            melMapRenderer = MELMapRendererMakeWithRendererAndMapAndAtlas(&renderer, mutableMap.super, textureAtlas)
+            spriteManager = MELSpriteManagerMake(MELSpriteDefinitionListMakeWithListAndCopyFunction(context.spriteDefinitions, MELSpriteDefinitionMakeWithSpriteDefinition) , textureAtlas, melMapRenderer.layerSurfaces!, 0, nil)
+        }
 
         let solid = mutableMap.layers.firstIndex(where: { $0.isSolid }) ?? 0
-
         if context.definitionIndex < spriteManager.definitions.count && solid < mutableMap.layers.count {
             let sprite = MELSpriteAlloc(&spriteManager, spriteManager.definitions[context.definitionIndex], UInt32(solid))
             MELSpriteSetFrame(sprite, MELRectangle(x: 32, y: 32, width: 32, height: 32))
@@ -56,7 +61,10 @@ class Renderer {
             definitionIndex = context.definitionIndex
         }
 
-        self.mutableMap = mutableMap
+        if script != context.script {
+            script = context.script
+            executionContext = script.executionContext
+        }
     }
 
     func unload() {
@@ -82,6 +90,7 @@ class Renderer {
             elapsedTime = MELTimeInterval(time) - oldTime
             oldTime = MELTimeInterval(time)
         }
+        executionContext = script.run(sprite: sprite, map: nil, delta: MELTimeInterval(time), resumeWith: executionContext)
         MELSpriteManagerUpdate(&spriteManager, elapsedTime)
     }
 
@@ -113,6 +122,10 @@ class Renderer {
         MELPackMapDeinit(&packMap)
 
         MELTextureLoad(&textureAtlas.texture)
+        if textureAtlas.texture.name == 0 {
+            // Réessaie de charger la texture en cas d'erreur.
+            MELTextureLoad(&textureAtlas.texture)
+        }
 
         return textureAtlas
     }

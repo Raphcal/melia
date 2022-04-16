@@ -13,12 +13,18 @@ struct Script: Equatable {
     var instructions: [Instruction]
     var tokens: [FoundToken]
 
-    // TODO: Donner la map en argument
-    func run(sprite: MELSpriteRef? = nil, delta: MELTimeInterval = 1 / 60, resumeWith oldContext: ExecutionContext? = nil) -> ExecutionContext {
-        var context = oldContext ?? ExecutionContext(script: self, state: initialState)
+    var executionContext: ExecutionContext {
+        return ExecutionContext(script: self, state: initialState)
+    }
+
+    func run(sprite: MELSpriteRef? = nil, map: MELMap? = nil, delta: MELTimeInterval = 1 / 60, resumeWith oldContext: ExecutionContext? = nil) -> ExecutionContext {
+        var context = oldContext ?? executionContext
         context.yield = false
         if let sprite = sprite {
             context.heap["self"] = .sprite(sprite)
+        }
+        if let map = map {
+            context.heap["map"] = .map(map)
         }
         context.heap["delta"] = .decimal(delta)
         while !context.yield && context.instructionPointer < instructions.count {

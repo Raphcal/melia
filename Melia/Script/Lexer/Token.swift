@@ -87,7 +87,7 @@ enum Token {
         case .newLine:
             return "\n"
         case .indent:
-            return " +"
+            return "(?: |\t)+"
         case .stateStart:
             return "state +"
         case .stateName:
