@@ -7,7 +7,7 @@
 
 import MeliceFramework
 
-enum Value {
+enum Value: Equatable {
     case integer(_ value: Int32)
     case decimal(_ value: Float)
     case point(_ value: MELPoint)
@@ -99,6 +99,44 @@ enum Value {
             break
         }
         return value
+    }
+
+    static func == (lhs: Value, rhs: Value) -> Bool {
+        switch lhs {
+        case .integer(let lhsValue):
+            if case let .integer(rhsValue) = rhs {
+                return lhsValue == rhsValue
+            } else if case let .decimal(rhsValue) = rhs {
+                return Float(lhsValue) == rhsValue
+            }
+        case .decimal(let lhsValue):
+            if case let .decimal(rhsValue) = rhs {
+                return lhsValue == rhsValue
+            } else if case let .integer(rhsValue) = rhs {
+                return lhsValue == Float(rhsValue)
+            }
+        case .point(let lhsValue):
+            if case let .point(rhsValue) = rhs {
+                return lhsValue == rhsValue
+            }
+        case .boolean(let lhsValue):
+            if case let .boolean(rhsValue) = rhs {
+                return lhsValue == rhsValue
+            }
+        case .string(let lhsValue):
+            if case let .string(rhsValue) = rhs {
+                return lhsValue == rhsValue
+            }
+        case .direction(let lhsValue):
+            if case let .direction(rhsValue) = rhs {
+                return lhsValue == rhsValue
+            }
+        case .null:
+            return rhs == .null
+        default:
+            break
+        }
+        return false
     }
 }
 

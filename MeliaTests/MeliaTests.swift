@@ -71,4 +71,14 @@ state main:
         MELSpriteDeinit(&sprite)
         surfaceArray.deallocate()
     }
+
+    func testMultiplyPriority() throws {
+        let result = try parse(code: "2 + 3 * 4 + 5").run()
+        XCTAssertEqual(result.stack.last!, .integer(19))
+    }
+
+    func testBraces() throws {
+        let result = try parse(code: "(2 + 3) * (4 + 5)").run()
+        XCTAssertEqual(result.stack.last!, .integer(45))
+    }
 }
