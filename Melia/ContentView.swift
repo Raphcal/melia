@@ -38,7 +38,7 @@ struct ContentView: View {
             ToolbarItem {
                 Picker("Sprite", selection: $definitionIndex) {
                     ForEach(0 ..< document.project.root.sprites.count, id: \.self) { index in
-                        Label(document.project.root.sprites[index].nameAsString, systemImage: "location.north.line")
+                        Label(document.project.root.sprites[index].nameAsString, systemImage: "hare")
                     }
                 }
             }

@@ -19,6 +19,7 @@ struct RendererContext: Equatable {
         return lhs.map.nameAsString == rhs.map.nameAsString
             && lhs.spriteDefinitions.count == rhs.spriteDefinitions.count
             && lhs.definitionIndex == rhs.definitionIndex
+            && lhs.script == rhs.script
     }
 }
 
@@ -41,7 +42,11 @@ class Renderer {
     }
 
     func load(context: RendererContext) {
-        if !MELPaletteRefEquals(mutableMap.palette, context.map.palette) || definitionIndex != context.definitionIndex {
+        if let sprite = sprite {
+            MELSpriteRemove(sprite)
+            self.sprite = nil
+        }
+        if !MELPaletteRefEquals(mutableMap.palette, context.map.palette) {
             unload()
         }
         mutableMap = context.map
@@ -56,7 +61,7 @@ class Renderer {
         let solid = mutableMap.layers.firstIndex(where: { $0.isSolid }) ?? 0
         if context.definitionIndex < spriteManager.definitions.count && solid < mutableMap.layers.count {
             let sprite = MELSpriteAlloc(&spriteManager, spriteManager.definitions[context.definitionIndex], UInt32(solid))
-            MELSpriteSetFrame(sprite, MELRectangle(x: 32, y: 32, width: 32, height: 32))
+            MELSpriteSetFrameOrigin(sprite, MELPoint(x: 32, y: 32))
             self.sprite = sprite
             definitionIndex = context.definitionIndex
         }
@@ -64,13 +69,13 @@ class Renderer {
         if script != context.script {
             script = context.script
             executionContext = script.executionContext
+            if let sprite = sprite {
+                MELSpriteSetFrameOrigin(sprite, MELPoint(x: 32, y: 32))
+            }
         }
     }
 
     func unload() {
-        if let sprite = sprite {
-            MELSpriteDeinit(sprite)
-        }
         MELSpriteManagerDeinit(&spriteManager)
         MELTextureAtlasDeinit(&textureAtlas)
         MELMapRendererDeinit(&melMapRenderer)
@@ -82,15 +87,9 @@ class Renderer {
         MELMapRendererDraw(melMapRenderer)
     }
     func update(elasped time: TimeInterval) {
-        let elapsedTime: MELTimeInterval
-        if oldTime == 0 {
-            elapsedTime = 0
-            oldTime = MELTimeInterval(time)
-        } else {
-            elapsedTime = MELTimeInterval(time) - oldTime
-            oldTime = MELTimeInterval(time)
-        }
-        executionContext = script.run(sprite: sprite, map: nil, delta: MELTimeInterval(time), resumeWith: executionContext)
+        // TODO: Calculer le temps écoulé en fonction du temps donné.
+        let elapsedTime: MELTimeInterval = 1 / 60
+        executionContext = script.run(sprite: sprite, map: nil, delta: elapsedTime, resumeWith: executionContext)
         MELSpriteManagerUpdate(&spriteManager, elapsedTime)
     }
 
@@ -125,6 +124,11 @@ class Renderer {
         if textureAtlas.texture.name == 0 {
             // Réessaie de charger la texture en cas d'erreur.
             MELTextureLoad(&textureAtlas.texture)
+        }
+
+        var outputStream = MELOutputStreamOpen("/tmp/texture.bmp");
+        if (outputStream.file != nil) {
+            MELBitmapSaveToOutputStreamWithPremultiplication(&outputStream, textureAtlas.texture.pixels!, textureAtlas.texture.size, false);
         }
 
         return textureAtlas

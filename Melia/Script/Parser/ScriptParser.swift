@@ -182,7 +182,11 @@ func parse(code: String) throws -> Script {
 
 extension String {
     var script: Script {
-        let script = try? parse(code: self)
-        return script ?? .empty
+        do {
+            return try parse(code: self)
+        } catch {
+            print("Parse error: \(error)")
+            return .empty
+        }
     }
 }

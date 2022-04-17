@@ -96,6 +96,7 @@ enum Value: Equatable {
                 let animationRef = MELAnimationAlloc(animationDefinition)
                 MELSpriteSetAnimation(sprite, animationRef)
             }
+            return .sprite(sprite)
         default:
             break
         }

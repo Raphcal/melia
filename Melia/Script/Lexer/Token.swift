@@ -34,7 +34,7 @@ enum Token {
     var expected: [Token] {
         switch self {
         case .newLine:
-            return [.indent, .stateStart, .setStart, .groupStart, .instructionStart, .braceOpen] + anyValue
+            return [.newLine, .indent, .stateStart, .setStart, .groupStart, .instructionStart, .braceOpen] + anyValue
         case .indent:
             return [.setStart, .groupStart, .instructionStart]
         case .stateStart:
