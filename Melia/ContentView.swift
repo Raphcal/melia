@@ -10,21 +10,21 @@ import MeliceFramework
 
 struct ContentView: View {
     @ObservedObject var document: MeliaDocument
-    @State private var code = ""
+    @State private var script = Script.empty
     @State private var mapIndex = 0
     @State private var definitionIndex = 0
 
     var body: some View {
         HStack {
-            TextEditor(text: $code)
-                .font(.custom("Fira Code", size: 14))
+            CodeEditor(script: $script)
+                .background(Color.white)
             GeometryReader { geometry in
                 OpenGLView(rendererContext: RendererContext(
                     map: document.project.root.maps.memory![mapIndex],
                     spriteDefinitions: document.project.root.sprites,
                     definitionIndex: definitionIndex,
                     frameSize: MELSize(width: GLfloat(geometry.size.width), height: GLfloat(geometry.size.height)),
-                    script: code.script))
+                    script: script))
             }
         }
         .toolbar {

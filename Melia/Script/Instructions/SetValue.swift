@@ -12,8 +12,9 @@ struct SetValue: Instruction {
 
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         var newContext = context
-        let value = newContext.stack.removeLast()
-        newContext.heap.setValue(value, at: path)
+        if let value = newContext.stack.popLast() {
+            newContext.heap.setValue(value, at: path)
+        }
         return newContext
     }
 }

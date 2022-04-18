@@ -9,21 +9,52 @@ import Foundation
 import SwiftUI
 
 struct CodeEditor: NSViewRepresentable {
-    typealias NSViewType = NSTextView
+    @Binding var script: Script
 
     func makeNSView(context: Context) -> NSTextView {
-        return NSTextView()
+        let textView = NSTextView()
+        textView.delegate = context.coordinator
+        textView.backgroundColor = .white
+        textView.font = NSFont(name: "Fira Code", size: 14)
+        textView.isAutomaticQuoteSubstitutionEnabled = false
+        return textView
     }
 
     func updateNSView(_ nsView: NSTextView, context: Context) {
-        
+        // Vide.
     }
 
     func makeCoordinator() -> Coordinator {
-        return Coordinator()
+        return Coordinator(script: $script)
     }
 
-    class Coordinator {
-        
+    class Coordinator: NSObject, NSTextViewDelegate {
+        @Binding var script: Script
+
+        init(script: Binding<Script>) {
+            self._script = script
+        }
+
+        func textDidChange(_ notification: Notification) {
+            guard let textView = notification.object as? NSTextView
+            else {
+                print("Not a text view")
+                return
+            }
+            guard let textStorage = textView.textStorage
+            else {
+                print("No textStorage")
+                return
+            }
+            do {
+                script = try parse(code: textView.string)
+                // TODO: Changer les attributs à partir du 1er token modifié
+                for token in script.tokens {
+                    textStorage.setAttributes(token.token.textAttributes, range: NSRange(location: token.range.startIndex, length: min(token.range.endIndex, textView.string.count) - token.range.startIndex))
+                }
+            } catch {
+                print("Parse error:\(error)")
+            }
+        }
     }
 }

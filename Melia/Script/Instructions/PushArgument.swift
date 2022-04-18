@@ -12,8 +12,9 @@ struct PushArgument: Instruction {
 
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         var newContext = context
-        let value = newContext.stack.removeLast()
-        newContext.arguments[name] = value
+        if let value = newContext.stack.popLast() {
+            newContext.arguments[name] = value
+        }
         return newContext
     }
 }

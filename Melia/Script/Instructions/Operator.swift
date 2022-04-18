@@ -14,9 +14,10 @@ protocol Operator: Instruction {
 extension Operator {
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         var newContext = context
-        let rhs = newContext.stack.removeLast()
-        let lhs = newContext.stack.removeLast()
-        newContext.stack.append(apply(lhs, rhs))
+        if let rhs = newContext.stack.popLast(),
+           let lhs = newContext.stack.popLast() {
+            newContext.stack.append(apply(lhs, rhs))
+        }
         return newContext
     }
 }

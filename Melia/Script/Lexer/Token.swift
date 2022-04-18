@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AppKit
 
 enum Token {
     // MARK: - Tokens
@@ -158,5 +159,51 @@ enum Token {
 
     var isBlank: Bool {
         return self == .newLine || self == .indent
+    }
+
+    var textAttributes: [NSAttributedString.Key: Any]? {
+        guard let firaCode = NSFont(name: "Fira Code", size: 14),
+              let firaCodeBold = NSFont(name: "Fira Code Bold", size: 14)
+        else {
+            return nil
+        }
+        switch self {
+        case .stateStart, .stateEnd, .setStart, .setEqual, .instructionStart, .groupStart, .groupEnd:
+            return [
+                .font: firaCodeBold,
+                .foregroundColor: NSColor.systemPurple,
+                .backgroundColor: NSColor.white
+            ]
+        case .instructionArgument:
+            return [
+                .font: firaCodeBold,
+                .foregroundColor: NSColor.black,
+                .backgroundColor: NSColor.white
+            ]
+        case .valueInt, .valueDecimal, .valuePoint, .valueBoolean, .valueDuration:
+            return [
+                .font: firaCode,
+                .foregroundColor: NSColor.systemBlue,
+                .backgroundColor: NSColor.white
+            ]
+        case .valueString, .valueAnimation, .valueDirection:
+            return [
+                .font: firaCode,
+                .foregroundColor: NSColor.systemRed,
+                .backgroundColor: NSColor.white
+            ]
+        case .valueVariable:
+            return [
+                .font: firaCode,
+                .foregroundColor: NSColor.systemIndigo,
+                .backgroundColor: NSColor.white
+            ]
+        default:
+            return [
+                .font: firaCode,
+                .foregroundColor: NSColor.black,
+                .backgroundColor: NSColor.white
+            ]
+        }
     }
 }
