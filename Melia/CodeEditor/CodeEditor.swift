@@ -52,8 +52,12 @@ struct CodeEditor: NSViewRepresentable {
                 for token in script.tokens {
                     textStorage.setAttributes(token.token.textAttributes, range: NSRange(location: token.range.startIndex, length: min(token.range.endIndex, textView.string.count) - token.range.startIndex))
                 }
+                textView.setSpellingState(0, range: NSRange(location: 0, length: textView.string.count))
             } catch {
                 print("Parse error:\(error)")
+                if case let LexerError.expectedTokenNotFound(current: current, expected: _, found: _) = error {
+                    textView.setSpellingState(NSAttributedString.SpellingState.spelling.rawValue, range: NSRange(location: current.range.endIndex, length: 1))
+                }
             }
         }
     }
