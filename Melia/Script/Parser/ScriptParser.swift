@@ -50,6 +50,11 @@ func parse(code: String) throws -> Script {
     try lex(code: code) { current in
         tokens.append(current)
 
+        guard current.token != .commentStart && current.token != .comment
+        else {
+            return
+        }
+
         if isAfterNewLine && !current.token.isBlank {
             isAfterNewLine = false
             onGroupEnd(groups: &groups, instructions: &instructions, indentCount: indentCount)
@@ -63,6 +68,7 @@ func parse(code: String) throws -> Script {
                 try append(operator: operators.removeLast(), instructions: &instructions)
             }
             if tokenStack.isEmpty {
+                indentCount = 0
                 return
             }
             if tokenStack.last!.token == .instructionArgument {

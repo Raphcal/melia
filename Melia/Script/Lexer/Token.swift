@@ -19,6 +19,7 @@ enum Token {
     case braceOpen, braceClose
     case addOrSubstract, multiplyOrDivide, unaryOperator
     case andOrOr
+    case commentStart, comment
 
     // MARK: - Token classes
     var anyValue: [Token] {
@@ -35,9 +36,9 @@ enum Token {
     var expected: [Token] {
         switch self {
         case .newLine:
-            return [.newLine, .indent, .stateStart, .setStart, .groupStart, .instructionStart, .braceOpen] + anyValue
+            return [.newLine, .indent, .commentStart, .stateStart, .setStart, .groupStart, .instructionStart, .braceOpen] + anyValue
         case .indent:
-            return [.setStart, .groupStart, .instructionStart]
+            return [.commentStart, .setStart, .groupStart, .instructionStart]
         case .stateStart:
             return [.stateName]
         case .stateName:
@@ -80,6 +81,10 @@ enum Token {
             return anyNumericValue
         case .braceClose:
             return anyBinaryOperator + [.instructionArgument, .newLine]
+        case .commentStart:
+            return [.newLine, .comment]
+        case .comment:
+            return [.newLine]
         }
     }
 
@@ -139,6 +144,10 @@ enum Token {
             return "\\( *"
         case .braceClose:
             return "\\) *"
+        case .commentStart:
+            return "// *"
+        case .comment:
+            return "[^\n]+"
         }
     }
 
@@ -174,11 +183,13 @@ enum Token {
         case .instructionArgument:
             attributes[.font] = boldFont
         case .valueInt, .valueDecimal, .valuePoint, .valueBoolean, .valueDuration:
-            attributes[.foregroundColor] = NSColor.systemBlue
+            attributes[.foregroundColor] = NSColor.blue
         case .valueString, .valueAnimation, .valueDirection:
             attributes[.foregroundColor] = NSColor.systemRed
         case .valueVariable:
             attributes[.foregroundColor] = NSColor.systemIndigo
+        case .commentStart, .comment:
+            attributes[.foregroundColor] = NSColor.darkGray
         default:
             break
         }

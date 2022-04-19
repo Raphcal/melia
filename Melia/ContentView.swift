@@ -10,14 +10,27 @@ import MeliceFramework
 
 struct ContentView: View {
     @ObservedObject var document: MeliaDocument
+
+    @State private var code = """
+state main:
+    // Attend 1s
+    set self.animation = stand
+    during 1s: wait
+    // Bouge
+    set self.animation = walk
+    set center = self.center
+    during 1s, ease: true:
+        set self.center = center + (128, 0) * progress * self.direction.value
+    set self.direction = self.direction.reverse
+"""
     @State private var script = Script.empty
+
     @State private var mapIndex = 0
     @State private var definitionIndex = 0
 
     var body: some View {
         HStack {
-            CodeEditor(script: $script)
-                .background(Color.white)
+            CodeEditor(code: $code, script: $script)
             GeometryReader { geometry in
                 OpenGLView(rendererContext: RendererContext(
                     map: document.project.root.maps.memory![mapIndex],

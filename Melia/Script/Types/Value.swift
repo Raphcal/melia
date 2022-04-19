@@ -90,8 +90,12 @@ enum Value: Equatable {
             } else if property == "center", case let .point(point) = value {
                 MELSpriteSetFrameOrigin(sprite, point)
             } else if property == "animation",
-                      case let .string(animation) = value,
-                      let animationIndex = sprite.pointee.definition.animations.firstIndex(where: { $0.nameAsString == animation }) {
+                      case let .string(animation) = value {
+                guard sprite.animation.definition.nameAsString != animation,
+                      let animationIndex = sprite.pointee.definition.animations.firstIndex(where: { $0.nameAsString == animation })
+                else {
+                    return .sprite(sprite)
+                }
                 let animationDefinition = sprite.pointee.definition.animations.memory!.advanced(by: animationIndex)
                 let animationRef = MELAnimationAlloc(animationDefinition)
                 MELSpriteSetAnimation(sprite, animationRef)

@@ -9,18 +9,27 @@ import Foundation
 import SwiftUI
 
 struct CodeEditor: NSViewRepresentable {
+    @Binding var code: String
     @Binding var script: Script
 
-    func makeNSView(context: Context) -> NSTextView {
-        let textView = NSTextView()
-        textView.delegate = context.coordinator
+    func makeNSView(context: Context) -> NSScrollView {
+        let scrollView = NSTextView.scrollableTextView()
+        guard let textView = scrollView.documentView as? NSTextView else {
+            return scrollView
+        }
         textView.font = context.coordinator.regularFont
-        textView.backgroundColor = .white
         textView.isAutomaticQuoteSubstitutionEnabled = false
-        return textView
+
+        textView.string = code
+        textView.delegate = context.coordinator
+
+        DispatchQueue.main.async {
+            context.coordinator.textDidChange(Notification(name: NSTextView.willChangeNotifyingTextViewNotification, object: textView))
+        }
+        return scrollView
     }
 
-    func updateNSView(_ nsView: NSTextView, context: Context) {
+    func updateNSView(_ nsView: NSScrollView, context: Context) {
         // Vide.
     }
 
@@ -41,14 +50,10 @@ struct CodeEditor: NSViewRepresentable {
         }
 
         func textDidChange(_ notification: Notification) {
-            guard let textView = notification.object as? NSTextView
+            guard let textView = notification.object as? NSTextView,
+                  let textStorage = textView.textStorage
             else {
-                print("Not a text view")
-                return
-            }
-            guard let textStorage = textView.textStorage
-            else {
-                print("No textStorage")
+                print("Not a text view or no storage.")
                 return
             }
             do {
@@ -79,5 +84,25 @@ struct CodeEditor: NSViewRepresentable {
                 }
             }
         }
+    }
+}
+
+struct CodeEditor_Previews: PreviewProvider {
+    @State private static var script = Script.empty
+    @State private static var code = """
+state main:
+    // Attend 1s
+    set self.animation = stand
+    during 1s: wait
+    // Bouge
+    set self.animation = walk
+    set center = self.center
+    during 1s, ease: true:
+        set self.center = center + (128, 0) * progress * self.direction.value
+    set self.direction = self.direction.reverse
+"""
+
+    static var previews: some View {
+        CodeEditor(code: $code, script: $script)
     }
 }
