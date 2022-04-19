@@ -161,49 +161,27 @@ enum Token {
         return self == .newLine || self == .indent
     }
 
-    var textAttributes: [NSAttributedString.Key: Any]? {
-        guard let firaCode = NSFont(name: "Fira Code", size: 14),
-              let firaCodeBold = NSFont(name: "Fira Code Bold", size: 14)
-        else {
-            return nil
-        }
+    func textAttributes(regularFont: NSFont, boldFont: NSFont) -> [NSAttributedString.Key: Any] {
+        var attributes: [NSAttributedString.Key: Any] = [
+            .font: regularFont,
+            .foregroundColor: NSColor.black,
+            .backgroundColor: NSColor.white
+        ]
         switch self {
         case .stateStart, .stateEnd, .setStart, .setEqual, .instructionStart, .groupStart, .groupEnd:
-            return [
-                .font: firaCodeBold,
-                .foregroundColor: NSColor.systemPurple,
-                .backgroundColor: NSColor.white
-            ]
+            attributes[.font] = boldFont
+            attributes[.foregroundColor] = NSColor.systemPurple
         case .instructionArgument:
-            return [
-                .font: firaCodeBold,
-                .foregroundColor: NSColor.black,
-                .backgroundColor: NSColor.white
-            ]
+            attributes[.font] = boldFont
         case .valueInt, .valueDecimal, .valuePoint, .valueBoolean, .valueDuration:
-            return [
-                .font: firaCode,
-                .foregroundColor: NSColor.systemBlue,
-                .backgroundColor: NSColor.white
-            ]
+            attributes[.foregroundColor] = NSColor.systemBlue
         case .valueString, .valueAnimation, .valueDirection:
-            return [
-                .font: firaCode,
-                .foregroundColor: NSColor.systemRed,
-                .backgroundColor: NSColor.white
-            ]
+            attributes[.foregroundColor] = NSColor.systemRed
         case .valueVariable:
-            return [
-                .font: firaCode,
-                .foregroundColor: NSColor.systemIndigo,
-                .backgroundColor: NSColor.white
-            ]
+            attributes[.foregroundColor] = NSColor.systemIndigo
         default:
-            return [
-                .font: firaCode,
-                .foregroundColor: NSColor.black,
-                .backgroundColor: NSColor.white
-            ]
+            break
         }
+        return attributes
     }
 }

@@ -14,8 +14,8 @@ struct CodeEditor: NSViewRepresentable {
     func makeNSView(context: Context) -> NSTextView {
         let textView = NSTextView()
         textView.delegate = context.coordinator
+        textView.font = context.coordinator.regularFont
         textView.backgroundColor = .white
-        textView.font = NSFont(name: "Fira Code", size: 14)
         textView.isAutomaticQuoteSubstitutionEnabled = false
         return textView
     }
@@ -31,8 +31,13 @@ struct CodeEditor: NSViewRepresentable {
     class Coordinator: NSObject, NSTextViewDelegate {
         @Binding var script: Script
 
+        let regularFont: NSFont
+        let boldFont: NSFont
+
         init(script: Binding<Script>) {
             self._script = script
+            self.regularFont = NSFont(name: "Fira Code", size: 12) ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
+            self.boldFont = NSFont(name: "Fira Code Bold", size: 12) ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .bold)
         }
 
         func textDidChange(_ notification: Notification) {
@@ -48,15 +53,29 @@ struct CodeEditor: NSViewRepresentable {
             }
             do {
                 script = try parse(code: textView.string)
-                // TODO: Changer les attributs à partir du 1er token modifié
                 for token in script.tokens {
-                    textStorage.setAttributes(token.token.textAttributes, range: NSRange(location: token.range.startIndex, length: min(token.range.endIndex, textView.string.count) - token.range.startIndex))
+                    let attributes = token.token.textAttributes(regularFont: regularFont, boldFont: boldFont)
+                    let range = NSRange(location: token.range.startIndex, length: min(token.range.endIndex, textView.string.count) - token.range.startIndex)
+                    textStorage.setAttributes(attributes, range: range)
                 }
                 textView.setSpellingState(0, range: NSRange(location: 0, length: textView.string.count))
             } catch {
-                print("Parse error:\(error)")
-                if case let LexerError.expectedTokenNotFound(current: current, expected: _, found: _) = error {
-                    textView.setSpellingState(NSAttributedString.SpellingState.spelling.rawValue, range: NSRange(location: current.range.endIndex, length: 1))
+                var attributes = Token.newLine.textAttributes(regularFont: regularFont, boldFont: boldFont)
+                var range: NSRange?
+
+                if case let LexerError.expectedTokenNotFound(current: current, expected: expected, found: _) = error {
+                    let expectedTokens = expected.map({ "\($0)" }).joined(separator: ", ")
+                    attributes[.toolTip] = "Expected one of \(expectedTokens) after \(current.token)."
+                    range = NSRange(location: current.range.endIndex, length: 1)
+                } else if case let LexerError.badIndent(current: current, expectedMultipleOf: base, found: found) = error {
+                    attributes[.toolTip] = "Expected indentation size to be a multiple of \(base) but was \(found)."
+                    range = NSRange(location: current.range.startIndex, length: current.range.count)
+                } else {
+                    print("Parse error:\(error)")
+                }
+                if let range = range {
+                    textStorage.setAttributes(attributes, range: range)
+                    textView.setSpellingState(NSAttributedString.SpellingState.spelling.rawValue, range: range)
                 }
             }
         }

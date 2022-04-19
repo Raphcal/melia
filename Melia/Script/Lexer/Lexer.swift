@@ -9,7 +9,7 @@ import Foundation
 
 enum LexerError: Error {
     case expectedTokenNotFound(current: FoundToken, expected: [Token], found: String)
-    case badIndent(expectedMultipleOf: Int, found: Int)
+    case badIndent(current: FoundToken, expectedMultipleOf: Int, found: Int)
 }
 
 func lex(code: String) throws -> [FoundToken] {
@@ -43,7 +43,7 @@ func lex(code: String, onToken: (FoundToken) throws -> Void) throws {
         let wholeMatch = next.matches[0]
         if let indent = indent, next.token == .indent && wholeMatch.count > indent.count {
             if wholeMatch.count % indent.count != 0 {
-                throw LexerError.badIndent(expectedMultipleOf: indent.count, found: wholeMatch.count)
+                throw LexerError.badIndent(current: next, expectedMultipleOf: indent.count, found: wholeMatch.count)
             }
             for start in stride(from: from - wholeMatch.count, to: from, by: indent.count) {
                 try onToken(FoundToken(token: .indent, matches: [indent], range: start ..< start + indent.count))

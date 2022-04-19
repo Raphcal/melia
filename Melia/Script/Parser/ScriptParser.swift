@@ -80,7 +80,6 @@ func parse(code: String) throws -> Script {
             case .groupStart:
                 switch tokenStack[0].matches[1] {
                 case "during":
-                    // TODO: Gérer les arguments
                     groups.append(GoToGroupStart(groupStart: instructions.count))
                     instructions.append(During())
                 default:
