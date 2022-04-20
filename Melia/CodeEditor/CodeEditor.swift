@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 struct CodeEditor: NSViewRepresentable {
-    @Binding var code: String
+    @Binding var code: String?
     @Binding var script: Script
 
     func makeNSView(context: Context) -> NSScrollView {
@@ -20,7 +20,7 @@ struct CodeEditor: NSViewRepresentable {
         textView.font = context.coordinator.regularFont
         textView.isAutomaticQuoteSubstitutionEnabled = false
 
-        textView.string = code
+        textView.string = code ?? ""
         textView.delegate = context.coordinator
 
         DispatchQueue.main.async {
@@ -89,7 +89,7 @@ struct CodeEditor: NSViewRepresentable {
 
 struct CodeEditor_Previews: PreviewProvider {
     @State private static var script = Script.empty
-    @State private static var code = """
+    @State private static var code: String? = """
 state main:
     // Attend 1s
     set self.animation = stand

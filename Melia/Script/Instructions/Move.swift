@@ -10,6 +10,7 @@ import Foundation
 struct Move: Instruction {
     static let spriteArgument = "sprite"
     static let byArgument = "by"
+    static let toArgument = "to"
     static let speedArgument = "speed"
     static let directionArgument = "direction"
 
