@@ -83,6 +83,13 @@ class MeliaDocument: ReferenceFileDocument {
             self.project.root.maps[index] = newValue
         }
     }
+    func script(named name: String) -> Binding<String> {
+        return Binding {
+            self.project.scripts[name] ?? ""
+        } set: { newValue in
+            self.project.scripts[name] = newValue
+        }
+    }
 }
 
 class ProjectSnapshot {

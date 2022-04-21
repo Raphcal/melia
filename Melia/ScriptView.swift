@@ -9,7 +9,8 @@ import SwiftUI
 import MeliceFramework
 
 struct ScriptView: View {
-    @Binding var code: String?
+    var scriptName = "none"
+    @Binding var code: String
     var sprites: MELSpriteDefinitionList
     var maps: MELMutableMapList
 
@@ -19,7 +20,7 @@ struct ScriptView: View {
     @State private var definitionIndex = 0
 
     var body: some View {
-        HStack {
+        HStack(spacing: 0) {
             CodeEditor(code: $code, script: $script)
             GeometryReader { geometry in
                 OpenGLView(rendererContext: RendererContext(
@@ -28,6 +29,22 @@ struct ScriptView: View {
                     definitionIndex: definitionIndex,
                     frameSize: MELSize(width: GLfloat(geometry.size.width), height: GLfloat(geometry.size.height)),
                     script: script))
+            }
+            .onChange(of: scriptName) { newValue in
+                for (mapIndex, map) in maps.enumerated() {
+                    for layer in map.layers {
+                        for sprite in layer.sprites {
+                            let definitionIndex = Int(sprite.definitionIndex)
+                            if let motionName = sprites[definitionIndex].motionName,
+                               let spriteScriptName = String(utf8String: motionName),
+                               newValue == spriteScriptName {
+                                self.mapIndex = mapIndex
+                                self.definitionIndex = definitionIndex
+                                return
+                            }
+                        }
+                    }
+                }
             }
         }
         .toolbar {

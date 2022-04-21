@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 struct CodeEditor: NSViewRepresentable {
-    @Binding var code: String?
+    @Binding var code: String
     @Binding var script: Script
 
     func makeNSView(context: Context) -> NSScrollView {
@@ -20,7 +20,7 @@ struct CodeEditor: NSViewRepresentable {
         textView.font = context.coordinator.regularFont
         textView.isAutomaticQuoteSubstitutionEnabled = false
 
-        textView.string = code ?? ""
+        textView.string = code
         textView.delegate = context.coordinator
 
         DispatchQueue.main.async {
@@ -30,23 +30,36 @@ struct CodeEditor: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: NSScrollView, context: Context) {
-        // Vide.
+        guard let textView = nsView.documentView as? NSTextView else {
+            return
+        }
+        context.coordinator.setBindings(code: $code, script: $script)
+        if code != textView.string {
+            textView.string = code
+        }
     }
 
     func makeCoordinator() -> Coordinator {
-        return Coordinator(script: $script)
+        return Coordinator(code: $code, script: $script)
     }
 
     class Coordinator: NSObject, NSTextViewDelegate {
+        @Binding var code: String
         @Binding var script: Script
 
         let regularFont: NSFont
         let boldFont: NSFont
 
-        init(script: Binding<Script>) {
+        init(code: Binding<String>, script: Binding<Script>) {
+            self._code = code
             self._script = script
             self.regularFont = NSFont(name: "Fira Code", size: 12) ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
             self.boldFont = NSFont(name: "Fira Code Bold", size: 12) ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .bold)
+        }
+
+        func setBindings(code: Binding<String>, script: Binding<Script>) {
+            self._code = code
+            self._script = script
         }
 
         func textDidChange(_ notification: Notification) {
@@ -55,6 +68,9 @@ struct CodeEditor: NSViewRepresentable {
             else {
                 print("Not a text view or no storage.")
                 return
+            }
+            if code != textView.string {
+                code = textView.string
             }
             do {
                 script = try parse(code: textView.string)
@@ -89,7 +105,7 @@ struct CodeEditor: NSViewRepresentable {
 
 struct CodeEditor_Previews: PreviewProvider {
     @State private static var script = Script.empty
-    @State private static var code: String? = """
+    @State private static var code = """
 state main:
     // Attend 1s
     set self.animation = stand
