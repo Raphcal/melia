@@ -75,21 +75,6 @@ class MeliaDocument: ReferenceFileDocument {
             throw CocoaError(.fileWriteUnsupportedScheme)
         }
     }
-
-    func map(at index: Int) -> Binding<MELMutableMap> {
-        return Binding {
-            self.project.root.maps[index]
-        } set: { newValue in
-            self.project.root.maps[index] = newValue
-        }
-    }
-    func script(named name: String) -> Binding<String> {
-        return Binding {
-            self.project.scripts[name] ?? ""
-        } set: { newValue in
-            self.project.scripts[name] = newValue
-        }
-    }
 }
 
 class ProjectSnapshot {

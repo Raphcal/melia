@@ -45,6 +45,7 @@
 		64A1CE6028099F850086D752 /* ComparisonOperators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE5F28099F850086D752 /* ComparisonOperators.swift */; };
 		64A1CE622809A1F10086D752 /* Operator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE612809A1F10086D752 /* Operator.swift */; };
 		64A322592806D3370017CBBD /* CodeEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A322582806D3370017CBBD /* CodeEditor.swift */; };
+		64A451E728119F120057DF1E /* CodeSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A451E628119F120057DF1E /* CodeSnapshot.swift */; };
 		64C242D427F8E10E0018BE2B /* MeliaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C242D327F8E10E0018BE2B /* MeliaApp.swift */; };
 		64C242D627F8E10E0018BE2B /* MeliaDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C242D527F8E10E0018BE2B /* MeliaDocument.swift */; };
 		64C242D827F8E10E0018BE2B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C242D727F8E10E0018BE2B /* ContentView.swift */; };
@@ -131,6 +132,7 @@
 		64A1CE5F28099F850086D752 /* ComparisonOperators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComparisonOperators.swift; sourceTree = "<group>"; };
 		64A1CE612809A1F10086D752 /* Operator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Operator.swift; sourceTree = "<group>"; };
 		64A322582806D3370017CBBD /* CodeEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeEditor.swift; sourceTree = "<group>"; };
+		64A451E628119F120057DF1E /* CodeSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeSnapshot.swift; sourceTree = "<group>"; };
 		64C242D027F8E10E0018BE2B /* Melia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Melia.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		64C242D327F8E10E0018BE2B /* MeliaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeliaApp.swift; sourceTree = "<group>"; };
 		64C242D527F8E10E0018BE2B /* MeliaDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeliaDocument.swift; sourceTree = "<group>"; };
@@ -265,6 +267,7 @@
 			isa = PBXGroup;
 			children = (
 				64A322582806D3370017CBBD /* CodeEditor.swift */,
+				64A451E628119F120057DF1E /* CodeSnapshot.swift */,
 			);
 			path = CodeEditor;
 			sourceTree = "<group>";
@@ -496,6 +499,7 @@
 				6454DABC27FA1FB600D5E92B /* Shoot.swift in Sources */,
 				64A1CE5828098E590086D752 /* NewVariable.swift in Sources */,
 				64A1CE3A280764140086D752 /* SetValue.swift in Sources */,
+				64A451E728119F120057DF1E /* CodeSnapshot.swift in Sources */,
 				64A1CE622809A1F10086D752 /* Operator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

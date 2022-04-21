@@ -29,7 +29,7 @@ struct ContentView: View {
                 }
             }
             if let scriptName = scriptName {
-                ScriptView(scriptName: scriptName, code: document.script(named: scriptName), sprites: document.project.root.sprites, maps: document.project.root.maps)
+                ScriptView(scriptName: scriptName, code: $document.project.scripts[scriptName], sprites: document.project.root.sprites, maps: document.project.root.maps)
             } else {
                 Text("Select a script")
             }

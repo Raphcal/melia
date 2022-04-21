@@ -10,9 +10,11 @@ import MeliceFramework
 
 struct ScriptView: View {
     var scriptName = "none"
-    @Binding var code: String
+    @Binding var code: String?
     var sprites: MELSpriteDefinitionList
     var maps: MELMutableMapList
+
+    @Environment(\.undoManager) private var undoManager: UndoManager?
 
     @State private var script: Script = .empty
 
@@ -21,7 +23,7 @@ struct ScriptView: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            CodeEditor(code: $code, script: $script)
+            CodeEditor(scriptName: scriptName, code: $code, script: $script)
             GeometryReader { geometry in
                 OpenGLView(rendererContext: RendererContext(
                     map: maps[mapIndex],
@@ -30,21 +32,11 @@ struct ScriptView: View {
                     frameSize: MELSize(width: GLfloat(geometry.size.width), height: GLfloat(geometry.size.height)),
                     script: script))
             }
+            .onAppear(perform: {
+                updateMapIndexAndDefinitionIndex(for: scriptName)
+            })
             .onChange(of: scriptName) { newValue in
-                for (mapIndex, map) in maps.enumerated() {
-                    for layer in map.layers {
-                        for sprite in layer.sprites {
-                            let definitionIndex = Int(sprite.definitionIndex)
-                            if let motionName = sprites[definitionIndex].motionName,
-                               let spriteScriptName = String(utf8String: motionName),
-                               newValue == spriteScriptName {
-                                self.mapIndex = mapIndex
-                                self.definitionIndex = definitionIndex
-                                return
-                            }
-                        }
-                    }
-                }
+                updateMapIndexAndDefinitionIndex(for: newValue)
             }
         }
         .toolbar {
@@ -59,6 +51,23 @@ struct ScriptView: View {
                 Picker("Sprite", selection: $definitionIndex) {
                     ForEach(0 ..< sprites.count, id: \.self) { index in
                         Label(sprites[index].nameAsString, systemImage: "hare")
+                    }
+                }
+            }
+        }
+    }
+
+    func updateMapIndexAndDefinitionIndex(for scriptName: String) {
+        for (mapIndex, map) in maps.enumerated() {
+            for layer in map.layers {
+                for sprite in layer.sprites {
+                    let definitionIndex = Int(sprite.definitionIndex)
+                    if let motionName = sprites[definitionIndex].motionName,
+                       let spriteScriptName = String(utf8String: motionName),
+                       scriptName == spriteScriptName {
+                        self.mapIndex = mapIndex
+                        self.definitionIndex = definitionIndex
+                        return
                     }
                 }
             }

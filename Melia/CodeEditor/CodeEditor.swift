@@ -9,8 +9,10 @@ import Foundation
 import SwiftUI
 
 struct CodeEditor: NSViewRepresentable {
-    @Binding var code: String
+    var scriptName: String
+    @Binding var code: String?
     @Binding var script: Script
+    @Environment(\.undoManager) private var undoManager: UndoManager?
 
     func makeNSView(context: Context) -> NSScrollView {
         let scrollView = NSTextView.scrollableTextView()
@@ -20,7 +22,7 @@ struct CodeEditor: NSViewRepresentable {
         textView.font = context.coordinator.regularFont
         textView.isAutomaticQuoteSubstitutionEnabled = false
 
-        textView.string = code
+        textView.string = code ?? ""
         textView.delegate = context.coordinator
 
         DispatchQueue.main.async {
@@ -33,33 +35,42 @@ struct CodeEditor: NSViewRepresentable {
         guard let textView = nsView.documentView as? NSTextView else {
             return
         }
-        context.coordinator.setBindings(code: $code, script: $script)
-        if code != textView.string {
-            textView.string = code
+        if scriptName != context.coordinator.scriptName {
+            context.coordinator.scriptDidChange(scriptName: scriptName, code: $code, script: $script)
+            textView.string = code ?? ""
         }
     }
 
     func makeCoordinator() -> Coordinator {
-        return Coordinator(code: $code, script: $script)
+        return Coordinator(scriptName: scriptName, code: $code, script: $script, undoManager: undoManager)
     }
 
     class Coordinator: NSObject, NSTextViewDelegate {
-        @Binding var code: String
+        @Binding var code: String?
         @Binding var script: Script
+        var scriptName: String
+        var undoManager: UndoManager?
 
         let regularFont: NSFont
         let boldFont: NSFont
 
-        init(code: Binding<String>, script: Binding<Script>) {
+        var snapshot: CodeSnapshot?
+
+        init(scriptName: String, code: Binding<String?>, script: Binding<Script>, undoManager: UndoManager?) {
+            self.scriptName = scriptName
             self._code = code
             self._script = script
+            self.undoManager = undoManager
             self.regularFont = NSFont(name: "Fira Code", size: 12) ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
             self.boldFont = NSFont(name: "Fira Code Bold", size: 12) ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .bold)
         }
 
-        func setBindings(code: Binding<String>, script: Binding<Script>) {
+        final func scriptDidChange(scriptName: String, code: Binding<String?>, script: Binding<Script>) {
+            self.scriptName = scriptName
             self._code = code
             self._script = script
+            self.snapshot = nil
+            undoManager?.removeAllActions()
         }
 
         func textDidChange(_ notification: Notification) {
@@ -69,17 +80,25 @@ struct CodeEditor: NSViewRepresentable {
                 print("Not a text view or no storage.")
                 return
             }
-            if code != textView.string {
-                code = textView.string
+            let textViewString = textView.string
+            if (code == nil && textViewString.isEmpty) || code != textViewString {
+                if let undoManager = undoManager,
+                   snapshot == nil || (textViewString.last == "\n" && textViewString != snapshot!.code) {
+                    let aSnapshot = CodeSnapshot(code: $code, undoManager: undoManager)
+                    undoManager.registerUndo(withTarget: aSnapshot) { _ in aSnapshot.undo() }
+                    snapshot = aSnapshot
+                }
+                // TODO: Ajouter l'indentation ?
+                code = textViewString
             }
             do {
-                script = try parse(code: textView.string)
+                script = try parse(code: textViewString)
                 for token in script.tokens {
                     let attributes = token.token.textAttributes(regularFont: regularFont, boldFont: boldFont)
-                    let range = NSRange(location: token.range.startIndex, length: min(token.range.endIndex, textView.string.count) - token.range.startIndex)
+                    let range = NSRange(location: token.range.startIndex, length: min(token.range.endIndex, textViewString.count) - token.range.startIndex)
                     textStorage.setAttributes(attributes, range: range)
                 }
-                textView.setSpellingState(0, range: NSRange(location: 0, length: textView.string.count))
+                textView.setSpellingState(0, range: NSRange(location: 0, length: textViewString.count))
             } catch {
                 var attributes = Token.newLine.textAttributes(regularFont: regularFont, boldFont: boldFont)
                 var range: NSRange?
@@ -105,7 +124,7 @@ struct CodeEditor: NSViewRepresentable {
 
 struct CodeEditor_Previews: PreviewProvider {
     @State private static var script = Script.empty
-    @State private static var code = """
+    @State private static var code: String? = """
 state main:
     // Attend 1s
     set self.animation = stand
@@ -119,6 +138,6 @@ state main:
 """
 
     static var previews: some View {
-        CodeEditor(code: $code, script: $script)
+        CodeEditor(scriptName: "no name", code: $code, script: $script)
     }
 }
