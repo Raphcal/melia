@@ -49,7 +49,8 @@ class Renderer {
             MELSpriteRemove(sprite)
             self.sprite = nil
         }
-        if !MELPaletteRefEquals(mutableMap.palette, context.map.palette) {
+        if !MELPaletteRefEquals(mutableMap.palette, context.map.palette) || mutableMap.nameAsString != context.map.nameAsString {
+            // TODO: Ne décharger que melMapRenderer et spriteManager si seulement la carte a changé
             unload()
         }
         mutableMap = context.map
