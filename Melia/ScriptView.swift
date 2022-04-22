@@ -8,6 +8,10 @@
 import SwiftUI
 import MeliceFramework
 
+fileprivate enum SideView {
+    case gamePreview, generatedCode
+}
+
 struct ScriptView: View {
     var scriptName = "none"
     @Binding var code: String?
@@ -22,15 +26,26 @@ struct ScriptView: View {
     @State private var definitionIndex = 0
     @State private var origin = MELPoint(x: 32, y: 32)
 
+    @State private var sideView = SideView.gamePreview
+
     var body: some View {
         HStack(spacing: 0) {
             CodeEditor(scriptName: scriptName, code: $code, script: $script)
-            OpenGLView(rendererContext: RendererContext(
-                map: maps[mapIndex],
-                spriteDefinitions: sprites,
-                definitionIndex: definitionIndex,
-                origin: origin,
-                script: script))
+            Divider()
+            if sideView == .gamePreview {
+                OpenGLView(rendererContext: RendererContext(
+                    map: maps[mapIndex],
+                    spriteDefinitions: sprites,
+                    definitionIndex: definitionIndex,
+                    origin: origin,
+                    script: script))
+            } else {
+                Text("""
+    function state_main0(LCDSprite * _Nonnull sprite) {
+        TODO: Code !
+    }
+    """)
+            }
         }
         .onAppear(perform: {
             updateMapIndexAndDefinitionIndex(for: scriptName)
@@ -39,19 +54,28 @@ struct ScriptView: View {
             updateMapIndexAndDefinitionIndex(for: newValue)
         }
         .toolbar {
-            ToolbarItem {
-                Picker("Map", selection: $mapIndex) {
-                    ForEach(0 ..< maps.count, id: \.self) { index in
-                        Label(maps[index].nameAsString, systemImage: "map")
+            ToolbarItemGroup {
+                if sideView == .gamePreview {
+                    Picker("Map", selection: $mapIndex) {
+                        ForEach(0 ..< maps.count, id: \.self) { index in
+                            Label(maps[index].nameAsString, systemImage: "map")
+                        }
+                    }
+                    Picker("Sprite", selection: $definitionIndex) {
+                        ForEach(0 ..< sprites.count, id: \.self) { index in
+                            Label(sprites[index].nameAsString, systemImage: "hare")
+                        }
                     }
                 }
             }
             ToolbarItem {
-                Picker("Sprite", selection: $definitionIndex) {
-                    ForEach(0 ..< sprites.count, id: \.self) { index in
-                        Label(sprites[index].nameAsString, systemImage: "hare")
-                    }
+                Picker("View", selection: $sideView) {
+                    Label("Game Preview", systemImage: "gamecontroller")
+                        .tag(SideView.gamePreview)
+                    Label("Generated Code", systemImage: "function")
+                        .tag(SideView.generatedCode)
                 }
+                .pickerStyle(SegmentedPickerStyle())
             }
         }
     }
@@ -77,5 +101,19 @@ struct ScriptView: View {
                 }
             }
         }
+    }
+}
+
+struct ScriptView_Previews: PreviewProvider {
+    @State private static var code: String? = """
+state main:
+    during 1s:
+        set self.animation = stand
+    during 1s:
+        set self.animation = run
+"""
+
+    static var previews: some View {
+        ScriptView(code: $code, sprites: .empty, maps: .empty)
     }
 }

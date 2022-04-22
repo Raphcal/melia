@@ -39,6 +39,9 @@ class Renderer {
     var oldTime: MELTimeInterval = 0
 
     deinit {
+        // Le renderer est libéré après la désallocation du contexte OpenGL.
+        textureAtlas.texture.name = 0
+
         // TODO: Vérifier que tout est bien libéré
         unload()
     }
