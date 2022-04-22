@@ -51,8 +51,8 @@ extension OpenGLView: NSViewRepresentable {
 
     func updateNSView(_ nsView: MELOpenGLView, context: Context) {
         let coordinator = context.coordinator
-        nsView.gestureListener = gestureListener
 
+        nsView.gestureListener = gestureListener
         if gestureListener.listenToMoves != (coordinator.mouseMoveMonitor != nil) {
             listenToMouseMoveEvents(of: nsView, coordinator: coordinator)
             return
@@ -90,6 +90,10 @@ extension OpenGLView: NSViewRepresentable {
         var rendererContext: RendererContext
         var mouseMoveMonitor: Any?
         var displayLink: CVDisplayLink?
+
+        var frameSize: MELSize {
+            return MELSize(openGLView?.frame.size ?? CGSize(width: 32, height: 32))
+        }
 
         init(rendererContext: RendererContext) {
             print("init Coordinator")
@@ -151,13 +155,13 @@ extension OpenGLView: NSViewRepresentable {
         func updateAndRenderFrame(elapsed time: TimeInterval) {
             runInOpenGLContext {
                 renderer.update(elasped: time)
-                renderer.renderFrame(size: rendererContext.frameSize)
+                renderer.renderFrame(size: frameSize)
             }
         }
 
         func renderFrame() {
             runInOpenGLContext {
-                renderer.renderFrame(size: rendererContext.frameSize)
+                renderer.renderFrame(size: frameSize)
             }
         }
 

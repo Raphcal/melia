@@ -13,7 +13,6 @@ struct RendererContext: Equatable {
     var spriteDefinitions: MELSpriteDefinitionList
     var definitionIndex: Int
     var origin: MELPoint = .zero
-    var frameSize: MELSize = .zero
     var script: Script = .empty
 
     static func ==(lhs: RendererContext, rhs: RendererContext) -> Bool {
@@ -92,7 +91,6 @@ class Renderer {
         } else {
             camera = .zero
         }
-
         MELRendererRefApplyFlatOrthographicProjection(&renderer, frameSize)
         MELRendererClearWithColor(mutableMap.backgroundColor)
         MELMapRendererDrawTranslated(melMapRenderer, camera)

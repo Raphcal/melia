@@ -25,21 +25,18 @@ struct ScriptView: View {
     var body: some View {
         HStack(spacing: 0) {
             CodeEditor(scriptName: scriptName, code: $code, script: $script)
-            GeometryReader { geometry in
-                OpenGLView(rendererContext: RendererContext(
-                    map: maps[mapIndex],
-                    spriteDefinitions: sprites,
-                    definitionIndex: definitionIndex,
-                    origin: origin,
-                    frameSize: MELSize(width: GLfloat(geometry.size.width), height: GLfloat(geometry.size.height)),
-                    script: script))
-            }
-            .onAppear(perform: {
-                updateMapIndexAndDefinitionIndex(for: scriptName)
-            })
-            .onChange(of: scriptName) { newValue in
-                updateMapIndexAndDefinitionIndex(for: newValue)
-            }
+            OpenGLView(rendererContext: RendererContext(
+                map: maps[mapIndex],
+                spriteDefinitions: sprites,
+                definitionIndex: definitionIndex,
+                origin: origin,
+                script: script))
+        }
+        .onAppear(perform: {
+            updateMapIndexAndDefinitionIndex(for: scriptName)
+        })
+        .onChange(of: scriptName) { newValue in
+            updateMapIndexAndDefinitionIndex(for: newValue)
         }
         .toolbar {
             ToolbarItem {
