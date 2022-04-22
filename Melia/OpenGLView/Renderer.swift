@@ -41,7 +41,7 @@ class Renderer {
 
     deinit {
         // TODO: Vérifier que tout est bien libéré
-        // unload()
+        unload()
     }
 
     func load(context: RendererContext) {

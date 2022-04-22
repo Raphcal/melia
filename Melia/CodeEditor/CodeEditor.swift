@@ -38,6 +38,9 @@ struct CodeEditor: NSViewRepresentable {
         if scriptName != context.coordinator.scriptName {
             context.coordinator.scriptDidChange(scriptName: scriptName, code: $code, script: $script)
             textView.string = code ?? ""
+            DispatchQueue.main.async {
+                context.coordinator.textDidChange(textView: textView)
+            }
         }
     }
 
@@ -74,10 +77,8 @@ struct CodeEditor: NSViewRepresentable {
         }
 
         func textDidChange(_ notification: Notification) {
-            guard let textView = notification.object as? NSTextView,
-                  let textStorage = textView.textStorage
-            else {
-                print("Not a text view or no storage.")
+            guard let textView = notification.object as? NSTextView else {
+                print("Not a text view.")
                 return
             }
             let textViewString = textView.string
@@ -91,6 +92,16 @@ struct CodeEditor: NSViewRepresentable {
                 // TODO: Ajouter l'indentation ?
                 code = textViewString
             }
+            textDidChange(textView: textView)
+        }
+
+        func textDidChange(textView: NSTextView) {
+            guard let textStorage = textView.textStorage
+            else {
+                print("No storage.")
+                return
+            }
+            let textViewString = textView.string
             do {
                 script = try parse(code: textViewString)
                 for token in script.tokens {
