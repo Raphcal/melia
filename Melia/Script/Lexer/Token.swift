@@ -36,6 +36,7 @@ enum Token {
     var expected: [Token] {
         switch self {
         case .newLine:
+            // TODO: Remplacer setStart par valueVariable ?
             return [.newLine, .indent, .commentStart, .stateStart, .setStart, .groupStart, .instructionStart, .braceOpen] + anyValue
         case .indent:
             return [.commentStart, .setStart, .groupStart, .instructionStart]

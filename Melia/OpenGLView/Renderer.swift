@@ -12,6 +12,7 @@ struct RendererContext: Equatable {
     var map: MELMutableMap
     var spriteDefinitions: MELSpriteDefinitionList
     var definitionIndex: Int
+    var origin: MELPoint = .zero
     var frameSize: MELSize = .zero
     var script: Script = .empty
 
@@ -26,6 +27,7 @@ struct RendererContext: Equatable {
 class Renderer {
     var mutableMap = MELMutableMapEmpty
     var sprite: MELSpriteRef?
+    var camera: MELPoint = .zero
     var definitionIndex = -1
     var script: Script = .empty
     var executionContext: Script.ExecutionContext?
@@ -38,7 +40,8 @@ class Renderer {
     var oldTime: MELTimeInterval = 0
 
     deinit {
-        // TODO
+        // TODO: Vérifier que tout est bien libéré
+        // unload()
     }
 
     func load(context: RendererContext) {
@@ -61,7 +64,7 @@ class Renderer {
         let solid = mutableMap.layers.firstIndex(where: { $0.isSolid }) ?? 0
         if context.definitionIndex < spriteManager.definitions.count && solid < mutableMap.layers.count {
             let sprite = MELSpriteAlloc(&spriteManager, spriteManager.definitions[context.definitionIndex], UInt32(solid))
-            MELSpriteSetFrameOrigin(sprite, MELPoint(x: 32, y: 32))
+            MELSpriteSetFrameOrigin(sprite, context.origin)
             self.sprite = sprite
             definitionIndex = context.definitionIndex
         }
@@ -70,7 +73,7 @@ class Renderer {
             script = context.script
             executionContext = script.executionContext
             if let sprite = sprite {
-                MELSpriteSetFrameOrigin(sprite, MELPoint(x: 32, y: 32))
+                MELSpriteSetFrameOrigin(sprite, context.origin)
             }
         }
     }
@@ -82,9 +85,16 @@ class Renderer {
         self.definitionIndex = -1
     }
     func renderFrame(size frameSize: MELSize) {
+        if let sprite = sprite {
+            let origin = sprite.pointee.frame.origin
+            camera = MELPoint(x: max(0, origin.x - frameSize.width / 2), y: max(0, origin.y - frameSize.height / 2))
+        } else {
+            camera = .zero
+        }
+
         MELRendererRefApplyFlatOrthographicProjection(&renderer, frameSize)
         MELRendererClearWithColor(mutableMap.backgroundColor)
-        MELMapRendererDraw(melMapRenderer)
+        MELMapRendererDrawTranslated(melMapRenderer, camera)
     }
     func update(elasped time: TimeInterval) {
         // TODO: Calculer le temps écoulé en fonction du temps donné.

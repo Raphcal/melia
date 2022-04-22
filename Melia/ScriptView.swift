@@ -20,6 +20,7 @@ struct ScriptView: View {
 
     @State private var mapIndex = 0
     @State private var definitionIndex = 0
+    @State private var origin = MELPoint(x: 32, y: 32)
 
     var body: some View {
         HStack(spacing: 0) {
@@ -29,6 +30,7 @@ struct ScriptView: View {
                     map: maps[mapIndex],
                     spriteDefinitions: sprites,
                     definitionIndex: definitionIndex,
+                    origin: origin,
                     frameSize: MELSize(width: GLfloat(geometry.size.width), height: GLfloat(geometry.size.height)),
                     script: script))
             }
@@ -62,11 +64,17 @@ struct ScriptView: View {
             for layer in map.layers {
                 for sprite in layer.sprites {
                     let definitionIndex = Int(sprite.definitionIndex)
-                    if let motionName = sprites[definitionIndex].motionName,
+                    let definition = sprites[definitionIndex]
+                    if let motionName = definition.motionName,
                        let spriteScriptName = String(utf8String: motionName),
                        scriptName == spriteScriptName {
                         self.mapIndex = mapIndex
                         self.definitionIndex = definitionIndex
+                        if let firstNonEmptyImage = MELSpriteDefinitionFirstNonEmptyImage(definition) {
+                            origin = sprite.topLeft + MELPoint(firstNonEmptyImage.pointee.size) / 2
+                        } else {
+                            origin = sprite.topLeft
+                        }
                         return
                     }
                 }
