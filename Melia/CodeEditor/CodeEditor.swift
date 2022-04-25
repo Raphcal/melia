@@ -138,14 +138,14 @@ struct CodeEditor_Previews: PreviewProvider {
     @State private static var code: String? = """
 state main:
     // Attend 1s
-    set self.animation = stand
+    self.animation = stand
     during 1s: wait
     // Bouge
-    set self.animation = walk
-    set center = self.center
+    self.animation = walk
+    center = self.center
     during 1s, ease: true:
-        set self.center = center + (128, 0) * progress * self.direction.value
-    set self.direction = self.direction.reverse
+        self.center = center + (128, 0) * progress * self.direction.value
+    self.direction = self.direction.reverse
 """
 
     static var previews: some View {

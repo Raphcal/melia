@@ -26,10 +26,10 @@ struct ScriptView: View {
     @State private var definitionIndex = 0
     @State private var origin = MELPoint(x: 32, y: 32)
 
-    @State private var sideView = SideView.gamePreview
+    @State private var sideView = SideView.generatedCode
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(alignment: .top, spacing: 0) {
             CodeEditor(scriptName: scriptName, code: $code, script: $script)
             Divider()
             if sideView == .gamePreview {
@@ -40,11 +40,11 @@ struct ScriptView: View {
                     origin: origin,
                     script: script))
             } else {
-                Text("""
-    function state_main0(LCDSprite * _Nonnull sprite) {
-        TODO: Code !
-    }
-    """)
+                ScrollView {
+                    Text("// TODO: Compiler en C")
+                    .font(.custom("Fira Code", size: 12))
+                    .padding(4)
+                }
             }
         }
         .onAppear(perform: {
@@ -107,10 +107,13 @@ struct ScriptView: View {
 struct ScriptView_Previews: PreviewProvider {
     @State private static var code: String? = """
 state main:
-    during 1s:
-        set self.animation = stand
-    during 1s:
-        set self.animation = run
+   self.animation = stand
+   during 1s: wait
+   self.animation = walk
+   center = self.center
+   during 1s, ease: true:
+      self.center = center + (128, 0) * progress * self.direction.value
+   self.direction = self.direction.reverse
 """
 
     static var previews: some View {

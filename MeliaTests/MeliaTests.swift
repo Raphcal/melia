@@ -13,10 +13,10 @@ class MeliaTests: XCTestCase {
     func testSetAnimationAndWait() throws {
         let script = try parse(code: """
 state main:
-    set self.animation = stand
+    self.animation = stand
     during 2s:
         wait
-    set self.animation = walk
+    self.animation = walk
     during 500ms:
         wait
 """)

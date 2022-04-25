@@ -14,7 +14,7 @@ enum Token {
     case stateStart, stateName, stateEnd
     case groupStart, groupEnd
     case instructionStart, instructionArgument
-    case setStart, setVariableName, setEqual
+    case setStart
     case valueInt, valueDecimal, valueDuration, valueBoolean, valuePoint, valueDirection, valueAnimation, valueVariable, valueString
     case braceOpen, braceClose
     case addOrSubstract, multiplyOrDivide, unaryOperator
@@ -55,10 +55,6 @@ enum Token {
         case .instructionArgument:
             return anyValue
         case .setStart:
-            return [.setVariableName]
-        case .setVariableName:
-            return [.setEqual]
-        case .setEqual:
             return [.instructionStart] + anyValue
         case .valuePoint, .valueInt, .valueDecimal:
             return anyBinaryOperator + [.braceClose, .instructionArgument, .newLine]
@@ -110,11 +106,7 @@ enum Token {
         case .instructionArgument:
             return ", *([a-z]+) *: *"
         case .setStart:
-            return "set +"
-        case .setVariableName:
-            return "([a-z][a-zA-Z0-9_.]*) *"
-        case .setEqual:
-            return "= *"
+            return "([a-z][a-zA-Z0-9_.]*) *= *"
         case .valuePoint:
             return "\\(([0-9]+), *([0-9]+)\\) *"
         case .valueInt:
@@ -178,10 +170,10 @@ enum Token {
             .backgroundColor: NSColor.white
         ]
         switch self {
-        case .stateStart, .stateEnd, .setStart, .setEqual, .instructionStart, .groupStart, .groupEnd:
+        case .stateStart, .stateEnd, .instructionStart, .groupStart, .groupEnd:
             attributes[.font] = boldFont
             attributes[.foregroundColor] = NSColor.systemPurple
-        case .instructionArgument:
+        case .instructionArgument, .setStart:
             attributes[.font] = boldFont
         case .valueInt, .valueDecimal, .valuePoint, .valueBoolean, .valueDuration:
             attributes[.foregroundColor] = NSColor.blue
