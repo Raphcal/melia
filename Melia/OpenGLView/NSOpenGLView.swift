@@ -28,7 +28,7 @@ extension OpenGLView: NSViewRepresentable {
         openGLContext.setValues([1], for: NSOpenGLContext.Parameter.swapInterval)
         view.prepareOpenGL()
 
-        var coordinator = context.coordinator
+        let coordinator = context.coordinator
         coordinator.openGLView = view
         coordinator.initializeDisplayLink()
         coordinator.runInOpenGLContext {

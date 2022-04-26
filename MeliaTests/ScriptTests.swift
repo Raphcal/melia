@@ -9,9 +9,9 @@ import XCTest
 import MeliceFramework
 @testable import Melia
 
-class MeliaTests: XCTestCase {
+class ScriptTests: XCTestCase {
     func testSetAnimationAndWait() throws {
-        let script = try parse(code: """
+        let script = TokenTree(code: """
 state main:
     self.animation = stand
     during 2s:
@@ -19,7 +19,7 @@ state main:
     self.animation = walk
     during 500ms:
         wait
-""")
+""")!.script
         let surfaceArray = UnsafeMutablePointer<MELSurfaceArray>.allocate(capacity: 1)
         surfaceArray.pointee = MELSurfaceArrayMake()
         let motion = MELNoMotionAlloc()
@@ -78,7 +78,40 @@ state main:
     }
 
     func testBraces() throws {
-        let result = try parse(code: "(2 + 3) * (4 + 5)").run()
+        let tree = TokenTree(code: "(2 + 3) * (4 + 5)")!
+        let result = tree.script.run()
         XCTAssertEqual(result.stack.last!, .integer(45))
+    }
+
+    func testParsePerformance() throws {
+        measure {
+            do {
+                _ = try parse(code: """
+        state main:
+            self.animation = stand
+            during 2s:
+                wait
+            self.animation = walk
+            during 500ms:
+                wait
+        """)
+            } catch {
+                XCTFail("parse crashed: \(error)")
+            }
+        }
+    }
+
+    func testTreeScriptPerformance() throws {
+        measure {
+            _ = TokenTree(code: """
+        state main:
+            self.animation = stand
+            during 2s:
+                wait
+            self.animation = walk
+            during 500ms:
+                wait
+        """)!.script
+        }
     }
 }
