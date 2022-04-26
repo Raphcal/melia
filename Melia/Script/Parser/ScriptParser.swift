@@ -50,7 +50,7 @@ func parse(code: String) throws -> Script {
     try lex(code: code) { current in
         tokens.append(current)
 
-        guard current.token != .commentStart && current.token != .comment
+        guard current.token != .comment
         else {
             return
         }
@@ -63,7 +63,7 @@ func parse(code: String) throws -> Script {
         case .newLine:
             isAfterNewLine = true
             fallthrough
-        case .groupEnd, .stateEnd:
+        case .groupEnd, .state:
             while !operators.isEmpty {
                 try append(operator: operators.removeLast(), instructions: &instructions)
             }
@@ -75,9 +75,9 @@ func parse(code: String) throws -> Script {
                 instructions.append(PushArgument(name: tokenStack.last!.matches[1]))
             }
             switch tokenStack[0].token {
-            case .stateStart:
+            case .state:
                 guard tokenStack.count >= 2 else { return }
-                let stateName = tokenStack[1].matches[1]
+                let stateName = tokenStack[0].matches[1]
                 statePointers[stateName] = instructions.count
                 groups.append(GoToCurrentState())
                 if initialState == nil {

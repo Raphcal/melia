@@ -11,7 +11,7 @@ import AppKit
 enum Token {
     // MARK: - Tokens
     case newLine, indent
-    case stateStart, stateName, stateEnd
+    case state
     case groupStart, groupEnd
     case instructionStart, instructionArgument
     case setStart
@@ -19,16 +19,16 @@ enum Token {
     case braceOpen, braceClose
     case addOrSubstract, multiplyOrDivide, unaryOperator
     case andOrOr
-    case commentStart, comment
+    case comment
 
     // MARK: - Token classes
-    var anyValue: [Token] {
+    static var anyValue: [Token] {
         return [.valueDuration, .valueInt, .valueDecimal, .valueBoolean, .valuePoint, .valueDirection, .valueAnimation, .valueVariable, .valueString, .braceOpen]
     }
-    var anyNumericValue: [Token] {
+    static var anyNumericValue: [Token] {
         return [.valueDuration, .valueInt, .valueDecimal, .valuePoint, .valueVariable]
     }
-    var anyBinaryOperator: [Token] {
+    static var anyBinaryOperator: [Token] {
         return [.addOrSubstract, .multiplyOrDivide]
     }
 
@@ -36,15 +36,10 @@ enum Token {
     var expected: [Token] {
         switch self {
         case .newLine:
-            // TODO: Remplacer setStart par valueVariable ?
-            return [.newLine, .indent, .commentStart, .stateStart, .setStart, .groupStart, .instructionStart, .braceOpen] + anyValue
+            return [.newLine, .indent, .comment, .state, .setStart, .groupStart, .instructionStart, .braceOpen] + Token.anyValue
         case .indent:
-            return [.commentStart, .setStart, .groupStart, .instructionStart]
-        case .stateStart:
-            return [.stateName]
-        case .stateName:
-            return [.stateEnd]
-        case .stateEnd:
+            return [.comment, .setStart, .groupStart, .instructionStart]
+        case .state:
             return [.newLine, .instructionStart, .setStart]
         case .groupStart:
             return [.valueDuration,.valueBoolean, .valueVariable]
@@ -53,11 +48,11 @@ enum Token {
         case .instructionStart:
             return [.instructionArgument, .newLine]
         case .instructionArgument:
-            return anyValue
+            return Token.anyValue
         case .setStart:
-            return [.instructionStart] + anyValue
+            return [.instructionStart] + Token.anyValue
         case .valuePoint, .valueInt, .valueDecimal:
-            return anyBinaryOperator + [.braceClose, .instructionArgument, .newLine]
+            return Token.anyBinaryOperator + [.braceClose, .instructionArgument, .newLine]
         case .valueBoolean:
             return [.andOrOr, .instructionArgument, .newLine, .groupEnd]
         case .valueDuration:
@@ -69,17 +64,15 @@ enum Token {
         case .valueAnimation:
             return [.instructionArgument, .newLine, .groupEnd]
         case .valueVariable:
-            return anyBinaryOperator + [.braceClose, .instructionArgument, .groupEnd, .newLine]
+            return Token.anyBinaryOperator + [.braceClose, .instructionArgument, .groupEnd, .newLine]
         case .addOrSubstract, .multiplyOrDivide, .unaryOperator :
-            return anyNumericValue + [.braceOpen]
+            return Token.anyNumericValue + [.braceOpen]
         case .andOrOr:
             return [.valueBoolean, .valueVariable]
         case .braceOpen:
-            return anyNumericValue
+            return Token.anyNumericValue
         case .braceClose:
-            return anyBinaryOperator + [.instructionArgument, .newLine]
-        case .commentStart:
-            return [.newLine, .comment]
+            return Token.anyBinaryOperator + [.instructionArgument, .newLine]
         case .comment:
             return [.newLine]
         }
@@ -91,12 +84,8 @@ enum Token {
             return "\n"
         case .indent:
             return "(?: |\t)+"
-        case .stateStart:
-            return "state +"
-        case .stateName:
-            return "([a-zA-Z0-9]+) *"
-        case .stateEnd:
-            return ": *"
+        case .state:
+            return "state +([a-zA-Z0-9]+) *: *"
         case .groupStart:
             return "(during|if|else if|else) +"
         case .groupEnd:
@@ -137,10 +126,8 @@ enum Token {
             return "\\( *"
         case .braceClose:
             return "\\) *"
-        case .commentStart:
-            return "// *"
         case .comment:
-            return "[^\n]+"
+            return "//[^\n]*"
         }
     }
 
@@ -170,10 +157,10 @@ enum Token {
             .backgroundColor: NSColor.white
         ]
         switch self {
-        case .stateStart, .stateEnd, .instructionStart, .groupStart, .groupEnd:
+        case .state, .instructionStart, .groupStart, .groupEnd:
             attributes[.font] = boldFont
             attributes[.foregroundColor] = NSColor.systemPurple
-        case .instructionArgument, .setStart:
+        case .instructionArgument:
             attributes[.font] = boldFont
         case .valueInt, .valueDecimal, .valuePoint, .valueBoolean, .valueDuration:
             attributes[.foregroundColor] = NSColor.blue
@@ -181,7 +168,7 @@ enum Token {
             attributes[.foregroundColor] = NSColor.systemRed
         case .valueVariable:
             attributes[.foregroundColor] = NSColor.systemIndigo
-        case .commentStart, .comment:
+        case .comment:
             attributes[.foregroundColor] = NSColor.darkGray
         default:
             break
