@@ -60,7 +60,7 @@ enum Token {
         case .valueDirection:
             return [.instructionArgument, .newLine]
         case .valueString:
-            return [.instructionArgument, .newLine]
+            return [.instructionArgument, .newLine, .groupEnd]
         case .valueAnimation:
             return [.instructionArgument, .newLine, .groupEnd]
         case .valueVariable:
@@ -113,7 +113,7 @@ enum Token {
         case .valueBoolean:
             return "(true|false) *"
         case .valueString:
-            return "\"([^\"]|\\\")\""
+            return "\\\"((?:\\\\\\\"|[^\"])*)\\\" *"
         case .addOrSubstract:
             return "([+-]) *"
         case .multiplyOrDivide:

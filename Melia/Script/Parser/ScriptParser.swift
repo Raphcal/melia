@@ -60,10 +60,20 @@ func parse(code: String) throws -> Script {
             onGroupEnd(groups: &groups, instructions: &instructions, indentCount: indentCount)
         }
         switch current.token {
+        case .state:
+            while !operators.isEmpty {
+                try append(operator: operators.removeLast(), instructions: &instructions)
+            }
+            let stateName = current.matches[1]
+            statePointers[stateName] = instructions.count
+            groups.append(GoToCurrentState())
+            if initialState == nil {
+                initialState = stateName
+            }
         case .newLine:
             isAfterNewLine = true
             fallthrough
-        case .groupEnd, .state:
+        case .groupEnd:
             while !operators.isEmpty {
                 try append(operator: operators.removeLast(), instructions: &instructions)
             }
@@ -75,14 +85,6 @@ func parse(code: String) throws -> Script {
                 instructions.append(PushArgument(name: tokenStack.last!.matches[1]))
             }
             switch tokenStack[0].token {
-            case .state:
-                guard tokenStack.count >= 2 else { return }
-                let stateName = tokenStack[0].matches[1]
-                statePointers[stateName] = instructions.count
-                groups.append(GoToCurrentState())
-                if initialState == nil {
-                    initialState = stateName
-                }
             case .groupStart:
                 switch tokenStack[0].matches[1] {
                 case "during":
