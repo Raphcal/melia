@@ -122,44 +122,8 @@ func parse(code: String) throws -> Script {
             }
         case .indent:
             indentCount = indentCount + 1
-        case .valueInt:
-            instructions.append(Constant(value: .integer(
-                Int32(current.matches[1]) ?? 0
-            )))
-        case .valueDecimal:
-            instructions.append(Constant(value: .decimal(
-                Float(current.matches[1]) ?? 0
-            )))
-        case .valueDuration:
-            let duration = try DurationUnit.named(current.matches[2])
-            instructions.append(Constant(value: .decimal(
-                duration.toTimeInterval(
-                    Int32(current.matches[1]) ?? 0
-                )
-            )))
-        case .valueBoolean:
-            instructions.append(Constant(value: .boolean(
-                current.matches[1] == "true"
-            )))
-        case .valueAnimation:
-            instructions.append(Constant(value: .string(
-                current.matches[1]
-            )))
-        case .valueString:
-            instructions.append(Constant(value: .string(
-                current.matches[1]
-                    .replacingOccurrences(of: "\\\"", with: "\"")
-                    .replacingOccurrences(of: "\\\\", with: "\\")
-            )))
-        case .valueDirection:
-            instructions.append(Constant(value: .direction(
-                try MELDirection.named(current.matches[1])
-            )))
-        case .valuePoint:
-            let intPoint = MELIntPoint(
-                x: Int32(current.matches[1]) ?? 0,
-                y: Int32(current.matches[2]) ?? 0)
-            instructions.append(Constant(value : .point(MELPoint(intPoint))))
+        case .valueInt, .valueDecimal, .valueDuration, .valueBoolean, .valueAnimation, .valueString, .valueDirection, .valuePoint:
+            instructions.append(Constant(value: current.value))
         case .valueVariable:
             instructions.append(Variable(
                 path: current.matches[1]
