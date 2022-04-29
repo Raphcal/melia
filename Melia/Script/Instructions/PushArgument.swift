@@ -17,4 +17,8 @@ struct PushArgument: Instruction {
         }
         return newContext
     }
+
+    func equals(other: Instruction) -> Bool {
+        return other is PushArgument
+    }
 }

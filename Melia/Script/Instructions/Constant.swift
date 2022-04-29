@@ -15,4 +15,12 @@ struct Constant: Instruction {
         newContext.stack.append(value)
         return newContext
     }
+
+    func equals(other: Instruction) -> Bool {
+        if let other = other as? Constant {
+            return value == other.value
+        } else {
+            return false
+        }
+    }
 }

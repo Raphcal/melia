@@ -16,4 +16,12 @@ struct GoToGroupStart: Instruction {
         newContext.yield = true
         return newContext
     }
+
+    func equals(other: Instruction) -> Bool {
+        if let other = other as? GoToGroupStart {
+            return groupStart == other.groupStart
+        } else {
+            return false
+        }
+    }
 }

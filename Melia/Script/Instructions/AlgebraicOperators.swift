@@ -66,19 +66,31 @@ struct Add: AlgebraicOperator {
     func apply<T: AlgebraicOperand>(_ lhs: T, _ rhs: T) -> T {
         return lhs + rhs
     }
+    func equals(other: Instruction) -> Bool {
+        return other is Add
+    }
 }
 struct Substract: AlgebraicOperator {
     func apply<T: AlgebraicOperand>(_ lhs: T, _ rhs: T) -> T {
         return lhs - rhs
+    }
+    func equals(other: Instruction) -> Bool {
+        return other is Substract
     }
 }
 struct Multiply: AlgebraicOperator {
     func apply<T: AlgebraicOperand>(_ lhs: T, _ rhs: T) -> T {
         return lhs * rhs
     }
+    func equals(other: Instruction) -> Bool {
+        return other is Multiply
+    }
 }
 struct Divide: AlgebraicOperator {
     func apply<T: AlgebraicOperand>(_ lhs: T, _ rhs: T) -> T {
         return lhs / rhs
+    }
+    func equals(other: Instruction) -> Bool {
+        return other is Divide
     }
 }

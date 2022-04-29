@@ -14,4 +14,8 @@ struct GoToCurrentState: Instruction {
         newContext.yield = true
         return newContext
     }
+
+    func equals(other: Instruction) -> Bool {
+        return other is GoToCurrentState
+    }
 }

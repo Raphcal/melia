@@ -41,7 +41,7 @@ struct Script: Equatable {
     static func == (lhs: Script, rhs: Script) -> Bool {
         return lhs.states == rhs.states
         && lhs.initialState == rhs.initialState
-        && lhs.instructions.count == rhs.instructions.count
+        && lhs.instructions == rhs.instructions
     }
 
     struct ExecutionContext {

@@ -42,7 +42,6 @@
 		64A1CE4D280843D40086D752 /* GoToGroupStart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE4C280843D40086D752 /* GoToGroupStart.swift */; };
 		64A1CE542808B6CE0086D752 /* PushArgument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE532808B6CE0086D752 /* PushArgument.swift */; };
 		64A1CE562808BE040086D752 /* ClearArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE552808BE040086D752 /* ClearArguments.swift */; };
-		64A1CE5828098E590086D752 /* NewVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE5728098E590086D752 /* NewVariable.swift */; };
 		64A1CE5A28098EAA0086D752 /* While.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE5928098EAA0086D752 /* While.swift */; };
 		64A1CE5C28099AFE0086D752 /* Negative.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE5B28099AFE0086D752 /* Negative.swift */; };
 		64A1CE5E28099B0B0086D752 /* BooleanOperators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE5D28099B0B0086D752 /* BooleanOperators.swift */; };
@@ -134,7 +133,6 @@
 		64A1CE4C280843D40086D752 /* GoToGroupStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoToGroupStart.swift; sourceTree = "<group>"; };
 		64A1CE532808B6CE0086D752 /* PushArgument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushArgument.swift; sourceTree = "<group>"; };
 		64A1CE552808BE040086D752 /* ClearArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearArguments.swift; sourceTree = "<group>"; };
-		64A1CE5728098E590086D752 /* NewVariable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewVariable.swift; sourceTree = "<group>"; };
 		64A1CE5928098EAA0086D752 /* While.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = While.swift; sourceTree = "<group>"; };
 		64A1CE5B28099AFE0086D752 /* Negative.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Negative.swift; sourceTree = "<group>"; };
 		64A1CE5D28099B0B0086D752 /* BooleanOperators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BooleanOperators.swift; sourceTree = "<group>"; };
@@ -200,7 +198,6 @@
 				64A1CE2E280726760086D752 /* Constant.swift */,
 				64A1CE2C2807266B0086D752 /* Variable.swift */,
 				64A1CE39280764140086D752 /* SetValue.swift */,
-				64A1CE5728098E590086D752 /* NewVariable.swift */,
 				6454DAAA27FA1E6B00D5E92B /* During.swift */,
 				64A1CE5928098EAA0086D752 /* While.swift */,
 				6454DAB527FA1FAC00D5E92B /* If.swift */,
@@ -524,7 +521,6 @@
 				64262C4E27FC6CED004E16D7 /* OpenGLView.swift in Sources */,
 				6454DABC27FA1FB600D5E92B /* Shoot.swift in Sources */,
 				647D5E2D281876E50073F1BB /* TreeNode.swift in Sources */,
-				64A1CE5828098E590086D752 /* NewVariable.swift in Sources */,
 				64A1CE3A280764140086D752 /* SetValue.swift in Sources */,
 				64A451E728119F120057DF1E /* CodeSnapshot.swift in Sources */,
 				64A1CE622809A1F10086D752 /* Operator.swift in Sources */,

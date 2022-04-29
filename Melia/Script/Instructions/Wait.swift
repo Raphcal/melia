@@ -12,4 +12,8 @@ struct Wait: Instruction {
         // Aucune action
         return context
     }
+
+    func equals(other: Instruction) -> Bool {
+        return other is Wait
+    }
 }

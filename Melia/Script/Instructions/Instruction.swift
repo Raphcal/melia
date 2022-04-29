@@ -9,6 +9,7 @@ import MeliceFramework
 
 protocol Instruction {
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext
+    func equals(other: Instruction) -> Bool
 }
 
 extension Instruction {
@@ -58,5 +59,19 @@ extension Instruction {
         } else {
             return defaultValue
         }
+    }
+}
+
+extension Array where Element == Instruction {
+    static func == (lhs: [Instruction], rhs: [Instruction]) -> Bool {
+        if lhs.count != rhs.count {
+            return false
+        }
+        for index in 0 ..< lhs.count {
+            if !lhs[index].equals(other: rhs[index]) {
+                return false
+            }
+        }
+        return true
     }
 }

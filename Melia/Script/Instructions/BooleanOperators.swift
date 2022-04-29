@@ -26,10 +26,16 @@ struct And: BooleanOperator {
     func apply(_ lhs: Bool, _ rhs: Bool) -> Bool {
         return lhs && rhs
     }
+    func equals(other: Instruction) -> Bool {
+        return other is And
+    }
 }
 
 struct Or: BooleanOperator {
     func apply(_ lhs: Bool, _ rhs: Bool) -> Bool {
         return lhs || rhs
+    }
+    func equals(other: Instruction) -> Bool {
+        return other is Or
     }
 }

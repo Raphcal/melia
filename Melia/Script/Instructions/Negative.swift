@@ -30,4 +30,8 @@ struct Negative: Instruction {
             return value
         }
     }
+
+    func equals(other: Instruction) -> Bool {
+        return other is Negative
+    }
 }

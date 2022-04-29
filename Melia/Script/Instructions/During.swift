@@ -58,4 +58,12 @@ struct During: GroupStart {
         }
         return newContext
     }
+
+    func equals(other: Instruction) -> Bool {
+        if let other = other as? During {
+            return whenDoneSetInstructionPointerTo == other.whenDoneSetInstructionPointerTo
+        } else {
+            return false
+        }
+    }
 }

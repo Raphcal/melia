@@ -21,4 +21,8 @@ struct Move: Instruction {
         }
         return context
     }
+
+    func equals(other: Instruction) -> Bool {
+        return other is Move
+    }
 }

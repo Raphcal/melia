@@ -13,4 +13,7 @@ struct ClearArguments: Instruction {
         newContext.arguments = [:]
         return newContext
     }
+    func equals(other: Instruction) -> Bool {
+        return other is ClearArguments
+    }
 }

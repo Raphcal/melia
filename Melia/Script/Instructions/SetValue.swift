@@ -17,4 +17,12 @@ struct SetValue: Instruction {
         }
         return newContext
     }
+
+    func equals(other: Instruction) -> Bool {
+        if let other = other as? SetValue {
+            return path == other.path
+        } else {
+            return false
+        }
+    }
 }
