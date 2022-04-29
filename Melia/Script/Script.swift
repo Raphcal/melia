@@ -11,7 +11,6 @@ struct Script: Equatable {
     var states: [String: Int]
     var initialState: String
     var instructions: [Instruction]
-    var tokens: [FoundToken]
 
     var executionContext: ExecutionContext {
         return ExecutionContext(script: self, state: initialState)
@@ -37,12 +36,12 @@ struct Script: Equatable {
         return context
     }
 
-    static let empty = Script(states: [:], initialState: "default", instructions: [], tokens: [])
+    static let empty = Script(states: [:], initialState: "default", instructions: [])
 
     static func == (lhs: Script, rhs: Script) -> Bool {
         return lhs.states == rhs.states
         && lhs.initialState == rhs.initialState
-        && lhs.tokens == rhs.tokens
+        && lhs.instructions.count == rhs.instructions.count
     }
 
     struct ExecutionContext {

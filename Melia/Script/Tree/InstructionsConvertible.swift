@@ -9,7 +9,7 @@ import Foundation
 
 extension TokenTree {
     var script: Script {
-        var result = Script(states: [:], initialState: "default", instructions: [], tokens: [])
+        var result = Script(states: [:], initialState: "default", instructions: [])
 
         if let firstState = children.first(where: { $0 is StateNode }) as? StateNode {
             result.initialState = firstState.name

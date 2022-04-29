@@ -146,7 +146,7 @@ func parse(code: String) throws -> Script {
             tokenStack.append(current)
         }
     }
-    return Script(states: statePointers, initialState: initialState ?? "default", instructions: instructions, tokens: tokens)
+    return Script(states: statePointers, initialState: initialState ?? "default", instructions: instructions)
 }
 
 extension String {

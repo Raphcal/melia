@@ -103,8 +103,9 @@ struct CodeEditor: NSViewRepresentable {
             }
             let textViewString = textView.string
             do {
-                script = try parse(code: textViewString)
-                for token in script.tokens {
+                let tokens = try lex(code: textViewString)
+                script = TokenTree(tokens: tokens).script
+                for token in tokens {
                     let attributes = token.token.textAttributes(regularFont: regularFont, boldFont: boldFont)
                     let range = NSRange(location: token.range.startIndex, length: min(token.range.endIndex, textViewString.count) - token.range.startIndex)
                     textStorage.setAttributes(attributes, range: range)
