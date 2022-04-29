@@ -10,7 +10,7 @@ import AppKit
 
 enum Token {
     // MARK: - Tokens
-    case newLine, indent
+    case newLine, indent, endOfFile
     case state
     case groupStart, groupEnd
     case instructionStart, instructionArgument
@@ -39,6 +39,8 @@ enum Token {
             return [.newLine, .indent, .comment, .state, .setStart, .groupStart, .instructionStart, .braceOpen] + Token.anyValue
         case .indent:
             return [.comment, .setStart, .groupStart, .instructionStart]
+        case .endOfFile:
+            return []
         case .state:
             return [.newLine, .instructionStart, .setStart]
         case .groupStart:
@@ -84,6 +86,8 @@ enum Token {
             return "\n"
         case .indent:
             return "(?: |\t)+"
+        case .endOfFile:
+            return ""
         case .state:
             return "state +([a-zA-Z0-9]+) *: *"
         case .groupStart:

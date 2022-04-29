@@ -56,6 +56,7 @@ func lex(code: String, onToken: (FoundToken) throws -> Void) throws {
         }
     }
     if current.token != .newLine {
-        try onToken(FoundToken(token: .newLine, matches: [], range: Range(from...from)))
+        try onToken(FoundToken(token: .newLine, matches: [], range: from ..< from))
     }
+    try onToken(FoundToken(token: .endOfFile, matches: [], range: from ..< from))
 }

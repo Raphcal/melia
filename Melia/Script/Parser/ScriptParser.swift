@@ -146,7 +146,6 @@ func parse(code: String) throws -> Script {
             tokenStack.append(current)
         }
     }
-    onGroupEnd(groups: &groups, instructions: &instructions)
     return Script(states: statePointers, initialState: initialState ?? "default", instructions: instructions, tokens: tokens)
 }
 
