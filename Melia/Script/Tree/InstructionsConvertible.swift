@@ -20,14 +20,10 @@ extension TokenTree {
     }
 }
 
-fileprivate protocol InstructionsConvertible {
-    func appendAsInstructions(to script: inout Script)
-}
-
 extension Array where Element == TreeNode {
     func appendAsInstructions(to script: inout Script) {
         for node in self {
-            (node as! InstructionsConvertible).appendAsInstructions(to: &script)
+            node.appendAsInstructions(to: &script)
         }
     }
 }
@@ -36,13 +32,13 @@ extension Array where Element == ArgumentNode {
     func appendAsInstructions(to script: inout Script) {
         script.instructions.append(ClearArguments())
         for argument in self {
-            (argument.value as! InstructionsConvertible).appendAsInstructions(to: &script)
+            argument.value.appendAsInstructions(to: &script)
             script.instructions.append(PushArgument(name: argument.name))
         }
     }
 }
 
-extension StateNode: InstructionsConvertible {
+extension StateNode {
     func appendAsInstructions(to script: inout Script) {
         script.states[name] = script.instructions.count
         children.appendAsInstructions(to: &script)
@@ -50,14 +46,14 @@ extension StateNode: InstructionsConvertible {
     }
 }
 
-extension ArgumentNode: InstructionsConvertible {
+extension ArgumentNode {
     func appendAsInstructions(to script: inout Script) {
-        (value as! InstructionsConvertible).appendAsInstructions(to: &script)
+        value.appendAsInstructions(to: &script)
         script.instructions.append(PushArgument(name: name))
     }
 }
 
-extension GroupNode: InstructionsConvertible {
+extension GroupNode {
     func appendAsInstructions(to script: inout Script) {
         arguments.appendAsInstructions(to: &script)
 
@@ -80,7 +76,7 @@ extension GroupNode: InstructionsConvertible {
     }
 }
 
-extension InstructionNode: InstructionsConvertible {
+extension InstructionNode {
     func appendAsInstructions(to script: inout Script) {
         arguments.appendAsInstructions(to: &script)
         switch name {
@@ -92,15 +88,15 @@ extension InstructionNode: InstructionsConvertible {
     }
 }
 
-extension SetNode: InstructionsConvertible {
+extension SetNode {
     func appendAsInstructions(to script: inout Script) {
-        (value as! InstructionsConvertible).appendAsInstructions(to: &script)
+        value.appendAsInstructions(to: &script)
         script.instructions.append(SetValue(path: variable.components(separatedBy: ".")))
     }
 }
 
 extension OperatorKind {
-    var instruction: Instruction {
+    var instruction: Operator {
         switch self {
         case .add:
             return Add()
@@ -118,17 +114,17 @@ extension OperatorKind {
     }
 }
 
-extension BinaryOperationNode: InstructionsConvertible {
+extension BinaryOperationNode {
     func appendAsInstructions(to script: inout Script) {
-        (lhs as! InstructionsConvertible).appendAsInstructions(to: &script)
-        (rhs as! InstructionsConvertible).appendAsInstructions(to: &script)
+        lhs.appendAsInstructions(to: &script)
+        rhs.appendAsInstructions(to: &script)
         script.instructions.append(self.operator.instruction)
     }
 }
 
-extension UnaryOperationNode: InstructionsConvertible {
+extension UnaryOperationNode {
     func appendAsInstructions(to script: inout Script) {
-        (value as! InstructionsConvertible).appendAsInstructions(to: &script)
+        value.appendAsInstructions(to: &script)
         switch self.operator {
         case "-", "!":
             script.instructions.append(Negative())
@@ -138,19 +134,19 @@ extension UnaryOperationNode: InstructionsConvertible {
     }
 }
 
-extension BracesNode: InstructionsConvertible {
+extension BracesNode {
     func appendAsInstructions(to script: inout Script) {
-        (child as! InstructionsConvertible).appendAsInstructions(to: &script)
+        child.appendAsInstructions(to: &script)
     }
 }
 
-extension ConstantNode: InstructionsConvertible {
+extension ConstantNode {
     func appendAsInstructions(to script: inout Script) {
         script.instructions.append(Constant(value: value))
     }
 }
 
-extension VariableNode: InstructionsConvertible {
+extension VariableNode {
     func appendAsInstructions(to script: inout Script) {
         script.instructions.append(Variable(path: name.components(separatedBy: ".")))
     }

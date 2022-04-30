@@ -24,12 +24,26 @@ state main:
     }
 
     func testMultiplyPriority() throws {
-        let result = TokenTree(code: "result = 2 + 3 * 4 + 5")!
-        XCTAssertFalse(result.children.isEmpty, "L'arbre ne doit pas être vide")
+        let tree = TokenTree(code: "2 + 3 * 4 + 5")!
+        XCTAssertFalse(tree.children.isEmpty, "L'arbre ne doit pas être vide")
+
+        let result = tree.script.run()
+        XCTAssertEqual(result.stack.last!, .integer(19))
+
+        let reducedTree = tree.reduceByInliningValues(from: [:])
+        XCTAssertEqual(reducedTree.children.count, 1)
+        XCTAssertEqual((reducedTree.children[0] as! ConstantNode).value, .integer(19))
     }
 
     func testBraces() throws {
-        let result = TokenTree(code: "result = (2 + 3) * (4 + 5)")!
-        XCTAssertFalse(result.children.isEmpty, "L'arbre ne doit pas être vide")
+        let tree = TokenTree(code: "(2 + 3) * (4 + 5)")!
+        XCTAssertFalse(tree.children.isEmpty, "L'arbre ne doit pas être vide")
+
+        let result = tree.script.run()
+        XCTAssertEqual(result.stack.last!, .integer(45))
+
+        let reducedTree = tree.reduceByInliningValues(from: [:])
+        XCTAssertEqual(reducedTree.children.count, 1)
+        XCTAssertEqual((reducedTree.children[0] as! ConstantNode).value, .integer(45))
     }
 }

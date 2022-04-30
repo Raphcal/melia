@@ -12,7 +12,17 @@ struct TokenTree {
 }
 
 protocol TreeNode {
-    // Vide
+    func appendAsInstructions(to script: inout Script)
+    func reduceByInliningValues(from heap: [String: Value]) -> TreeNode
+}
+
+extension TreeNode {
+    func appendAsInstructions(to script: inout Script) {
+        // Vide
+    }
+    func reduceByInliningValues(from heap: [String: Value]) -> TreeNode {
+        return self
+    }
 }
 
 struct StateNode: TreeNode {

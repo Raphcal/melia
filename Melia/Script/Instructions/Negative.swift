@@ -10,11 +10,11 @@ import MeliceFramework
 struct Negative: Instruction {
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         var newContext = context
-        newContext.stack.append(negative(of: newContext.stack.removeLast()))
+        newContext.stack.append(Negative.negative(of: newContext.stack.removeLast()))
         return newContext
     }
 
-    func negative(of value: Value) -> Value {
+    static func negative(of value: Value) -> Value {
         switch value {
         case .integer(let integer):
             return .integer(-integer)
