@@ -14,14 +14,22 @@ struct TokenTree {
 protocol TreeNode {
     func appendAsInstructions(to script: inout Script)
     func reduceByInliningValues(from heap: [String: Value]) -> TreeNode
+    func kind(symbolTable: SymbolTable) -> ValueKind
+    func fill(symbolTable: inout SymbolTable)
 }
 
 extension TreeNode {
     func appendAsInstructions(to script: inout Script) {
-        // Vide
+        // Aucune action.
     }
     func reduceByInliningValues(from heap: [String: Value]) -> TreeNode {
         return self
+    }
+    func kind(symbolTable: SymbolTable) -> ValueKind {
+        return .null
+    }
+    func fill(symbolTable: inout SymbolTable) {
+        // Aucune action.
     }
 }
 

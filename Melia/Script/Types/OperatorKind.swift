@@ -50,4 +50,21 @@ enum OperatorKind {
             return 0
         }
     }
+
+    var instruction: Operator {
+        switch self {
+        case .add:
+            return Add()
+        case .substract:
+            return Substract()
+        case .multiply:
+            return Multiply()
+        case .divide:
+            return Divide()
+        case .and:
+            return And()
+        case .or:
+            return Or()
+        }
+    }
 }

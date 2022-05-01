@@ -41,7 +41,6 @@ enum Value: Equatable {
                 break
             }
         case .sprite(let sprite):
-            // TODO: Permettre l'accès aux animations
             switch property {
             case "direction":
                 return .direction(sprite.pointee.direction)
@@ -49,10 +48,10 @@ enum Value: Equatable {
                 return .point(sprite.pointee.frame.origin)
             case "collidesWithWall":
                 // TODO: Vérifier si le sprite est en contact avec un mur
-                return .integer(0)
+                return .boolean(false)
             case "isJumping":
                 // TODO: Vérifier si le sprite est en train de sauter
-                return .integer(0)
+                return .boolean(false)
             case "animations":
                 return .animations(sprite.pointee.definition.animations)
             default:

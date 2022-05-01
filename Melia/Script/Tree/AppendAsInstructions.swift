@@ -95,25 +95,6 @@ extension SetNode {
     }
 }
 
-extension OperatorKind {
-    var instruction: Operator {
-        switch self {
-        case .add:
-            return Add()
-        case .substract:
-            return Substract()
-        case .multiply:
-            return Multiply()
-        case .divide:
-            return Divide()
-        case .and:
-            return And()
-        case .or:
-            return Or()
-        }
-    }
-}
-
 extension BinaryOperationNode {
     func appendAsInstructions(to script: inout Script) {
         lhs.appendAsInstructions(to: &script)

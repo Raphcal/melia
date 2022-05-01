@@ -12,7 +12,8 @@ func translateToC(tree: TokenTree, for definition: MELSpriteDefinition) -> Strin
     let today = Date().formatted(.dateTime.day(.twoDigits).month(.twoDigits).year(.defaultDigits))
 
     let sprite = MELSpriteAllocStandalone(definition)
-    var finalTree = tree.reduceByInliningValues(from: sprite)
+    let finalTree = tree.reduceByInliningValues(from: sprite)
+    let symbolTable = finalTree.symbolTable
 
     let spriteName = definition.nameAsString.lowercased()
     var scriptName = spriteName
@@ -55,7 +56,11 @@ extern MELRectangle camera;
 
 """
 
-    
+    if symbolTable.states.count > 1 {
+        // TODO: Créer un enum pour les états
+        // cCode +=
+    }
 
     return cCode
 }
+
