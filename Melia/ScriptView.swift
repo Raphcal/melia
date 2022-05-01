@@ -20,7 +20,7 @@ struct ScriptView: View {
 
     @Environment(\.undoManager) private var undoManager: UndoManager?
 
-    @State private var script: Script = .empty
+    @State private var tokenTree: TokenTree = .empty
 
     @State private var mapIndex = 0
     @State private var definitionIndex = 0
@@ -30,7 +30,7 @@ struct ScriptView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
-            CodeEditor(scriptName: scriptName, code: $code, script: $script)
+            CodeEditor(scriptName: scriptName, code: $code, tokenTree: $tokenTree)
             Divider()
             if sideView == .gamePreview {
                 OpenGLView(rendererContext: RendererContext(
@@ -38,10 +38,10 @@ struct ScriptView: View {
                     spriteDefinitions: sprites,
                     definitionIndex: definitionIndex,
                     origin: origin,
-                    script: script))
+                    script: tokenTree.script))
             } else {
                 ScrollView {
-                    Text("// TODO: Compiler en C")
+                    Text(translateToC(tree: tokenTree, for: sprites[definitionIndex]))
                     .font(.custom("Fira Code", size: 12))
                     .padding(4)
                 }

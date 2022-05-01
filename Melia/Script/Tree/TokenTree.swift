@@ -8,6 +8,8 @@
 import MeliceFramework
 
 extension TokenTree {
+    static let empty = TokenTree(children: [])
+
     init?(code: String) {
         var nodes = [TreeNode]()
         var childBuilder: NodeBuilder?

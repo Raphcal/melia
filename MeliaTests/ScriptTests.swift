@@ -73,7 +73,7 @@ state main:
     }
 
     func testMultiplyPriority() throws {
-        let result = try parse(code: "2 + 3 * 4 + 5").run()
+        let result = TokenTree(code: "2 + 3 * 4 + 5")!.script.run()
         XCTAssertEqual(result.stack.last!, .integer(19))
     }
 
@@ -81,24 +81,6 @@ state main:
         let tree = TokenTree(code: "(2 + 3) * (4 + 5)")!
         let result = tree.script.run()
         XCTAssertEqual(result.stack.last!, .integer(45))
-    }
-
-    func testParsePerformance() throws {
-        measure {
-            do {
-                _ = try parse(code: """
-        state main:
-            self.animation = stand
-            during 2s:
-                wait
-            self.animation = walk
-            during 500ms:
-                wait
-        """)
-            } catch {
-                XCTFail("parse crashed: \(error)")
-            }
-        }
     }
 
     func testTreeScriptPerformance() throws {
