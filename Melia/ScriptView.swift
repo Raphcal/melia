@@ -29,9 +29,8 @@ struct ScriptView: View {
     @State private var sideView = SideView.generatedCode
 
     var body: some View {
-        HStack(alignment: .top, spacing: 0) {
+        HSplitView {
             CodeEditor(scriptName: scriptName, code: $code, tokenTree: $tokenTree)
-            Divider()
             if sideView == .gamePreview {
                 OpenGLView(rendererContext: RendererContext(
                     map: maps[mapIndex],
@@ -42,6 +41,7 @@ struct ScriptView: View {
             } else {
                 ScrollView {
                     Text(translateToC(tree: tokenTree, for: sprites[definitionIndex]))
+                    .textSelection(.enabled)
                     .font(.custom("Fira Code", size: 12))
                     .padding(4)
                 }
@@ -115,8 +115,16 @@ state main:
       self.center = center + (128, 0) * progress * self.direction.value
    self.direction = self.direction.reverse
 """
+    @State private static var sprites = createSprites()
+
+    static func createSprites() -> MELSpriteDefinitionList {
+        var definitions = MELSpriteDefinitionListMakeWithInitialCapacity(1)
+        let definition = MELSpriteDefinition(name: MELStringCopy("kyukyu"), type: 0, palette: nil, animations: .empty, motionName: MELStringCopy("kyukyu.lua"), loadScript: nil)
+        definitions[0] = definition
+        return definitions
+    }
 
     static var previews: some View {
-        ScriptView(code: $code, sprites: .empty, maps: .empty)
+        ScriptView(code: $code, sprites: sprites, maps: .empty)
     }
 }
