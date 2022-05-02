@@ -34,13 +34,42 @@ func translateToC(tree: TokenTree, for definition: MELSpriteDefinition) -> Strin
         cCode += generateStateEnum(scriptName: scriptName, symbolTable: symbolTable)
     }
 
-    // TODO: Générer la structure pour le sprite
+    cCode += generateStruct(scriptName: scriptName, symbolTable: symbolTable)
 
     if symbolTable.states.count > 1 {
         cCode += generateGoToStateFunction(scriptName: scriptName, symbolTable: symbolTable)
     }
 
     return cCode
+}
+
+fileprivate extension ValueKind {
+    var cType: String {
+        switch self {
+        case .integer:
+            return "int32_t"
+        case .decimal:
+            return "float"
+        case .point:
+            return "MELPoint"
+        case .boolean:
+            return "boolean"
+        case .string:
+            return "char *"
+        case .direction:
+            return "MELDirection"
+        case .sprite:
+            return "MELSpriteRef"
+        case .animation:
+            return "MELAnimationRef"
+        case .animations:
+            return "MELAnimationList"
+        case .map:
+            return "MELMap"
+        case .null:
+            return "void"
+        }
+    }
 }
 
 fileprivate func generateHeaderFile(scriptName: String) -> String {
@@ -63,6 +92,7 @@ void \(scriptName)_update(LCDSprite * _Nonnull sprite);
 
 #endif /* \(scriptName)_h */
 
+
 """
 }
 
@@ -82,6 +112,7 @@ fileprivate func generateFileStart(scriptName: String, spriteName: String) -> St
 
 extern MELRectangle camera;
 
+
 """
 }
 
@@ -92,6 +123,7 @@ fileprivate func generateStateEnum(scriptName: String, symbolTable: SymbolTable)
     }
     cCode += """
 };
+
 
 """
     return cCode
@@ -121,6 +153,32 @@ static void goToCurrentState(LCDSprite * _Nonnull sprite) {
     }
 }
 
+
 """
+    return cCode
+}
+
+fileprivate func generateStruct(scriptName: String, symbolTable: SymbolTable) -> String {
+    var cCode = """
+struct \(scriptName) {
+    MELConstSpriteDefinition definition;
+    AnimationName animationName;
+    MELAnimation * _Nullable animation;
+    MELRectangle frame;
+    MELDirection direction;
+
+"""
+
+    if symbolTable.states.count > 1 {
+        cCode += "    enum \(scriptName)_state state;\n"
+    }
+    for (variable, kind) in symbolTable.variables {
+        if ["self", "delta", "map"].contains(variable) {
+            continue
+        }
+        cCode += "    \(kind.cType) \(variable);\n"
+    }
+
+    cCode += "};\n\n"
     return cCode
 }
