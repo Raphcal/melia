@@ -20,7 +20,7 @@ struct ScriptView: View {
 
     @Environment(\.undoManager) private var undoManager: UndoManager?
 
-    @State private var tokenTree: TokenTree = .empty
+    @State private var tokens = [FoundToken]()
 
     @State private var mapIndex = 0
     @State private var definitionIndex = 0
@@ -29,8 +29,9 @@ struct ScriptView: View {
     @State private var sideView = SideView.generatedCode
 
     var body: some View {
-        HSplitView {
-            CodeEditor(scriptName: scriptName, code: $code, tokenTree: $tokenTree)
+        let tokenTree = TokenTree(tokens: tokens)
+        return HSplitView {
+            CodeEditor(scriptName: scriptName, code: $code, tokens: $tokens)
             if sideView == .gamePreview {
                 OpenGLView(rendererContext: RendererContext(
                     map: maps[mapIndex],

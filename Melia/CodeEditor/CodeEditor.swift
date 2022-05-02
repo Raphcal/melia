@@ -11,7 +11,7 @@ import SwiftUI
 struct CodeEditor: NSViewRepresentable {
     var scriptName: String
     @Binding var code: String?
-    @Binding var tokenTree: TokenTree
+    @Binding var tokens: [FoundToken]
     @Environment(\.undoManager) private var undoManager: UndoManager?
 
     func makeNSView(context: Context) -> NSScrollView {
@@ -36,7 +36,7 @@ struct CodeEditor: NSViewRepresentable {
             return
         }
         if scriptName != context.coordinator.scriptName {
-            context.coordinator.codeDidChange(scriptName: scriptName, code: $code, tokenTree: $tokenTree)
+            context.coordinator.codeDidChange(scriptName: scriptName, code: $code, tokens: $tokens)
             textView.string = code ?? ""
             DispatchQueue.main.async {
                 context.coordinator.textDidChange(textView: textView)
@@ -45,12 +45,12 @@ struct CodeEditor: NSViewRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        return Coordinator(scriptName: scriptName, code: $code, tokenTree: $tokenTree, undoManager: undoManager)
+        return Coordinator(scriptName: scriptName, code: $code, tokens: $tokens, undoManager: undoManager)
     }
 
     class Coordinator: NSObject, NSTextViewDelegate {
         @Binding var code: String?
-        @Binding var tokenTree: TokenTree
+        @Binding var tokens: [FoundToken]
         var scriptName: String
         var undoManager: UndoManager?
 
@@ -59,19 +59,19 @@ struct CodeEditor: NSViewRepresentable {
 
         var snapshot: CodeSnapshot?
 
-        init(scriptName: String, code: Binding<String?>, tokenTree: Binding<TokenTree>, undoManager: UndoManager?) {
+        init(scriptName: String, code: Binding<String?>, tokens: Binding<[FoundToken]>, undoManager: UndoManager?) {
             self.scriptName = scriptName
             self._code = code
-            self._tokenTree = tokenTree
+            self._tokens = tokens
             self.undoManager = undoManager
             self.regularFont = NSFont(name: "Fira Code", size: 12) ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
             self.boldFont = NSFont(name: "Fira Code Bold", size: 12) ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .bold)
         }
 
-        final func codeDidChange(scriptName: String, code: Binding<String?>, tokenTree: Binding<TokenTree>) {
+        final func codeDidChange(scriptName: String, code: Binding<String?>, tokens: Binding<[FoundToken]>) {
             self.scriptName = scriptName
             self._code = code
-            self._tokenTree = tokenTree
+            self._tokens = tokens
             self.snapshot = nil
             undoManager?.removeAllActions()
         }
@@ -104,7 +104,7 @@ struct CodeEditor: NSViewRepresentable {
             let textViewString = textView.string
             do {
                 let tokens = try lex(code: textViewString)
-                tokenTree = TokenTree(tokens: tokens)
+                self.tokens = tokens
                 for token in tokens {
                     let attributes = token.token.textAttributes(regularFont: regularFont, boldFont: boldFont)
                     let range = NSRange(location: token.range.startIndex, length: min(token.range.endIndex, textViewString.count) - token.range.startIndex)
@@ -135,7 +135,7 @@ struct CodeEditor: NSViewRepresentable {
 }
 
 struct CodeEditor_Previews: PreviewProvider {
-    @State private static var tokenTree = TokenTree.empty
+    @State private static var tokens = [FoundToken]()
     @State private static var code: String? = """
 state main:
     // Attend 1s
@@ -150,6 +150,6 @@ state main:
 """
 
     static var previews: some View {
-        CodeEditor(scriptName: "no name", code: $code, tokenTree: $tokenTree)
+        CodeEditor(scriptName: "no name", code: $code, tokens: $tokens)
     }
 }
