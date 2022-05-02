@@ -40,7 +40,7 @@ struct ScriptView: View {
                     script: tokenTree.script))
             } else {
                 ScrollView {
-                    Text(translateToC(tree: tokenTree, for: sprites[definitionIndex]))
+                    Text(PlaydateCodeGenerator(tree: tokenTree, for: sprites[definitionIndex]).code)
                     .textSelection(.enabled)
                     .font(.custom("Fira Code", size: 12))
                     .padding(4)

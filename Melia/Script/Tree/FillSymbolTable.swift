@@ -32,15 +32,21 @@ extension StateNode {
 
 extension GroupNode {
     func fill(symbolTable: inout SymbolTable) {
+        var localVariables = [String]()
         switch name {
         case "during":
             symbolTable.variables["time"] = .decimal
-            // TODO: Voir comment déclarer "progress" en tant que variable locale ?
+            if symbolTable.variables["progress"] == nil {
+                localVariables.append("progress")
+            }
             symbolTable.variables["progress"] = .decimal
         default:
             break
         }
         children.forEach { $0.fill(symbolTable: &symbolTable) }
+        for localVariable in localVariables {
+            symbolTable.variables.removeValue(forKey: localVariable)
+        }
     }
 }
 
