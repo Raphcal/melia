@@ -12,6 +12,10 @@ fileprivate enum SideView {
     case gamePreview, generatedCode
 }
 
+fileprivate enum GeneratedFile {
+    case header, code
+}
+
 struct ScriptView: View {
     var scriptName = "none"
     @Binding var code: String?
@@ -26,6 +30,8 @@ struct ScriptView: View {
     @State private var definitionIndex = 0
     @State private var origin = MELPoint(x: 32, y: 32)
 
+    @State private var selectedFile = GeneratedFile.code
+
     @State private var sideView = SideView.generatedCode
 
     var body: some View {
@@ -39,12 +45,38 @@ struct ScriptView: View {
                     definitionIndex: definitionIndex,
                     origin: origin,
                     script: tokenTree.script))
+                .toolbar {
+                    ToolbarItemGroup {
+                        Picker("Map", selection: $mapIndex) {
+                            ForEach(0 ..< maps.count, id: \.self) { index in
+                                Label(maps[index].nameAsString, systemImage: "map")
+                            }
+                        }
+                        Picker("Sprite", selection: $definitionIndex) {
+                            ForEach(0 ..< sprites.count, id: \.self) { index in
+                                Label(sprites[index].nameAsString, systemImage: "hare")
+                            }
+                        }
+                    }
+                }
             } else {
                 ScrollView {
-                    Text(PlaydateCodeGenerator(tree: tokenTree, for: sprites[definitionIndex]).code)
+                    Text(selectedFile == .header
+                         ? PlaydateCodeGenerator(tree: tokenTree, for: sprites[definitionIndex]).headerFile
+                         : PlaydateCodeGenerator(tree: tokenTree, for: sprites[definitionIndex]).codeFile)
                     .textSelection(.enabled)
                     .font(.custom("Fira Code", size: 12))
                     .padding(4)
+                    .toolbar {
+                        ToolbarItem {
+                            Picker("File", selection: $selectedFile) {
+                                Label("Header", systemImage: "h.square")
+                                    .tag(GeneratedFile.header)
+                                Label("Code", systemImage: "c.square")
+                                    .tag(GeneratedFile.code)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -67,6 +99,14 @@ struct ScriptView: View {
                             Label(sprites[index].nameAsString, systemImage: "hare")
                         }
                     }
+                } else if sideView == .generatedCode {
+                    Picker("File", selection: $selectedFile) {
+                        Label("Header", systemImage: "h.square")
+                            .tag(GeneratedFile.header)
+                        Label("Code", systemImage: "c.square")
+                            .tag(GeneratedFile.code)
+                    }
+                    .pickerStyle(.segmented)
                 }
             }
             ToolbarItem {
@@ -76,7 +116,7 @@ struct ScriptView: View {
                     Label("Generated Code", systemImage: "function")
                         .tag(SideView.generatedCode)
                 }
-                .pickerStyle(SegmentedPickerStyle())
+                .pickerStyle(.segmented)
             }
         }
     }

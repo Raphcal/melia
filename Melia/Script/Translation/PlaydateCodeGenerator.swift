@@ -14,29 +14,7 @@ struct PlaydateCodeGenerator {
     var tree: TokenTree
     var symbolTable: SymbolTable
 
-    var code: String {
-        var code = headerFile
-        code += cFileStart
-
-        if symbolTable.states.count > 1 {
-            code += stateEnumDeclaration
-        }
-        code += structDeclaration
-
-        // TODO: Générer les déclarations des méthodes
-
-        code += drawFunction
-
-        if symbolTable.states.count > 1 {
-            code += goToStateFunction
-        }
-        for state in symbolTable.states {
-            code += generate(state: state, symbolTable: symbolTable, scriptName: scriptName)
-        }
-        return code
-    }
-
-    private var headerFile: String {
+    var headerFile: String {
         let today = Date().formatted(.dateTime.day(.twoDigits).month(.twoDigits).year(.defaultDigits))
 
         return """
@@ -58,6 +36,26 @@ struct PlaydateCodeGenerator {
 
 
             """
+    }
+
+    var codeFile: String {
+        var code =  cFileStart
+
+        if symbolTable.states.count > 1 {
+            code += stateEnumDeclaration
+        }
+        code += structDeclaration
+        code += stateFunctionsDeclaration
+        code += updateFunction
+        code += drawFunction
+
+        if symbolTable.states.count > 1 {
+            code += goToStateFunction
+        }
+        for state in symbolTable.states {
+            code += generate(state: state, symbolTable: symbolTable, scriptName: scriptName)
+        }
+        return code
     }
 
     private var cFileStart: String {
@@ -113,6 +111,40 @@ struct PlaydateCodeGenerator {
 
         code += "};\n\n"
         return code
+    }
+
+    private var stateFunctionsDeclaration: String {
+        var code = ""
+        for state in symbolTable.states {
+            for part in 0 ..< state.partCount {
+                code += "static void state_\(state.name)\(part)(LCDSprite * _Nonnull sprite);\n"
+            }
+            code += "\n"
+        }
+        return code
+    }
+
+    private var updateFunction: String {
+        // TODO: Gérer le nommage en PascalCase
+        let pascalCasedSpriteName = spriteName.capitalized
+        let defaultState = symbolTable.states.isEmpty ? "default" : symbolTable.states[0].name
+        return """
+            void \(scriptName)_update(LCDSprite * _Nonnull sprite) {
+                struct \(scriptName) *self = playdate->system->realloc(NULL, sizeof(struct \(scriptName)));
+                memset(self, 0, sizeof(struct \(scriptName)));
+                if (sprite\(pascalCasedSpriteName).palette == NULL) {
+                    loadSprite\(pascalCasedSpriteName)Palette();
+                }
+                self->definition = sprite\(pascalCasedSpriteName);
+                playdate->sprite->getPosition(sprite, &self->origin.x, &self->origin.y);
+
+                playdate->sprite->setUserdata(sprite, self);
+                playdate->sprite->setUpdateFunction(sprite, &state_\(defaultState)0);
+                state_\(defaultState)0(sprite);
+            }
+
+
+            """
     }
 
     private var drawFunction: String {
@@ -228,5 +260,22 @@ fileprivate extension ValueKind {
         case .null:
             return "void"
         }
+    }
+}
+
+fileprivate extension StateNode {
+    var partCount: Int {
+        var count = 1
+        var lastWasAGroup = false
+        for child in children {
+            if child is GroupNode {
+                count += 1
+                lastWasAGroup = true
+            } else if lastWasAGroup {
+                count += 1
+                lastWasAGroup = false
+            }
+        }
+        return count
     }
 }
