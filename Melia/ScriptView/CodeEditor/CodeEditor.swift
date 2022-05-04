@@ -145,10 +145,14 @@ struct CodeEditor: NSViewRepresentable {
                     if case let LexerError.expectedTokenNotFound(current: current, expected: expected, found: _) = error {
                         let expectedTokens = expected.map({ "\($0)" }).joined(separator: ", ")
                         attributes[.toolTip] = "Expected one of \(expectedTokens) after \(current.token)."
-                        range = NSRange(location: current.range.endIndex, length: min(current.range.endIndex + 1, textView.string.count) - current.range.startIndex)
+                        if current.range.endIndex < textView.string.count {
+                            range = NSRange(location: current.range.endIndex, length: 1)
+                        }
                     } else if case let LexerError.badIndent(current: current, expectedMultipleOf: base, found: found) = error {
                         attributes[.toolTip] = "Expected indentation size to be a multiple of \(base) but was \(found)."
-                        range = NSRange(location: current.range.startIndex, length: min(current.range.endIndex, textView.string.count) - current.range.startIndex)
+                        if current.range.startIndex < textView.string.count {
+                            range = NSRange(location: current.range.startIndex, length: min(current.range.endIndex, textView.string.count) - current.range.startIndex)
+                        }
                     } else {
                         print("Parse error:\(error)")
                     }
@@ -163,7 +167,7 @@ struct CodeEditor: NSViewRepresentable {
                         let range = NSRange(location: token.range.startIndex, length: min(token.range.endIndex, textView.string.count) - token.range.startIndex)
                         textStorage.setAttributes(attributes, range: range)
                     }
-                    textView.setSpellingState(0, range: NSRange(location: 0, length: code.count))
+                    textView.setSpellingState(0, range: NSRange(location: 0, length: textView.string.count))
                 }
             }
         }
