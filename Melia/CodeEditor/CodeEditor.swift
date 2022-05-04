@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 struct CodeEditor: NSViewRepresentable {
     var scriptName: String
@@ -24,6 +25,7 @@ struct CodeEditor: NSViewRepresentable {
 
         textView.string = code ?? ""
         textView.delegate = context.coordinator
+        context.coordinator.textView = textView
 
         DispatchQueue.main.async {
             context.coordinator.textDidChange(Notification(name: NSTextView.willChangeNotifyingTextViewNotification, object: textView))
@@ -32,15 +34,8 @@ struct CodeEditor: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: NSScrollView, context: Context) {
-        guard let textView = nsView.documentView as? NSTextView else {
-            return
-        }
         if scriptName != context.coordinator.scriptName {
-            context.coordinator.codeDidChange(scriptName: scriptName, code: $code, tokens: $tokens)
-            textView.string = code ?? ""
-            DispatchQueue.main.async {
-                context.coordinator.textDidChange(textView: textView)
-            }
+            context.coordinator.scriptDidChange(scriptName: scriptName, code: $code, tokens: $tokens)
         }
     }
 
@@ -48,7 +43,9 @@ struct CodeEditor: NSViewRepresentable {
         return Coordinator(scriptName: scriptName, code: $code, tokens: $tokens, undoManager: undoManager)
     }
 
-    class Coordinator: NSObject, NSTextViewDelegate {
+    final class Coordinator: NSObject, NSTextViewDelegate {
+        weak var textView: NSTextView?
+
         @Binding var code: String?
         @Binding var tokens: [FoundToken]
         var scriptName: String
@@ -59,6 +56,9 @@ struct CodeEditor: NSViewRepresentable {
 
         var snapshot: CodeSnapshot?
 
+        @Published private var currentCode: String = ""
+        private var subscriptions = Set<AnyCancellable>()
+
         init(scriptName: String, code: Binding<String?>, tokens: Binding<[FoundToken]>, undoManager: UndoManager?) {
             self.scriptName = scriptName
             self._code = code
@@ -66,51 +66,73 @@ struct CodeEditor: NSViewRepresentable {
             self.undoManager = undoManager
             self.regularFont = NSFont(name: "Fira Code", size: 12) ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
             self.boldFont = NSFont(name: "Fira Code Bold", size: 12) ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .bold)
+            super.init()
+
+            $currentCode.debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
+                .sink { [weak self] code in
+                    self?.codeDidChange(newCode: code)
+                }
+                .store(in: &subscriptions)
         }
 
-        final func codeDidChange(scriptName: String, code: Binding<String?>, tokens: Binding<[FoundToken]>) {
+        func scriptDidChange(scriptName: String, code: Binding<String?>, tokens: Binding<[FoundToken]>) {
+            guard let textView = textView else {
+                print("No text view")
+                return
+            }
+
             self.scriptName = scriptName
             self._code = code
             self._tokens = tokens
             self.snapshot = nil
             undoManager?.removeAllActions()
+
+            textView.string = self.code ?? ""
+            DispatchQueue.main.async {
+                self.colorizeSyntax(textView: textView)
+            }
         }
 
         func textDidChange(_ notification: Notification) {
-            guard let textView = notification.object as? NSTextView else {
-                print("Not a text view.")
+            if let textView = textView {
+                currentCode = textView.string
+            }
+        }
+
+        func codeDidChange(newCode: String) {
+            guard let textView = textView else {
+                print("No text view.")
                 return
             }
-            let textViewString = textView.string
-            if (code == nil && textViewString.isEmpty) || code != textViewString {
+
+            if (code == nil && newCode.isEmpty) || newCode != code {
                 if let undoManager = undoManager,
-                   snapshot == nil || (textViewString.last == "\n" && textViewString != snapshot!.code) {
+                   snapshot == nil || (newCode.last == "\n" && newCode != snapshot!.code) {
                     let aSnapshot = CodeSnapshot(code: $code, undoManager: undoManager)
                     undoManager.registerUndo(withTarget: aSnapshot) { _ in aSnapshot.undo() }
                     snapshot = aSnapshot
                 }
                 // TODO: Ajouter l'indentation ?
-                code = textViewString
+                code = newCode
             }
-            textDidChange(textView: textView)
+            colorizeSyntax(textView: textView)
         }
 
-        func textDidChange(textView: NSTextView) {
-            guard let textStorage = textView.textStorage
-            else {
+        func colorizeSyntax(textView: NSTextView) {
+            guard let textStorage = textView.textStorage else {
                 print("No storage.")
                 return
             }
-            let textViewString = textView.string
             do {
-                let tokens = try lex(code: textViewString)
+                let code = code ?? ""
+                let tokens = try lex(code: code)
                 self.tokens = tokens
                 for token in tokens {
                     let attributes = token.token.textAttributes(regularFont: regularFont, boldFont: boldFont)
-                    let range = NSRange(location: token.range.startIndex, length: min(token.range.endIndex, textViewString.count) - token.range.startIndex)
+                    let range = NSRange(location: token.range.startIndex, length: min(token.range.endIndex, code.count) - token.range.startIndex)
                     textStorage.setAttributes(attributes, range: range)
                 }
-                textView.setSpellingState(0, range: NSRange(location: 0, length: textViewString.count))
+                textView.setSpellingState(0, range: NSRange(location: 0, length: code.count))
             } catch {
                 var attributes = Token.newLine.textAttributes(regularFont: regularFont, boldFont: boldFont)
                 var range: NSRange?
