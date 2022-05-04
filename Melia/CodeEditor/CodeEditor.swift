@@ -27,8 +27,8 @@ struct CodeEditor: NSViewRepresentable {
         textView.delegate = context.coordinator
         context.coordinator.textView = textView
 
-        DispatchQueue.main.async {
-            context.coordinator.textDidChange(Notification(name: NSTextView.willChangeNotifyingTextViewNotification, object: textView))
+        DispatchQueue.parse.async {
+            context.coordinator.colorizeSyntax(textView: textView)
         }
         return scrollView
     }
@@ -68,7 +68,7 @@ struct CodeEditor: NSViewRepresentable {
             self.boldFont = NSFont(name: "Fira Code Bold", size: 12) ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .bold)
             super.init()
 
-            $currentCode.debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
+            $currentCode.debounce(for: .milliseconds(300), scheduler: DispatchQueue.parse)
                 .sink { [weak self] code in
                     self?.codeDidChange(newCode: code)
                 }
@@ -106,50 +106,64 @@ struct CodeEditor: NSViewRepresentable {
             }
 
             if (code == nil && newCode.isEmpty) || newCode != code {
-                if let undoManager = undoManager,
-                   snapshot == nil || (newCode.last == "\n" && newCode != snapshot!.code) {
-                    let aSnapshot = CodeSnapshot(code: $code, undoManager: undoManager)
-                    undoManager.registerUndo(withTarget: aSnapshot) { _ in aSnapshot.undo() }
-                    snapshot = aSnapshot
+                DispatchQueue.main.sync { [self] in
+                    if let undoManager = undoManager,
+                       snapshot == nil || (newCode.last == "\n" && newCode != snapshot!.code) {
+                        let aSnapshot = CodeSnapshot(code: $code, undoManager: undoManager)
+                        undoManager.registerUndo(withTarget: aSnapshot) { _ in aSnapshot.undo() }
+                        snapshot = aSnapshot
+                    }
+                    // TODO: Ajouter l'indentation ?
+                    code = newCode
                 }
-                // TODO: Ajouter l'indentation ?
-                code = newCode
             }
             colorizeSyntax(textView: textView)
         }
 
         func colorizeSyntax(textView: NSTextView) {
-            guard let textStorage = textView.textStorage else {
-                print("No storage.")
-                return
-            }
+            let regularFont = self.regularFont
+            let boldFont = self.boldFont
+            let code = self.code ?? ""
+            var tokens = [FoundToken]()
+            var anError: Error?
             do {
-                let code = code ?? ""
-                let tokens = try lex(code: code)
-                self.tokens = tokens
-                for token in tokens {
-                    let attributes = token.token.textAttributes(regularFont: regularFont, boldFont: boldFont)
-                    let range = NSRange(location: token.range.startIndex, length: min(token.range.endIndex, code.count) - token.range.startIndex)
-                    textStorage.setAttributes(attributes, range: range)
-                }
-                textView.setSpellingState(0, range: NSRange(location: 0, length: code.count))
+                tokens = try lex(code: code)
             } catch {
-                var attributes = Token.newLine.textAttributes(regularFont: regularFont, boldFont: boldFont)
-                var range: NSRange?
+                anError = error
+            }
 
-                if case let LexerError.expectedTokenNotFound(current: current, expected: expected, found: _) = error {
-                    let expectedTokens = expected.map({ "\($0)" }).joined(separator: ", ")
-                    attributes[.toolTip] = "Expected one of \(expectedTokens) after \(current.token)."
-                    range = NSRange(location: current.range.endIndex, length: 1)
-                } else if case let LexerError.badIndent(current: current, expectedMultipleOf: base, found: found) = error {
-                    attributes[.toolTip] = "Expected indentation size to be a multiple of \(base) but was \(found)."
-                    range = NSRange(location: current.range.startIndex, length: current.range.count)
-                } else {
-                    print("Parse error:\(error)")
+            DispatchQueue.main.async {
+                guard let textStorage = textView.textStorage else {
+                    print("No storage.")
+                    return
                 }
-                if let range = range {
-                    textStorage.setAttributes(attributes, range: range)
-                    textView.setSpellingState(NSAttributedString.SpellingState.spelling.rawValue, range: range)
+
+                if let error = anError {
+                    var attributes = Token.newLine.textAttributes(regularFont: regularFont, boldFont: boldFont)
+                    var range: NSRange?
+
+                    if case let LexerError.expectedTokenNotFound(current: current, expected: expected, found: _) = error {
+                        let expectedTokens = expected.map({ "\($0)" }).joined(separator: ", ")
+                        attributes[.toolTip] = "Expected one of \(expectedTokens) after \(current.token)."
+                        range = NSRange(location: current.range.endIndex, length: min(current.range.endIndex + 1, textView.string.count) - current.range.startIndex)
+                    } else if case let LexerError.badIndent(current: current, expectedMultipleOf: base, found: found) = error {
+                        attributes[.toolTip] = "Expected indentation size to be a multiple of \(base) but was \(found)."
+                        range = NSRange(location: current.range.startIndex, length: min(current.range.endIndex, textView.string.count) - current.range.startIndex)
+                    } else {
+                        print("Parse error:\(error)")
+                    }
+                    if let range = range {
+                        textStorage.setAttributes(attributes, range: range)
+                        textView.setSpellingState(NSAttributedString.SpellingState.spelling.rawValue, range: range)
+                    }
+                } else {
+                    self.tokens = tokens
+                    for token in tokens {
+                        let attributes = token.token.textAttributes(regularFont: regularFont, boldFont: boldFont)
+                        let range = NSRange(location: token.range.startIndex, length: min(token.range.endIndex, textView.string.count) - token.range.startIndex)
+                        textStorage.setAttributes(attributes, range: range)
+                    }
+                    textView.setSpellingState(0, range: NSRange(location: 0, length: code.count))
                 }
             }
         }

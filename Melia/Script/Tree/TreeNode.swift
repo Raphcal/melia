@@ -7,8 +7,12 @@
 
 import Foundation
 
-struct TokenTree {
+struct TokenTree: Equatable {
     var children: [TreeNode]
+
+    static func == (lhs: TokenTree, rhs: TokenTree) -> Bool {
+        return lhs.children == rhs.children
+    }
 }
 
 protocol TreeNode {
@@ -16,6 +20,7 @@ protocol TreeNode {
     func reduceByInliningValues(from heap: [String: Value]) -> TreeNode
     func kind(symbolTable: SymbolTable) -> ValueKind
     func fill(symbolTable: inout SymbolTable)
+    func equals(_ other: TreeNode) -> Bool
 }
 
 extension TreeNode {
@@ -30,6 +35,9 @@ extension TreeNode {
     }
     func fill(symbolTable: inout SymbolTable) {
         // Aucune action.
+    }
+    func equals(_ other: TreeNode) -> Bool {
+        return false
     }
 }
 

@@ -12,7 +12,7 @@ fileprivate enum SideView {
     case gamePreview, generatedCode
 }
 
-fileprivate enum GeneratedFile {
+enum GeneratedFile {
     case header, code
 }
 
@@ -35,8 +35,7 @@ struct ScriptView: View {
     @State private var sideView = SideView.generatedCode
 
     var body: some View {
-        let tokenTree = TokenTree(tokens: tokens)
-        return HSplitView {
+        HSplitView {
             CodeEditor(scriptName: scriptName, code: $code, tokens: $tokens)
             if sideView == .gamePreview {
                 OpenGLView(rendererContext: RendererContext(
@@ -44,7 +43,7 @@ struct ScriptView: View {
                     spriteDefinitions: sprites,
                     definitionIndex: definitionIndex,
                     origin: origin,
-                    script: tokenTree.script))
+                    tokens: tokens))
                 .toolbar {
                     ToolbarItemGroup {
                         Picker("Map", selection: $mapIndex) {
@@ -60,24 +59,7 @@ struct ScriptView: View {
                     }
                 }
             } else {
-                ScrollView {
-                    Text(selectedFile == .header
-                         ? PlaydateCodeGenerator(tree: tokenTree, for: sprites[definitionIndex]).headerFile
-                         : PlaydateCodeGenerator(tree: tokenTree, for: sprites[definitionIndex]).codeFile)
-                    .textSelection(.enabled)
-                    .font(.custom("Fira Code", size: 12))
-                    .padding(4)
-                    .toolbar {
-                        ToolbarItem {
-                            Picker("File", selection: $selectedFile) {
-                                Label("Header", systemImage: "h.square")
-                                    .tag(GeneratedFile.header)
-                                Label("Code", systemImage: "c.square")
-                                    .tag(GeneratedFile.code)
-                            }
-                        }
-                    }
-                }
+                GeneratedCodeView(tokens: $tokens, selectedFile: $selectedFile, definition: sprites[definitionIndex])
             }
         }
         .onAppear(perform: {

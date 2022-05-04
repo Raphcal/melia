@@ -13,13 +13,13 @@ struct RendererContext: Equatable {
     var spriteDefinitions: MELSpriteDefinitionList
     var definitionIndex: Int
     var origin: MELPoint = .zero
-    var script: Script = .empty
+    var tokens = [FoundToken]()
 
     static func ==(lhs: RendererContext, rhs: RendererContext) -> Bool {
         return lhs.map.nameAsString == rhs.map.nameAsString
             && lhs.spriteDefinitions.count == rhs.spriteDefinitions.count
             && lhs.definitionIndex == rhs.definitionIndex
-            && lhs.script == rhs.script
+            && lhs.tokens == rhs.tokens
     }
 }
 
@@ -29,6 +29,7 @@ class Renderer {
     var camera: MELPoint = .zero
     var definitionIndex = -1
     var script: Script = .empty
+    var tokens = [FoundToken]()
     var executionContext: Script.ExecutionContext?
 
     var textureAtlas = MELTextureAtlasEmpty
@@ -72,11 +73,15 @@ class Renderer {
             definitionIndex = context.definitionIndex
         }
 
-        if script != context.script {
-            script = context.script
+        if tokens != context.tokens {
+            tokens = context.tokens
             executionContext = script.executionContext
             if let sprite = sprite {
                 MELSpriteSetFrameOrigin(sprite, context.origin)
+            }
+
+            DispatchQueue.parse.async { [self] in
+                self.script = TokenTree(tokens: self.tokens).script
             }
         }
     }
