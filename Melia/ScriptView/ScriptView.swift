@@ -8,7 +8,7 @@
 import SwiftUI
 import MeliceFramework
 
-fileprivate enum SideView {
+enum SideView {
     case gamePreview, generatedCode
 }
 
@@ -35,71 +35,15 @@ struct ScriptView: View {
     @State private var sideView = SideView.generatedCode
 
     var body: some View {
-        HSplitView {
+        HStack {
             CodeEditor(scriptName: scriptName, code: $code, tokens: $tokens)
-            if sideView == .gamePreview {
-                OpenGLView(rendererContext: RendererContext(
-                    map: maps[mapIndex],
-                    spriteDefinitions: sprites,
-                    definitionIndex: definitionIndex,
-                    origin: origin,
-                    tokens: tokens))
-                .toolbar {
-                    ToolbarItemGroup {
-                        Picker("Map", selection: $mapIndex) {
-                            ForEach(0 ..< maps.count, id: \.self) { index in
-                                Label(maps[index].nameAsString, systemImage: "map")
-                            }
-                        }
-                        Picker("Sprite", selection: $definitionIndex) {
-                            ForEach(0 ..< sprites.count, id: \.self) { index in
-                                Label(sprites[index].nameAsString, systemImage: "hare")
-                            }
-                        }
-                    }
-                }
-            } else {
-                GeneratedCodeView(tokens: $tokens, selectedFile: $selectedFile, definition: sprites[definitionIndex])
-            }
+            Previews(scriptName: scriptName, code: $code, sprites: sprites, maps: maps, tokens: $tokens, mapIndex: $mapIndex, definitionIndex: $definitionIndex, origin: $origin)
         }
         .onAppear(perform: {
             updateMapIndexAndDefinitionIndex(for: scriptName)
         })
         .onChange(of: scriptName) { newValue in
             updateMapIndexAndDefinitionIndex(for: newValue)
-        }
-        .toolbar {
-            ToolbarItemGroup {
-                if sideView == .gamePreview {
-                    Picker("Map", selection: $mapIndex) {
-                        ForEach(0 ..< maps.count, id: \.self) { index in
-                            Label(maps[index].nameAsString, systemImage: "map")
-                        }
-                    }
-                    Picker("Sprite", selection: $definitionIndex) {
-                        ForEach(0 ..< sprites.count, id: \.self) { index in
-                            Label(sprites[index].nameAsString, systemImage: "hare")
-                        }
-                    }
-                } else if sideView == .generatedCode {
-                    Picker("File", selection: $selectedFile) {
-                        Label("Header", systemImage: "h.square")
-                            .tag(GeneratedFile.header)
-                        Label("Code", systemImage: "c.square")
-                            .tag(GeneratedFile.code)
-                    }
-                    .pickerStyle(.segmented)
-                }
-            }
-            ToolbarItem {
-                Picker("View", selection: $sideView) {
-                    Label("Game Preview", systemImage: "gamecontroller")
-                        .tag(SideView.gamePreview)
-                    Label("Generated Code", systemImage: "function")
-                        .tag(SideView.generatedCode)
-                }
-                .pickerStyle(.segmented)
-            }
         }
     }
 
