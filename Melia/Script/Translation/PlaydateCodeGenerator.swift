@@ -53,7 +53,8 @@ struct PlaydateCodeGenerator {
             code += goToStateFunction
         }
         for state in symbolTable.states {
-            code += generate(state: state, symbolTable: symbolTable, scriptName: scriptName)
+            let visitor = PlaydateCodeVisitor(state: state, scriptName: scriptName, spriteName: spriteName, symbolTable: symbolTable)
+            code += state.accept(visitor: visitor).joined()
         }
         return code
     }
@@ -206,23 +207,6 @@ struct PlaydateCodeGenerator {
         self.symbolTable = reducedTree.symbolTable
     }
 
-    private func generate(state: StateNode, symbolTable: SymbolTable, scriptName: String) -> String {
-        var part = 0
-        return PlaydateCodeGenerator.generateStart(of: state.name, part: part, scriptName: scriptName)
-        + state.children.playdateCode(state: state.name, part: &part, scriptName: scriptName)
-        + "}\n\n"
-    }
-
-    fileprivate static func generateStart(of state: String, part: Int, scriptName: String) -> String {
-        return """
-            static void \(state)StatePart\(part)(LCDSprite * _Nonnull sprite) {
-                struct \(scriptName) *self = (struct \(scriptName) *) playdate->sprite->getUserdata(sprite);
-
-
-            """
-    }
-
-
     private static func removeSpecialCharacters(from string: String) -> String {
         var characters = [Character](string)
         for index in 0 ..< characters.count {
@@ -277,71 +261,5 @@ fileprivate extension StateNode {
             }
         }
         return count
-    }
-}
-
-fileprivate protocol CanGeneratePlaydateCode {
-    func playdateCode(state: String, part: inout Int, scriptName: String) -> String
-}
-
-fileprivate extension TreeNode {
-    func playdateCode(state: String, part: inout Int, scriptName: String) -> String {
-        return (self as? CanGeneratePlaydateCode)?.playdateCode(state: state, part: &part, scriptName: scriptName) ?? ""
-    }
-}
-
-extension Array where Element == TreeNode {
-    func playdateCode(state: String, part: inout Int, scriptName: String) -> String {
-        return self.map({ $0.playdateCode(state: state, part: &part, scriptName: scriptName) }).joined()
-    }
-}
-
-extension GroupNode: CanGeneratePlaydateCode {
-    func playdateCode(state: String, part: inout Int, scriptName: String) -> String {
-        // TODO: Faire un nœud spécialisé pour during ?
-        part += 1
-        var code = [String]()
-        code.reserveCapacity(6)
-        code.append("""
-                // \(name)
-                self->time = 0;
-                playdate->sprite->setUpdateFunction(sprite, &\(state)StatePart\(part);
-
-                draw(self, sprite);
-            }
-
-
-            """)
-        code.append(PlaydateCodeGenerator.generateStart(of: state, part: part, scriptName: scriptName))
-
-        let duration = arguments.first { $0.name == "duration" }?.value ?? ConstantNode(value: .decimal(0))
-        code.append("""
-                /// \(name)
-                const float duration = \(duration.playdateCode(state: state, part: &part, scriptName: scriptName));
-                if (self->time < duration) {
-                    self->time = MELFloatMin(self->time + DELTA, 1);
-
-
-            """)
-        code.append(children.playdateCode(state: state, part: &part, scriptName: scriptName))
-        part += 1
-        code.append("""
-                } else {
-                    playdate->sprite->setUpdateFunction(sprite, &\(state)StatePart\(part);
-                }
-
-                draw(self, sprite);
-            }
-
-
-            """)
-        code.append(PlaydateCodeGenerator.generateStart(of: state, part: part, scriptName: scriptName))
-        return code.joined()
-    }
-}
-
-extension InstructionNode: CanGeneratePlaydateCode {
-    func playdateCode(state: String, part: inout Int, scriptName: String) -> String {
-        return "// \(name)\n"
     }
 }
