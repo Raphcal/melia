@@ -86,11 +86,9 @@ extension BracesNode {
 extension VariableNode {
     func reduceByInliningValues(from heap: [String: Value]) -> TreeNode {
         let path = name.components(separatedBy: ".")
-        let value = heap.value(at: path)
-        switch value {
-        case .integer(_), .decimal(_), .point(_), .boolean(_), .string(_), .direction(_):
+        if let value = heap.inlineableValue(at: path) {
             return ConstantNode(value: value)
-        default:
+        } else {
             return self
         }
     }

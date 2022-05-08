@@ -9,8 +9,8 @@ import MeliceFramework
 
 extension Array where Element == TreeNode {
     func accept(visitor: PlaydateCodeVisitor) -> [String] {
-        return self.flatMap { child in
-            child.accept(visitor: visitor)
+        return self.map { child in
+            child.accept(visitor: visitor).joined()
         }
     }
 }
@@ -69,7 +69,10 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
 
 
             """)
+
+        symbolTable.variables["progress"] = .decimal
         code.append(contentsOf: node.children.accept(visitor: self).map({ "    " + $0 }))
+        symbolTable.variables.removeValue(forKey: "progress")
 
         part += 1
         code.append("""
@@ -87,11 +90,11 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     }
 
     func visit(from node: InstructionNode) -> [String] {
-        return ["// \(node.name)\n"]
+        return ["    // \(node.name)\n"]
     }
 
     func visit(from node: SetNode) -> [String] {
-        return [node.variable, " = ", node.value.accept(visitor: self).joined(), ";\n"]
+        return ["    ", node.variable, " = ", node.value.accept(visitor: self).joined(), ";\n"]
     }
 
     func visit(from node: BinaryOperationNode) -> [String] {

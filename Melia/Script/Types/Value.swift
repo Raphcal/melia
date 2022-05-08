@@ -46,6 +46,9 @@ enum Value: Equatable {
                 return .direction(sprite.pointee.direction)
             case "center":
                 return .point(sprite.pointee.frame.origin)
+            case "frame":
+                // TODO: Ajouter un type rectangle pour le cadre
+                return .point(sprite.pointee.frame.origin)
             case "collidesWithWall":
                 // TODO: Vérifier si le sprite est en contact avec un mur
                 return .boolean(false)
@@ -106,6 +109,33 @@ enum Value: Equatable {
         return value
     }
 
+    var isInlineable: Bool {
+        switch self {
+        case .integer(_), .decimal(_), .boolean(_), .point(_), .direction(_):
+            return true
+        default:
+            return false
+        }
+    }
+
+    func isInlineable(property: String) -> Bool {
+        switch self {
+        case .point(_):
+            if property == "x" {
+                return true
+            } else if property == "y" {
+                return true
+            }
+        case .sprite(_):
+            if property == "animation" {
+                return true
+            }
+        default:
+            break
+        }
+        return false
+    }
+
     static func == (lhs: Value, rhs: Value) -> Bool {
         switch lhs {
         case .integer(let lhsValue):
@@ -155,6 +185,19 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
             value = value.value(for: path[index])
         }
         return value
+    }
+
+    func inlineableValue(at path: [String]) -> Value? {
+        if path.isEmpty {
+            return nil
+        }
+        var value = self[path[0]] ?? .null
+        var index = 1
+        while index < path.count && value.isInlineable {
+            value = value.value(for: path[index])
+            index += 1
+        }
+        return value.isInlineable ? value : nil
     }
 
     mutating func setValue(_ value: Value, at path: [String]) {
