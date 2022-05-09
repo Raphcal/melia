@@ -36,16 +36,14 @@ extension GroupNode {
         switch name {
         case "during":
             symbolTable.variables["time"] = .decimal
-            if symbolTable.variables["progress"] == nil {
-                localVariables.append("progress")
-            }
-            symbolTable.variables["progress"] = .decimal
+            symbolTable.localVariables["progress"] = .decimal
+            localVariables.append("progress")
         default:
             break
         }
         children.forEach { $0.fill(symbolTable: &symbolTable) }
         for localVariable in localVariables {
-            symbolTable.variables.removeValue(forKey: localVariable)
+            symbolTable.localVariables.removeValue(forKey: localVariable)
         }
     }
 }
@@ -123,7 +121,7 @@ extension BracesNode {
 
 extension VariableNode {
     func kind(symbolTable: SymbolTable) -> ValueKind {
-        return symbolTable.variables.valueKind(for: name)
+        return symbolTable.kind(of: name)
     }
 }
 

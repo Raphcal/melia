@@ -19,7 +19,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     let state: StateNode
     let scriptName: String
     let spriteName: String
-    let symbolTable: SymbolTable
+    var symbolTable: SymbolTable
     var part = 0
 
     var statePartStart: String {
@@ -70,9 +70,9 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
 
             """)
 
-        symbolTable.variables["progress"] = .decimal
+        symbolTable.localVariables["progress"] = .decimal
         code.append(contentsOf: node.children.accept(visitor: self).map({ "    " + $0 }))
-        symbolTable.variables.removeValue(forKey: "progress")
+        symbolTable.localVariables.removeValue(forKey: "progress")
 
         part += 1
         code.append("""
@@ -94,12 +94,13 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     }
 
     func visit(from node: SetNode) -> [String] {
+        // TODO: Corriger le nom de la variable et gérer le type (notamment pour le changement d'animation).
         return ["    ", node.variable, " = ", node.value.accept(visitor: self).joined(), ";\n"]
     }
 
     func visit(from node: BinaryOperationNode) -> [String] {
         let lhsKind = node.lhs.kind(symbolTable: symbolTable)
-        let rhsKind = node.lhs.kind(symbolTable: symbolTable)
+        let rhsKind = node.rhs.kind(symbolTable: symbolTable)
 
         let lhs = node.lhs.accept(visitor: self).joined()
         let rhs = node.rhs.accept(visitor: self).joined()
@@ -195,7 +196,45 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     }
 
     func visit(from node: VariableNode) -> [String] {
-        return [node.name]
+        var translatedName = ""
+        let path = node.name.components(separatedBy: ".")
+        if !symbolTable.isLocalvariable(node.name) && path[0] != "self" {
+            translatedName = "self->"
+        }
+        translatedName += path[0]
+        var value = symbolTable.variables[path[0]] ?? .null
+        for property in path[1...] {
+            switch value {
+            case .sprite:
+                switch property {
+                case "center":
+                    translatedName += "->frame.origin"
+                default:
+                    translatedName += "->\(property)"
+                }
+            case .direction:
+                switch property {
+                case "animationDirection":
+                    translatedName = "MELDirectionAnimationDirection[\(translatedName)]"
+                case "angle":
+                    translatedName = "MELDirectionAngles[\(translatedName)]"
+                case "axe":
+                    translatedName = "MELDirectionAxe[\(translatedName)]"
+                case "flip":
+                    translatedName = "MELDirectionFlip[\(translatedName)]"
+                case "reverse":
+                    translatedName = "MELDirectionReverses[\(translatedName)]"
+                case "value":
+                    translatedName = "MELDirectionValues[\(translatedName)]"
+                default:
+                    break
+                }
+            default:
+                translatedName += ".\(property)"
+            }
+            value = value.kind(for: property)
+        }
+        return [translatedName]
     }
 
     func visit(from node: ConstantNode) -> [String] {
@@ -203,13 +242,13 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         case let .integer(value):
             return [value.description]
         case let .decimal(value):
-            return [value.description]
+            return [value.description, "f"]
         case let .point(value):
-            return ["MELPointMake(\(value.x), \(value.y))"]
+            return ["MELPointMake(\(value.x)f, \(value.y)f)"]
         case let .boolean(value):
             return [value.description]
         case let .string(value):
-            return ["\"\(value)\""]
+            return ["\"", value, "\""]
         case let .direction(value):
             switch value {
             case MELDirectionLeft:
