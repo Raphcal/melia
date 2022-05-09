@@ -15,6 +15,7 @@ enum ValueKind: Equatable {
     case string
     case direction
     case sprite
+    case animationName
     case animation
     case animations
     case map
@@ -81,6 +82,8 @@ extension Value {
             return .direction
         case .sprite(_):
             return .sprite
+        case .animationName(_):
+            return .animationName
         case .animation(_):
             return .animation
         case .animations(_):

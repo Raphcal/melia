@@ -71,6 +71,7 @@ struct PlaydateCodeGenerator {
 
         #include "\(scriptName).h"
 
+        #include "setanimation.h"
         #include "../gen/sprite\(spriteName).h"
 
         extern MELRectangle camera;
@@ -137,7 +138,7 @@ struct PlaydateCodeGenerator {
                     loadSprite\(pascalCasedSpriteName)Palette();
                 }
                 self->definition = sprite\(pascalCasedSpriteName);
-                playdate->sprite->getPosition(sprite, &self->origin.x, &self->origin.y);
+                playdate->sprite->getPosition(sprite, &self->frame.origin.x, &self->frame.origin.y);
 
                 playdate->sprite->setUserdata(sprite, self);
                 playdate->sprite->setUpdateFunction(sprite, &\(defaultState)StatePart0);
@@ -235,6 +236,8 @@ fileprivate extension ValueKind {
             return "MELDirection"
         case .sprite:
             return "LCDSprite * _Nullable"
+        case .animationName:
+            return "AnimationName"
         case .animation:
             return "MELAnimationRef"
         case .animations:

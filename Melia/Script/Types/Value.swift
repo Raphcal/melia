@@ -15,6 +15,7 @@ enum Value: Equatable {
     case string(_ value: String)
     case direction(_ value: MELDirection)
     case sprite(_ value: MELSpriteRef)
+    case animationName(_ value: String)
     case animation(_ value: MELAnimationDefinition)
     case animations(_ value: MELAnimationDefinitionList)
     case map(_ value: MELMap)
@@ -92,7 +93,7 @@ enum Value: Equatable {
             } else if property == "center", case let .point(point) = value {
                 MELSpriteSetFrameOrigin(sprite, point)
             } else if property == "animation",
-                      case let .string(animation) = value {
+                      case let .animationName(animation) = value {
                 guard sprite.animation.definition.nameAsString != animation,
                       let animationIndex = sprite.pointee.definition.animations.firstIndex(where: { $0.nameAsString == animation })
                 else {
@@ -164,6 +165,10 @@ enum Value: Equatable {
             }
         case .direction(let lhsValue):
             if case let .direction(rhsValue) = rhs {
+                return lhsValue == rhsValue
+            }
+        case .animationName(let lhsValue):
+            if case let .animationName(rhsValue) = rhs {
                 return lhsValue == rhsValue
             }
         case .null:

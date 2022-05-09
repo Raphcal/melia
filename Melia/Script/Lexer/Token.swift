@@ -23,10 +23,10 @@ enum Token {
 
     // MARK: - Token classes
     static var anyValue: [Token] {
-        return [.valueDuration, .valueInt, .valueDecimal, .valueBoolean, .valuePoint, .valueDirection, .valueAnimation, .valueVariable, .valueString, .braceOpen]
+        return [.valueDuration, .valueDecimal, .valueInt, .valueBoolean, .valuePoint, .valueDirection, .valueAnimation, .valueVariable, .valueString, .braceOpen]
     }
     static var anyNumericValue: [Token] {
-        return [.valueDuration, .valueInt, .valueDecimal, .valuePoint, .valueVariable]
+        return [.valueDuration, .valueDecimal, .valueInt, .valuePoint, .valueVariable]
     }
     static var anyBinaryOperator: [Token] {
         return [.addOrSubstract, .multiplyOrDivide]
@@ -52,7 +52,7 @@ enum Token {
         case .instructionArgument:
             return Token.anyValue
         case .setStart:
-            return [.instructionStart] + Token.anyValue
+            return Token.anyValue
         case .valuePoint, .valueInt, .valueDecimal:
             return Token.anyBinaryOperator + [.braceClose, .instructionArgument, .newLine]
         case .valueBoolean:

@@ -34,13 +34,9 @@ struct FoundToken: Equatable {
                 print("Unable to parse duration: \(error)")
             }
         case .valueBoolean:
-            return .boolean(
-                matches[1] == "true"
-            )
+            return .boolean(matches[1] == "true")
         case .valueAnimation:
-            return .string(
-                matches[1]
-            )
+            return .animationName(matches[1])
         case .valueString:
             return .string(
                 matches[1]

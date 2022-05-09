@@ -31,6 +31,26 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             """
     }
 
+    var stateEnd: String {
+        if symbolTable.states.count > 1 {
+            return """
+                    goToCurrentState(sprite);
+                    draw(self, sprite);
+                }
+
+                
+                """
+        } else {
+            return """
+                    playdate->sprite->setUpdateFunction(sprite, &\(state.name)StatePart0);
+                    draw(self, sprite);
+                }
+
+                
+                """
+        }
+    }
+
     init(state: StateNode, scriptName: String, spriteName: String, symbolTable: SymbolTable) {
         self.state = state
         self.scriptName = scriptName
@@ -40,7 +60,10 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
 
     func visit(from node: StateNode) -> [String] {
         part = 0
-        return [statePartStart, node.children.accept(visitor: self).joined(), "}\n\n"]
+        return [
+            statePartStart,
+            node.children.accept(visitor: self).joined(),
+            stateEnd]
     }
 
     func visit(from node: GroupNode) -> [String] {
@@ -60,20 +83,28 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         code.append(statePartStart)
 
         let duration = node.arguments.first { $0.name == "duration" }?.value ?? ConstantNode(value: .decimal(0))
-
         code.append("""
                 // \(node.name)
                 const float duration = \(duration.accept(visitor: self).joined());
                 if (self->time < duration) {
-                    self->time = MELFloatMin(self->time + DELTA, 1);
-
-
+                    const float newTime = MELFloatMin(self->time + DELTA, duration);\n
             """)
+
+        // TODO: Ne pas générer "progress" s'il n'est pas utilisé.
+        var easeInOut = false
+        if let easeArgument = node.arguments.first(where: { $0.name == "ease" })?.value as? ConstantNode,
+           case let .boolean(value) = easeArgument.value {
+            easeInOut = value
+        }
+        code.append("        const float progress = \(easeInOut ? "MELEaseInOut(0, duration, newTime)" : "newTime / duration");\n")
+
+        code.append("        self->time = newTime;\n\n")
 
         symbolTable.localVariables["progress"] = .decimal
         code.append(contentsOf: node.children.accept(visitor: self).map({ "    " + $0 }))
         symbolTable.localVariables.removeValue(forKey: "progress")
 
+        // TODO: Voir comment intégrer les étapes d'après during dans le else après setUpdateFunction.
         part += 1
         code.append("""
                 } else {
@@ -94,8 +125,36 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     }
 
     func visit(from node: SetNode) -> [String] {
-        // TODO: Corriger le nom de la variable et gérer le type (notamment pour le changement d'animation).
-        return ["    ", node.variable, " = ", node.value.accept(visitor: self).joined(), ";\n"]
+        let kind = node.value.kind(symbolTable: symbolTable)
+        let assignedValue = node.value.accept(visitor: self).joined()
+
+        var variable = ""
+        let path = node.variable.components(separatedBy: ".")
+        if !symbolTable.isLocalvariable(node.variable) && path[0] != "self" {
+            variable = "self->"
+        }
+        variable += path[0]
+
+        if kind == .animationName {
+            return ["    AnimationNameSetAnimation(", assignedValue, ", ", variable, "->direction, ", variable, "->definition, &", variable, "->animationName, &", variable, "->animation);\n"]
+        } else {
+            var value = symbolTable.variables[path[0]] ?? .null
+            for property in path[1...] {
+                switch value {
+                case .sprite:
+                    switch property {
+                    case "center":
+                        variable += "->frame.origin"
+                    default:
+                        variable += "->\(property)"
+                    }
+                default:
+                    variable += ".\(property)"
+                }
+                value = value.kind(for: property)
+            }
+            return ["    ", variable, " = ", assignedValue, ";\n"]
+        }
     }
 
     func visit(from node: BinaryOperationNode) -> [String] {
@@ -262,6 +321,8 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             default:
                 break
             }
+        case let .animationName(value):
+            return ["AnimationName\(value.capitalized)"]
         case .null:
             return ["NULL"]
         default:
