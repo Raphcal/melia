@@ -91,7 +91,7 @@ enum Token {
         case .state:
             return "state +([a-zA-Z0-9]+) *: *"
         case .groupStart:
-            return "(during|if|else if|else) +"
+            return "(during|while|if|else if|else) +"
         case .groupEnd:
             return ": *"
         case .instructionStart:

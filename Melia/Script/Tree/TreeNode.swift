@@ -16,26 +16,14 @@ struct TokenTree: Equatable {
 }
 
 protocol TreeNode {
-    func appendAsInstructions(to script: inout Script)
-    func reduceByInliningValues(from heap: [String: Value]) -> TreeNode
     func kind(symbolTable: SymbolTable) -> ValueKind
-    func fill(symbolTable: inout SymbolTable)
     func equals(_ other: TreeNode) -> Bool
     func accept<V: TreeNodeVisitor>(visitor: V) -> V.Result
 }
 
 extension TreeNode {
-    func appendAsInstructions(to script: inout Script) {
-        // Aucune action.
-    }
-    func reduceByInliningValues(from heap: [String: Value]) -> TreeNode {
-        return self
-    }
     func kind(symbolTable: SymbolTable) -> ValueKind {
         return .null
-    }
-    func fill(symbolTable: inout SymbolTable) {
-        // Aucune action.
     }
     func equals(_ other: TreeNode) -> Bool {
         return false

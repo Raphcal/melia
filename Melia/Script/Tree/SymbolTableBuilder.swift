@@ -1,5 +1,5 @@
 //
-//  FillSymbolTable.swift
+//  SymbolTableBuilder.swift
 //  Melia
 //
 //  Created by Raphaël Calabro on 01/05/2022.
@@ -9,31 +9,35 @@ import Foundation
 
 extension TokenTree {
     var symbolTable: SymbolTable {
-        var symbolTable = SymbolTable(states: [], variables: [
-            "self": .sprite,
-            "map": .map,
-            "delta": .decimal
-        ])
-        children.forEach { $0.fill(symbolTable: &symbolTable) }
-        return symbolTable
+        let builder = SymbolTableBuilder()
+        children.accept(visitor: builder)
+        return builder.symbolTable
     }
 }
 
-extension StateNode {
-    func fill(symbolTable: inout SymbolTable) {
-        symbolTable.states.append(self)
-
-        for child in children {
-            child.fill(symbolTable: &symbolTable)
+extension Array where Element == TreeNode {
+    func accept(visitor: SymbolTableBuilder) {
+        for element in self {
+            element.accept(visitor: visitor)
         }
-        children.forEach { $0.fill(symbolTable: &symbolTable) }
     }
 }
 
-extension GroupNode {
-    func fill(symbolTable: inout SymbolTable) {
+class SymbolTableBuilder: TreeNodeVisitor {
+    var symbolTable = SymbolTable(states: [], variables: [
+        "self": .sprite,
+        "map": .map,
+        "delta": .decimal
+    ])
+
+    func visit(from node: StateNode) -> Void {
+        symbolTable.states.append(node)
+        node.children.accept(visitor: self)
+    }
+
+    func visit(from node: GroupNode) -> Void {
         var localVariables = [String]()
-        switch name {
+        switch node.name {
         case "during":
             symbolTable.variables["time"] = .decimal
             symbolTable.localVariables["progress"] = .decimal
@@ -41,24 +45,62 @@ extension GroupNode {
         default:
             break
         }
-        children.forEach { $0.fill(symbolTable: &symbolTable) }
+        node.children.accept(visitor: self)
         for localVariable in localVariables {
             symbolTable.localVariables.removeValue(forKey: localVariable)
         }
+    }
+    
+    func visit(from node: IfNode) -> Void {
+        // Vide
+    }
+    
+    func visit(from node: ElseIfNode) -> Void {
+        // Vide
+    }
+    
+    func visit(from node: ElseNode) -> Void {
+        // Vide
+    }
+    
+    func visit(from node: InstructionNode) -> Void {
+        // Vide
+    }
+    
+    func visit(from node: ArgumentNode) -> Void {
+        // Vide
+    }
+    
+    func visit(from node: SetNode) -> Void {
+        if !node.variable.contains(".") {
+            symbolTable.variables[node.variable] = node.value.kind(symbolTable: symbolTable)
+        }
+    }
+    
+    func visit(from node: BinaryOperationNode) -> Void {
+        // Vide
+    }
+    
+    func visit(from node: UnaryOperationNode) -> Void {
+        // Vide
+    }
+    
+    func visit(from node: BracesNode) -> Void {
+        // Vide
+    }
+    
+    func visit(from node: VariableNode) -> Void {
+        // Vide
+    }
+    
+    func visit(from node: ConstantNode) -> Void {
+        // Vide
     }
 }
 
 extension ArgumentNode {
     func kind(symbolTable: SymbolTable) -> ValueKind {
         return value.kind(symbolTable: symbolTable)
-    }
-}
-
-extension SetNode {
-    func fill(symbolTable: inout SymbolTable) {
-        if !variable.contains(".") {
-            symbolTable.variables[variable] = value.kind(symbolTable: symbolTable)
-        }
     }
 }
 

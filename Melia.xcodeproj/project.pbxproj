@@ -51,12 +51,12 @@
 		64A5AF3D2822A0F300ED792A /* GeneratedCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A5AF3C2822A0F300ED792A /* GeneratedCodeView.swift */; };
 		64A5AF3F2822A2C000ED792A /* Equals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A5AF3E2822A2C000ED792A /* Equals.swift */; };
 		64A5AF4128230F7200ED792A /* Previews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A5AF4028230F7200ED792A /* Previews.swift */; };
-		64B497EF281C587000A474A2 /* AppendAsInstructions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B497EE281C587000A474A2 /* AppendAsInstructions.swift */; };
-		64B497FF281DBC9200A474A2 /* ReduceByInliningValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B497FE281DBC9200A474A2 /* ReduceByInliningValues.swift */; };
+		64B497EF281C587000A474A2 /* ScriptBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B497EE281C587000A474A2 /* ScriptBuilder.swift */; };
+		64B497FF281DBC9200A474A2 /* TokenTreeReducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B497FE281DBC9200A474A2 /* TokenTreeReducer.swift */; };
 		64B49802281DCE2D00A474A2 /* PlaydateCodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B49801281DCE2D00A474A2 /* PlaydateCodeGenerator.swift */; };
 		64B49804281F122600A474A2 /* ValueKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B49803281F122600A474A2 /* ValueKind.swift */; };
 		64B49808281F15B600A474A2 /* SymbolTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B49807281F15B600A474A2 /* SymbolTable.swift */; };
-		64B4980A281F163C00A474A2 /* FillSymbolTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B49809281F163C00A474A2 /* FillSymbolTable.swift */; };
+		64B4980A281F163C00A474A2 /* SymbolTableBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B49809281F163C00A474A2 /* SymbolTableBuilder.swift */; };
 		64C242D427F8E10E0018BE2B /* MeliaApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C242D327F8E10E0018BE2B /* MeliaApp.swift */; };
 		64C242D627F8E10E0018BE2B /* MeliaDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C242D527F8E10E0018BE2B /* MeliaDocument.swift */; };
 		64C242D827F8E10E0018BE2B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C242D727F8E10E0018BE2B /* ContentView.swift */; };
@@ -151,12 +151,12 @@
 		64A5AF3C2822A0F300ED792A /* GeneratedCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneratedCodeView.swift; sourceTree = "<group>"; };
 		64A5AF3E2822A2C000ED792A /* Equals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Equals.swift; sourceTree = "<group>"; };
 		64A5AF4028230F7200ED792A /* Previews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Previews.swift; sourceTree = "<group>"; };
-		64B497EE281C587000A474A2 /* AppendAsInstructions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppendAsInstructions.swift; sourceTree = "<group>"; };
-		64B497FE281DBC9200A474A2 /* ReduceByInliningValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReduceByInliningValues.swift; sourceTree = "<group>"; };
+		64B497EE281C587000A474A2 /* ScriptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptBuilder.swift; sourceTree = "<group>"; };
+		64B497FE281DBC9200A474A2 /* TokenTreeReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenTreeReducer.swift; sourceTree = "<group>"; };
 		64B49801281DCE2D00A474A2 /* PlaydateCodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaydateCodeGenerator.swift; sourceTree = "<group>"; };
 		64B49803281F122600A474A2 /* ValueKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueKind.swift; sourceTree = "<group>"; };
 		64B49807281F15B600A474A2 /* SymbolTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymbolTable.swift; sourceTree = "<group>"; };
-		64B49809281F163C00A474A2 /* FillSymbolTable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FillSymbolTable.swift; sourceTree = "<group>"; };
+		64B49809281F163C00A474A2 /* SymbolTableBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymbolTableBuilder.swift; sourceTree = "<group>"; };
 		64C242D027F8E10E0018BE2B /* Melia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Melia.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		64C242D327F8E10E0018BE2B /* MeliaApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeliaApp.swift; sourceTree = "<group>"; };
 		64C242D527F8E10E0018BE2B /* MeliaDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeliaDocument.swift; sourceTree = "<group>"; };
@@ -253,9 +253,9 @@
 				647D5E2A28172D550073F1BB /* TokenTree.swift */,
 				647D5E2C281876E50073F1BB /* TreeNode.swift */,
 				64D435ED2826F484006950F3 /* TreeNodeVisitor.swift */,
-				64B497EE281C587000A474A2 /* AppendAsInstructions.swift */,
-				64B497FE281DBC9200A474A2 /* ReduceByInliningValues.swift */,
-				64B49809281F163C00A474A2 /* FillSymbolTable.swift */,
+				64B497EE281C587000A474A2 /* ScriptBuilder.swift */,
+				64B497FE281DBC9200A474A2 /* TokenTreeReducer.swift */,
+				64B49809281F163C00A474A2 /* SymbolTableBuilder.swift */,
 				64A5AF3E2822A2C000ED792A /* Equals.swift */,
 			);
 			path = Tree;
@@ -536,7 +536,7 @@
 				64A1CE4D280843D40086D752 /* GoToGroupStart.swift in Sources */,
 				64F35E3A2809FFC200A5A620 /* GroupStart.swift in Sources */,
 				64A1CE3128073E7E0086D752 /* Value.swift in Sources */,
-				64B4980A281F163C00A474A2 /* FillSymbolTable.swift in Sources */,
+				64B4980A281F163C00A474A2 /* SymbolTableBuilder.swift in Sources */,
 				64D435F328270593006950F3 /* PlaydateCodeVisitor.swift in Sources */,
 				64C242D427F8E10E0018BE2B /* MeliaApp.swift in Sources */,
 				647D5E362819CE1F0073F1BB /* OperatorKind.swift in Sources */,
@@ -546,7 +546,7 @@
 				64A5AF3A28229DA100ED792A /* ParseDispatchQueue.swift in Sources */,
 				6454DAB627FA1FAC00D5E92B /* If.swift in Sources */,
 				64A1CE542808B6CE0086D752 /* PushArgument.swift in Sources */,
-				64B497EF281C587000A474A2 /* AppendAsInstructions.swift in Sources */,
+				64B497EF281C587000A474A2 /* ScriptBuilder.swift in Sources */,
 				6454DAB127FA1F0600D5E92B /* Move.swift in Sources */,
 				64A1CE2F280726760086D752 /* Constant.swift in Sources */,
 				64A1CE5C28099AFE0086D752 /* Negative.swift in Sources */,
@@ -576,7 +576,7 @@
 				64C242D827F8E10E0018BE2B /* ContentView.swift in Sources */,
 				64A1CE40280768E20086D752 /* Pattern.swift in Sources */,
 				64B49804281F122600A474A2 /* ValueKind.swift in Sources */,
-				64B497FF281DBC9200A474A2 /* ReduceByInliningValues.swift in Sources */,
+				64B497FF281DBC9200A474A2 /* TokenTreeReducer.swift in Sources */,
 				64262C4E27FC6CED004E16D7 /* OpenGLView.swift in Sources */,
 				64B49808281F15B600A474A2 /* SymbolTable.swift in Sources */,
 				6454DABC27FA1FB600D5E92B /* Shoot.swift in Sources */,
