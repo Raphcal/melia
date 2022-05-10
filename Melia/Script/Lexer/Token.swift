@@ -23,10 +23,10 @@ enum Token {
 
     // MARK: - Token classes
     static var anyValue: [Token] {
-        return [.valueDuration, .valueDecimal, .valueInt, .valueBoolean, .valuePoint, .valueDirection, .valueAnimation, .valueVariable, .valueString, .braceOpen]
+        return [.valueDuration, .valueDecimal, .valueInt, .valueBoolean, .valuePoint, .valueDirection, .valueAnimation, .valueVariable, .valueString, .unaryOperator, .braceOpen]
     }
     static var anyNumericValue: [Token] {
-        return [.valueDuration, .valueDecimal, .valueInt, .valuePoint, .valueVariable]
+        return [.valueDuration, .valueDecimal, .valueInt, .valuePoint, .valueVariable, .unaryOperator, .braceOpen]
     }
     static var anyBinaryOperator: [Token] {
         return [.addOrSubstract, .multiplyOrDivide]
@@ -68,13 +68,13 @@ enum Token {
         case .valueVariable:
             return Token.anyBinaryOperator + [.braceClose, .instructionArgument, .groupEnd, .newLine]
         case .addOrSubstract, .multiplyOrDivide, .unaryOperator :
-            return Token.anyNumericValue + [.braceOpen]
+            return Token.anyNumericValue
         case .andOrOr:
             return [.valueBoolean, .valueVariable]
         case .braceOpen:
             return Token.anyNumericValue
         case .braceClose:
-            return Token.anyBinaryOperator + [.instructionArgument, .newLine]
+            return Token.anyBinaryOperator + [.braceClose, .instructionArgument, .newLine]
         case .comment:
             return [.newLine]
         }
@@ -123,7 +123,7 @@ enum Token {
         case .multiplyOrDivide:
             return "([*/]) *"
         case .unaryOperator:
-            return "-|!"
+            return "(-|!) *"
         case .andOrOr:
             return "(and|&&|or|\\|\\|) *"
         case .braceOpen:

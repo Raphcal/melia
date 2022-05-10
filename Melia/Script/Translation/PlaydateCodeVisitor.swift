@@ -247,7 +247,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     }
 
     func visit(from node: UnaryOperationNode) -> [String] {
-        return ["!", node.value.accept(visitor: self).joined()]
+        return [node.operator, node.value.accept(visitor: self).joined()]
     }
 
     func visit(from node: BracesNode) -> [String] {
