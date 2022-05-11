@@ -34,7 +34,7 @@
 		64A1CE3E280768340086D752 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE3D280768340086D752 /* Token.swift */; };
 		64A1CE40280768E20086D752 /* Pattern.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE3F280768E20086D752 /* Pattern.swift */; };
 		64A1CE42280769B10086D752 /* FoundToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE41280769B10086D752 /* FoundToken.swift */; };
-		64A1CE44280769FE0086D752 /* Lexer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE43280769FE0086D752 /* Lexer.swift */; };
+		64A1CE44280769FE0086D752 /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE43280769FE0086D752 /* Tokenizer.swift */; };
 		64A1CE4928076D060086D752 /* GoToCurrentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE4828076D060086D752 /* GoToCurrentState.swift */; };
 		64A1CE4B2808412C0086D752 /* Wait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE4A2808412C0086D752 /* Wait.swift */; };
 		64A1CE4D280843D40086D752 /* GoToGroupStart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE4C280843D40086D752 /* GoToGroupStart.swift */; };
@@ -62,6 +62,7 @@
 		64C242D827F8E10E0018BE2B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C242D727F8E10E0018BE2B /* ContentView.swift */; };
 		64C242DA27F8E1100018BE2B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64C242D927F8E1100018BE2B /* Assets.xcassets */; };
 		64C242DD27F8E1100018BE2B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64C242DC27F8E1100018BE2B /* Preview Assets.xcassets */; };
+		64C6C1A7282BA3C600BA7B26 /* ScriptTokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C6C1A6282BA3C600BA7B26 /* ScriptTokenizer.swift */; };
 		64D435EE2826F484006950F3 /* TreeNodeVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D435ED2826F484006950F3 /* TreeNodeVisitor.swift */; };
 		64D435F328270593006950F3 /* PlaydateCodeVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D435F228270592006950F3 /* PlaydateCodeVisitor.swift */; };
 		64F35DF62809E72900A5A620 /* ScriptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64F35DF52809E72900A5A620 /* ScriptTests.swift */; };
@@ -134,7 +135,7 @@
 		64A1CE3D280768340086D752 /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
 		64A1CE3F280768E20086D752 /* Pattern.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pattern.swift; sourceTree = "<group>"; };
 		64A1CE41280769B10086D752 /* FoundToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundToken.swift; sourceTree = "<group>"; };
-		64A1CE43280769FE0086D752 /* Lexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lexer.swift; sourceTree = "<group>"; };
+		64A1CE43280769FE0086D752 /* Tokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokenizer.swift; sourceTree = "<group>"; };
 		64A1CE4828076D060086D752 /* GoToCurrentState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoToCurrentState.swift; sourceTree = "<group>"; };
 		64A1CE4A2808412C0086D752 /* Wait.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wait.swift; sourceTree = "<group>"; };
 		64A1CE4C280843D40086D752 /* GoToGroupStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoToGroupStart.swift; sourceTree = "<group>"; };
@@ -165,6 +166,7 @@
 		64C242DC27F8E1100018BE2B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		64C242DE27F8E1100018BE2B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		64C242DF27F8E1100018BE2B /* Melia.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Melia.entitlements; sourceTree = "<group>"; };
+		64C6C1A6282BA3C600BA7B26 /* ScriptTokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptTokenizer.swift; sourceTree = "<group>"; };
 		64D435ED2826F484006950F3 /* TreeNodeVisitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeNodeVisitor.swift; sourceTree = "<group>"; };
 		64D435F228270592006950F3 /* PlaydateCodeVisitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaydateCodeVisitor.swift; sourceTree = "<group>"; };
 		64F35DF32809E72900A5A620 /* MeliaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeliaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -280,7 +282,8 @@
 				64A1CE3F280768E20086D752 /* Pattern.swift */,
 				64A1CE3D280768340086D752 /* Token.swift */,
 				64A1CE41280769B10086D752 /* FoundToken.swift */,
-				64A1CE43280769FE0086D752 /* Lexer.swift */,
+				64A1CE43280769FE0086D752 /* Tokenizer.swift */,
+				64C6C1A6282BA3C600BA7B26 /* ScriptTokenizer.swift */,
 			);
 			path = Lexer;
 			sourceTree = "<group>";
@@ -536,6 +539,7 @@
 				64A1CE4D280843D40086D752 /* GoToGroupStart.swift in Sources */,
 				64F35E3A2809FFC200A5A620 /* GroupStart.swift in Sources */,
 				64A1CE3128073E7E0086D752 /* Value.swift in Sources */,
+				64C6C1A7282BA3C600BA7B26 /* ScriptTokenizer.swift in Sources */,
 				64B4980A281F163C00A474A2 /* SymbolTableBuilder.swift in Sources */,
 				64D435F328270593006950F3 /* PlaydateCodeVisitor.swift in Sources */,
 				64C242D427F8E10E0018BE2B /* MeliaApp.swift in Sources */,
@@ -571,7 +575,7 @@
 				64A1CE5A28098EAA0086D752 /* While.swift in Sources */,
 				64A1CE4928076D060086D752 /* GoToCurrentState.swift in Sources */,
 				64262C4D27FC6CED004E16D7 /* GestureListener.swift in Sources */,
-				64A1CE44280769FE0086D752 /* Lexer.swift in Sources */,
+				64A1CE44280769FE0086D752 /* Tokenizer.swift in Sources */,
 				64A1CE562808BE040086D752 /* ClearArguments.swift in Sources */,
 				64C242D827F8E10E0018BE2B /* ContentView.swift in Sources */,
 				64A1CE40280768E20086D752 /* Pattern.swift in Sources */,

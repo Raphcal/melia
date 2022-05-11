@@ -99,7 +99,6 @@ struct CodeEditor: NSViewRepresentable {
         }
 
         func codeDidChange(textView: NSTextView) {
-            print("codeDidChange")
             let newCode = textView.string
             if (code == nil && newCode.isEmpty) || newCode != code {
                 if let undoManager = undoManager,
@@ -120,13 +119,7 @@ struct CodeEditor: NSViewRepresentable {
             let regularFont = self.regularFont
             let boldFont = self.boldFont
             let code = self.code ?? ""
-            var tokens = [FoundToken]()
-            var anError: Error?
-            do {
-                tokens = try lex(code: code)
-            } catch {
-                anError = error
-            }
+            let tokens = ScriptTokenizer().tokenize(code: code)
 
             DispatchQueue.main.async {
                 guard let textStorage = textView.textStorage else {
@@ -134,37 +127,13 @@ struct CodeEditor: NSViewRepresentable {
                     return
                 }
 
-                if let error = anError {
-                    var attributes = Token.newLine.textAttributes(regularFont: regularFont, boldFont: boldFont)
-                    var range: NSRange?
-
-                    if case let LexerError.expectedTokenNotFound(current: current, expected: expected, found: _) = error {
-                        let expectedTokens = expected.map({ "\($0)" }).joined(separator: ", ")
-                        attributes[.toolTip] = "Expected one of \(expectedTokens) after \(current.token)."
-                        if current.range.endIndex < textView.string.count {
-                            range = NSRange(location: current.range.endIndex, length: 1)
-                        }
-                    } else if case let LexerError.badIndent(current: current, expectedMultipleOf: base, found: found) = error {
-                        attributes[.toolTip] = "Expected indentation size to be a multiple of \(base) but was \(found)."
-                        if current.range.startIndex < textView.string.count {
-                            range = NSRange(location: current.range.startIndex, length: min(current.range.endIndex, textView.string.count) - current.range.startIndex)
-                        }
-                    } else {
-                        print("Parse error:\(error)")
-                    }
-                    if let range = range {
-                        textStorage.setAttributes(attributes, range: range)
-                        textView.setSpellingState(NSAttributedString.SpellingState.spelling.rawValue, range: range)
-                    }
-                } else {
-                    self.tokens = tokens
-                    for token in tokens {
-                        let attributes = token.token.textAttributes(regularFont: regularFont, boldFont: boldFont)
-                        let range = NSRange(location: token.range.startIndex, length: min(token.range.endIndex, textView.string.count) - token.range.startIndex)
-                        textStorage.setAttributes(attributes, range: range)
-                    }
-                    textView.setSpellingState(0, range: NSRange(location: 0, length: textView.string.count))
+                self.tokens = tokens
+                for token in tokens {
+                    let attributes = token.token.textAttributes(regularFont: regularFont, boldFont: boldFont)
+                    let range = NSRange(location: token.range.startIndex, length: min(token.range.endIndex, textView.string.count) - token.range.startIndex)
+                    textStorage.setAttributes(attributes, range: range)
                 }
+                textView.setSpellingState(0, range: NSRange(location: 0, length: textView.string.count))
             }
         }
     }

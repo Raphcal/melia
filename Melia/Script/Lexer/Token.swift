@@ -20,6 +20,7 @@ enum Token {
     case addOrSubstract, multiplyOrDivide, unaryOperator
     case andOrOr
     case comment
+    case syntaxError
 
     // MARK: - Token classes
     static var anyValue: [Token] {
@@ -39,7 +40,7 @@ enum Token {
             return [.newLine, .indent, .comment, .state, .setStart, .groupStart, .instructionStart, .braceOpen] + Token.anyValue
         case .indent:
             return [.comment, .setStart, .groupStart, .instructionStart]
-        case .endOfFile:
+        case .endOfFile, .syntaxError:
             return []
         case .state:
             return [.newLine, .instructionStart, .setStart]
@@ -86,7 +87,7 @@ enum Token {
             return "\n"
         case .indent:
             return "(?: |\t)+"
-        case .endOfFile:
+        case .endOfFile, .syntaxError:
             return ""
         case .state:
             return "state +([a-zA-Z0-9]+) *: *"
@@ -174,6 +175,10 @@ enum Token {
             attributes[.foregroundColor] = NSColor.systemIndigo
         case .comment:
             attributes[.foregroundColor] = NSColor.darkGray
+        case .syntaxError:
+            attributes[.spellingState] = NSAttributedString.SpellingState.grammar.rawValue
+            attributes[.backgroundColor] = NSColor.red
+            attributes[.foregroundColor] = NSColor.white
         default:
             break
         }

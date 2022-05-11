@@ -10,19 +10,15 @@ import MeliceFramework
 extension TokenTree {
     static let empty = TokenTree(children: [])
 
-    init?(code: String) {
+    init(code: String) {
         var nodes = [TreeNode]()
         var childBuilder: NodeBuilder?
 
-        do {
-            try lex(code: code) { found in
-                guard found.token != .comment else {
-                    return
-                }
-                TokenTree.feedNode(found, children: &nodes, childBuilder: &childBuilder)
+        ScriptTokenizer().tokenize(code: code) { found in
+            guard found.token != .comment else {
+                return
             }
-        } catch {
-            return nil
+            TokenTree.feedNode(found, children: &nodes, childBuilder: &childBuilder)
         }
         self.children = nodes
     }
