@@ -10,10 +10,17 @@ import SwiftUI
 import Combine
 
 struct CodeEditor: NSViewRepresentable {
-    var scriptName: String
+    var scriptName: String?
+    var isEditable = true
     @Binding var code: String?
     @Binding var tokens: [FoundToken]
     @Environment(\.undoManager) private var undoManager: UndoManager?
+
+    func editable(_ isEditable: Bool) -> CodeEditor {
+        var copy = self
+        copy.isEditable = isEditable
+        return copy
+    }
 
     func makeNSView(context: Context) -> NSScrollView {
         let scrollView = NSTextView.scrollableTextView()
@@ -22,10 +29,10 @@ struct CodeEditor: NSViewRepresentable {
         }
         textView.font = context.coordinator.regularFont
         textView.isAutomaticQuoteSubstitutionEnabled = false
+        textView.isEditable = isEditable
 
         textView.string = code ?? ""
         textView.delegate = context.coordinator
-        context.coordinator.textView = textView
 
         DispatchQueue.parse.async {
             context.coordinator.colorizeSyntax(textView: textView)
@@ -34,8 +41,16 @@ struct CodeEditor: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: NSScrollView, context: Context) {
+        guard let textView = nsView.documentView as? NSTextView else {
+            print("No text view")
+            return
+        }
+        textView.isEditable = isEditable
+        if code != textView.string {
+            textView.string = code ?? ""
+        }
         if scriptName != context.coordinator.scriptName {
-            context.coordinator.scriptDidChange(scriptName: scriptName, code: $code, tokens: $tokens)
+            context.coordinator.scriptDidChange(textView: textView, scriptName: scriptName, code: $code, tokens: $tokens)
         }
     }
 
@@ -44,11 +59,9 @@ struct CodeEditor: NSViewRepresentable {
     }
 
     final class Coordinator: NSObject, NSTextViewDelegate {
-        weak var textView: NSTextView?
-
         @Binding var code: String?
         @Binding var tokens: [FoundToken]
-        var scriptName: String
+        var scriptName: String?
         var undoManager: UndoManager?
 
         let regularFont: NSFont
@@ -56,10 +69,7 @@ struct CodeEditor: NSViewRepresentable {
 
         var snapshot: CodeSnapshot?
 
-        @Published private var currentCode: String = ""
-        private var subscriptions = Set<AnyCancellable>()
-
-        init(scriptName: String, code: Binding<String?>, tokens: Binding<[FoundToken]>, undoManager: UndoManager?) {
+        init(scriptName: String?, code: Binding<String?>, tokens: Binding<[FoundToken]>, undoManager: UndoManager?) {
             self.scriptName = scriptName
             self._code = code
             self._tokens = tokens
@@ -67,20 +77,9 @@ struct CodeEditor: NSViewRepresentable {
             self.regularFont = NSFont(name: "Fira Code", size: 12) ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
             self.boldFont = NSFont(name: "Fira Code Bold", size: 12) ?? NSFont.monospacedSystemFont(ofSize: 12, weight: .bold)
             super.init()
-
-            $currentCode.debounce(for: .milliseconds(300), scheduler: DispatchQueue.parse)
-                .sink { [weak self] code in
-                    self?.codeDidChange(newCode: code)
-                }
-                .store(in: &subscriptions)
         }
 
-        func scriptDidChange(scriptName: String, code: Binding<String?>, tokens: Binding<[FoundToken]>) {
-            guard let textView = textView else {
-                print("No text view")
-                return
-            }
-
+        func scriptDidChange(textView: NSTextView, scriptName: String?, code: Binding<String?>, tokens: Binding<[FoundToken]>) {
             self.scriptName = scriptName
             self._code = code
             self._tokens = tokens
@@ -94,30 +93,27 @@ struct CodeEditor: NSViewRepresentable {
         }
 
         func textDidChange(_ notification: Notification) {
-            if let textView = textView {
-                currentCode = textView.string
+            if let textView = notification.object as? NSTextView {
+                codeDidChange(textView: textView)
             }
         }
 
-        func codeDidChange(newCode: String) {
-            guard let textView = textView else {
-                print("No text view.")
-                return
-            }
-
+        func codeDidChange(textView: NSTextView) {
+            print("codeDidChange")
+            let newCode = textView.string
             if (code == nil && newCode.isEmpty) || newCode != code {
-                DispatchQueue.main.sync { [self] in
-                    if let undoManager = undoManager,
-                       snapshot == nil || (newCode.last == "\n" && newCode != snapshot!.code) {
-                        let aSnapshot = CodeSnapshot(code: $code, undoManager: undoManager)
-                        undoManager.registerUndo(withTarget: aSnapshot) { _ in aSnapshot.undo() }
-                        snapshot = aSnapshot
-                    }
-                    // TODO: Ajouter l'indentation ?
-                    code = newCode
+                if let undoManager = undoManager,
+                   snapshot == nil || (newCode.last == "\n" && newCode != snapshot!.code) {
+                    let aSnapshot = CodeSnapshot(code: $code, undoManager: undoManager)
+                    undoManager.registerUndo(withTarget: aSnapshot) { _ in aSnapshot.undo() }
+                    snapshot = aSnapshot
                 }
+                // TODO: Ajouter l'indentation ?
+                code = newCode
             }
-            colorizeSyntax(textView: textView)
+            DispatchQueue.parse.async { [self] in
+                colorizeSyntax(textView: textView)
+            }
         }
 
         func colorizeSyntax(textView: NSTextView) {

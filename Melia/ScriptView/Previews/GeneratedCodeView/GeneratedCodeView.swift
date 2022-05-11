@@ -11,24 +11,31 @@ import MeliceFramework
 struct GeneratedCodeView: View {
     @Binding var tokens: [FoundToken]
     @Binding var selectedFile: GeneratedFile
-    let definition: MELSpriteDefinition
 
-    @State private var headerFile: String = ""
-    @State private var codeFile: String = ""
+    let sprites: MELSpriteDefinitionList
+    @Binding var definitionIndex: Int
+
+    @State private var generatedCode: String?
+    @State private var generatedCodeTokens = [FoundToken]()
 
     var body: some View {
-        ScrollView {
-            Text(selectedFile == .header
-                 ? headerFile
-                 : codeFile)
-            .textSelection(.enabled)
-            .font(.custom("Fira Code", size: 12))
-            .padding(4)
-        }
+        CodeEditor(code: $generatedCode, tokens: $generatedCodeTokens)
+            .editable(false)
         .onChange(of: tokens) { tokens in
-            let generator = PlaydateCodeGenerator(tree: TokenTree(tokens: tokens), for: definition)
-            self.headerFile = generator.headerFile
-            self.codeFile = generator.codeFile
+            regenerateCode()
+        }
+        .onChange(of: selectedFile) { newValue in
+            regenerateCode()
+        }
+    }
+
+    func regenerateCode() {
+        DispatchQueue.parse.async {
+            let generator = PlaydateCodeGenerator(tree: TokenTree(tokens: tokens), for: sprites[definitionIndex])
+            let code = selectedFile == .header ? generator.headerFile : generator.codeFile
+            DispatchQueue.main.sync {
+                generatedCode = code
+            }
         }
     }
 }

@@ -96,12 +96,10 @@ extension OpenGLView: NSViewRepresentable {
         }
 
         init(rendererContext: RendererContext) {
-            print("init Coordinator")
             self.rendererContext = rendererContext
         }
 
         deinit {
-            print("deinit Coordinator")
             stopDisplayLink()
             runInOpenGLContext {
                 renderer.unload()

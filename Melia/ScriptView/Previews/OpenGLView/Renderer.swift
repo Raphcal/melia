@@ -75,13 +75,17 @@ class Renderer {
 
         if tokens != context.tokens {
             tokens = context.tokens
-            executionContext = script.executionContext
+            script = .empty
             if let sprite = sprite {
                 MELSpriteSetFrameOrigin(sprite, context.origin)
             }
 
             DispatchQueue.parse.async { [self] in
-                self.script = TokenTree(tokens: self.tokens).script
+                let newScript = TokenTree(tokens: self.tokens).script
+                DispatchQueue.main.sync {
+                    self.script = newScript
+                    self.executionContext = newScript.executionContext
+                }
             }
         }
     }

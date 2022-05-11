@@ -54,7 +54,7 @@ struct Previews: View {
                 }
             }
         } else {
-            GeneratedCodeView(tokens: $tokens, selectedFile: $selectedFile, definition: sprites[definitionIndex])
+            GeneratedCodeView(tokens: $tokens, selectedFile: $selectedFile, sprites: sprites, definitionIndex: $definitionIndex)
                 .toolbar {
                     ToolbarItem {
                         Picker("File", selection: $selectedFile) {
