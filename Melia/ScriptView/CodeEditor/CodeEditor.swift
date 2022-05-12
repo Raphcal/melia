@@ -12,6 +12,7 @@ import Combine
 struct CodeEditor: NSViewRepresentable {
     var scriptName: String?
     var isEditable = true
+    var grammar: Grammar = ScriptGrammar()
     @Binding var code: String?
     @Binding var tokens: [FoundToken]
     @Environment(\.undoManager) private var undoManager: UndoManager?
@@ -19,6 +20,12 @@ struct CodeEditor: NSViewRepresentable {
     func editable(_ isEditable: Bool) -> CodeEditor {
         var copy = self
         copy.isEditable = isEditable
+        return copy
+    }
+
+    func grammar(_ grammar: Grammar) -> CodeEditor {
+        var copy = self
+        copy.grammar = grammar
         return copy
     }
 
@@ -41,6 +48,9 @@ struct CodeEditor: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: NSScrollView, context: Context) {
+        let coordinator = context.coordinator
+        coordinator.tokenizer.grammar = grammar
+
         guard let textView = nsView.documentView as? NSTextView else {
             print("No text view")
             return
@@ -49,18 +59,21 @@ struct CodeEditor: NSViewRepresentable {
         if code != textView.string {
             textView.string = code ?? ""
         }
-        if scriptName != context.coordinator.scriptName {
-            context.coordinator.scriptDidChange(textView: textView, scriptName: scriptName, code: $code, tokens: $tokens)
+        if scriptName != coordinator.scriptName {
+            coordinator.scriptDidChange(textView: textView, scriptName: scriptName, code: $code, tokens: $tokens)
         }
     }
 
     func makeCoordinator() -> Coordinator {
-        return Coordinator(scriptName: scriptName, code: $code, tokens: $tokens, undoManager: undoManager)
+        let coordinator = Coordinator(scriptName: scriptName, code: $code, tokens: $tokens, undoManager: undoManager)
+        coordinator.tokenizer.grammar = grammar
+        return coordinator
     }
 
     final class Coordinator: NSObject, NSTextViewDelegate {
         @Binding var code: String?
         @Binding var tokens: [FoundToken]
+        var tokenizer = Tokenizer()
         var scriptName: String?
         var undoManager: UndoManager?
 
@@ -119,7 +132,8 @@ struct CodeEditor: NSViewRepresentable {
             let regularFont = self.regularFont
             let boldFont = self.boldFont
             let code = self.code ?? ""
-            let tokens = ScriptTokenizer().tokenize(code: code)
+            let tokens = tokenizer.tokenize(code: code)
+            let grammar = tokenizer.grammar
 
             DispatchQueue.main.async {
                 guard let textStorage = textView.textStorage else {
@@ -129,9 +143,11 @@ struct CodeEditor: NSViewRepresentable {
 
                 self.tokens = tokens
                 for token in tokens {
-                    let attributes = token.token.textAttributes(regularFont: regularFont, boldFont: boldFont)
-                    let range = NSRange(location: token.range.startIndex, length: min(token.range.endIndex, textView.string.count) - token.range.startIndex)
-                    textStorage.setAttributes(attributes, range: range)
+                    if token.range.endIndex < textView.string.count {
+                        let attributes = grammar.textAttributes(for: token.token, regularFont: regularFont, boldFont: boldFont)
+                        let range = NSRange(location: token.range.startIndex, length: token.range.count)
+                        textStorage.setAttributes(attributes, range: range)
+                    }
                 }
                 textView.setSpellingState(0, range: NSRange(location: 0, length: textView.string.count))
             }

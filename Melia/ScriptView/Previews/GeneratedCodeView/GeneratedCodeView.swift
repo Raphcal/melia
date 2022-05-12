@@ -21,6 +21,7 @@ struct GeneratedCodeView: View {
     var body: some View {
         CodeEditor(code: $generatedCode, tokens: $generatedCodeTokens)
             .editable(false)
+            .grammar(CGrammar())
         .onChange(of: tokens) { tokens in
             regenerateCode()
         }

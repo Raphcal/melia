@@ -14,7 +14,7 @@ extension TokenTree {
         var nodes = [TreeNode]()
         var childBuilder: NodeBuilder?
 
-        ScriptTokenizer().tokenize(code: code) { found in
+        Tokenizer().tokenize(code: code) { found in
             guard found.token != .comment else {
                 return
             }

@@ -62,7 +62,9 @@
 		64C242D827F8E10E0018BE2B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C242D727F8E10E0018BE2B /* ContentView.swift */; };
 		64C242DA27F8E1100018BE2B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64C242D927F8E1100018BE2B /* Assets.xcassets */; };
 		64C242DD27F8E1100018BE2B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64C242DC27F8E1100018BE2B /* Preview Assets.xcassets */; };
-		64C6C1A7282BA3C600BA7B26 /* ScriptTokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C6C1A6282BA3C600BA7B26 /* ScriptTokenizer.swift */; };
+		64C6C1A9282BD84500BA7B26 /* Grammar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C6C1A8282BD84500BA7B26 /* Grammar.swift */; };
+		64C6C1AB282C2A9800BA7B26 /* ScriptGrammar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C6C1AA282C2A9800BA7B26 /* ScriptGrammar.swift */; };
+		64C6C1AD282C2B4300BA7B26 /* CGrammar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C6C1AC282C2B4300BA7B26 /* CGrammar.swift */; };
 		64D435EE2826F484006950F3 /* TreeNodeVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D435ED2826F484006950F3 /* TreeNodeVisitor.swift */; };
 		64D435F328270593006950F3 /* PlaydateCodeVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D435F228270592006950F3 /* PlaydateCodeVisitor.swift */; };
 		64F35DF62809E72900A5A620 /* ScriptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64F35DF52809E72900A5A620 /* ScriptTests.swift */; };
@@ -166,7 +168,9 @@
 		64C242DC27F8E1100018BE2B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		64C242DE27F8E1100018BE2B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		64C242DF27F8E1100018BE2B /* Melia.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Melia.entitlements; sourceTree = "<group>"; };
-		64C6C1A6282BA3C600BA7B26 /* ScriptTokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptTokenizer.swift; sourceTree = "<group>"; };
+		64C6C1A8282BD84500BA7B26 /* Grammar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grammar.swift; sourceTree = "<group>"; };
+		64C6C1AA282C2A9800BA7B26 /* ScriptGrammar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptGrammar.swift; sourceTree = "<group>"; };
+		64C6C1AC282C2B4300BA7B26 /* CGrammar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGrammar.swift; sourceTree = "<group>"; };
 		64D435ED2826F484006950F3 /* TreeNodeVisitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeNodeVisitor.swift; sourceTree = "<group>"; };
 		64D435F228270592006950F3 /* PlaydateCodeVisitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaydateCodeVisitor.swift; sourceTree = "<group>"; };
 		64F35DF32809E72900A5A620 /* MeliaTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeliaTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -283,7 +287,9 @@
 				64A1CE3D280768340086D752 /* Token.swift */,
 				64A1CE41280769B10086D752 /* FoundToken.swift */,
 				64A1CE43280769FE0086D752 /* Tokenizer.swift */,
-				64C6C1A6282BA3C600BA7B26 /* ScriptTokenizer.swift */,
+				64C6C1A8282BD84500BA7B26 /* Grammar.swift */,
+				64C6C1AA282C2A9800BA7B26 /* ScriptGrammar.swift */,
+				64C6C1AC282C2B4300BA7B26 /* CGrammar.swift */,
 			);
 			path = Lexer;
 			sourceTree = "<group>";
@@ -539,7 +545,6 @@
 				64A1CE4D280843D40086D752 /* GoToGroupStart.swift in Sources */,
 				64F35E3A2809FFC200A5A620 /* GroupStart.swift in Sources */,
 				64A1CE3128073E7E0086D752 /* Value.swift in Sources */,
-				64C6C1A7282BA3C600BA7B26 /* ScriptTokenizer.swift in Sources */,
 				64B4980A281F163C00A474A2 /* SymbolTableBuilder.swift in Sources */,
 				64D435F328270593006950F3 /* PlaydateCodeVisitor.swift in Sources */,
 				64C242D427F8E10E0018BE2B /* MeliaApp.swift in Sources */,
@@ -560,6 +565,7 @@
 				641BA13228109A450045A1F9 /* ScriptView.swift in Sources */,
 				6454DAAB27FA1E6B00D5E92B /* During.swift in Sources */,
 				64A1CE5E28099B0B0086D752 /* BooleanOperators.swift in Sources */,
+				64C6C1AB282C2A9800BA7B26 /* ScriptGrammar.swift in Sources */,
 				64A1CE3628073EF10086D752 /* LookUpError.swift in Sources */,
 				64A1CE42280769B10086D752 /* FoundToken.swift in Sources */,
 				64A1CE4B2808412C0086D752 /* Wait.swift in Sources */,
@@ -580,7 +586,9 @@
 				64C242D827F8E10E0018BE2B /* ContentView.swift in Sources */,
 				64A1CE40280768E20086D752 /* Pattern.swift in Sources */,
 				64B49804281F122600A474A2 /* ValueKind.swift in Sources */,
+				64C6C1A9282BD84500BA7B26 /* Grammar.swift in Sources */,
 				64B497FF281DBC9200A474A2 /* TokenTreeReducer.swift in Sources */,
+				64C6C1AD282C2B4300BA7B26 /* CGrammar.swift in Sources */,
 				64262C4E27FC6CED004E16D7 /* OpenGLView.swift in Sources */,
 				64B49808281F15B600A474A2 /* SymbolTable.swift in Sources */,
 				6454DABC27FA1FB600D5E92B /* Shoot.swift in Sources */,
