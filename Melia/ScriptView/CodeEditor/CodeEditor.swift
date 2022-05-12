@@ -59,6 +59,7 @@ struct CodeEditor: NSViewRepresentable {
         if code != textView.string {
             textView.string = code ?? ""
         }
+        // Ajouter "|| !isEditable" pour activer la coloration syntaxique en mode lecture seule.
         if scriptName != coordinator.scriptName {
             coordinator.scriptDidChange(textView: textView, scriptName: scriptName, code: $code, tokens: $tokens)
         }

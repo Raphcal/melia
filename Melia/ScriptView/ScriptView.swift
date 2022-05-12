@@ -30,10 +30,6 @@ struct ScriptView: View {
     @State private var definitionIndex = 0
     @State private var origin = MELPoint(x: 32, y: 32)
 
-    @State private var selectedFile = GeneratedFile.code
-
-    @State private var sideView = SideView.generatedCode
-
     var body: some View {
         HStack {
             CodeEditor(scriptName: scriptName, code: $code, tokens: $tokens)
