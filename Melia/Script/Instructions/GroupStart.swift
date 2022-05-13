@@ -10,3 +10,18 @@ import Foundation
 protocol GroupStart: Instruction {
     var whenDoneSetInstructionPointerTo: Int { get set }
 }
+
+extension GroupStart {
+    func clearVariables(context: inout Script.ExecutionContext) {
+        for instruction in context.script.instructions[context.instructionPointer...] {
+            if instruction is GoToGroupStart {
+                return
+            }
+            if let instruction = instruction as? DeclareVariables {
+                instruction.variables.forEach { variable in
+                    context.heap.removeValue(forKey: variable)
+                }
+            }
+        }
+    }
+}

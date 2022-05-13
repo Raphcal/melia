@@ -53,9 +53,10 @@ class ScriptBuilder: TreeNodeVisitor {
     }
 
     func visit(from node: GroupNode) -> Void {
-        node.arguments.accept(visitor: self)
-
         let goToGroupStart = GoToGroupStart(groupStart: script.instructions.count)
+
+        node.arguments.accept(visitor: self)
+        let groupIndex = script.instructions.count
 
         switch node.name {
         case "during":
@@ -67,9 +68,9 @@ class ScriptBuilder: TreeNodeVisitor {
         node.children.accept(visitor: self)
         script.instructions.append(goToGroupStart)
 
-        if var groupStart = script.instructions[goToGroupStart.groupStart] as? GroupStart {
+        if var groupStart = script.instructions[groupIndex] as? GroupStart {
             groupStart.whenDoneSetInstructionPointerTo = script.instructions.count
-            script.instructions[goToGroupStart.groupStart] = groupStart
+            script.instructions[groupIndex] = groupStart
         }
     }
 
@@ -90,6 +91,8 @@ class ScriptBuilder: TreeNodeVisitor {
         switch node.name {
         case "wait":
             break
+        case "move":
+            script.instructions.append(Move())
         default:
             print("Instruction \(node.name) is not supported yet.")
         }

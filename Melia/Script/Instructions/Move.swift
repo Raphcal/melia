@@ -7,7 +7,7 @@
 
 import MeliceFramework
 
-struct Move: Instruction {
+struct Move: Instruction, DeclareVariables {
     static let spriteArgument = "sprite"
     static let byArgument = "by"
     static let toArgument = "to"
@@ -16,28 +16,29 @@ struct Move: Instruction {
 
     static let originVariable = "origin"
 
+    let variables = [Move.originVariable]
+
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         var newContext = context
-        let spriteName = newContext.string(for: Move.spriteArgument, or: "self")
+        let spriteName = newContext.arguments.string(for: Move.spriteArgument) ?? "self"
         guard let sprite = newContext.heap.sprite(for: spriteName) else {
             return newContext
         }
         let progress = newContext.heap.decimal(for: "progress") ?? 0
         var destination = sprite.pointee.frame.origin
-        if let to = newContext.point(for: Move.toArgument) {
-            let origin = newContext.point(for: Move.originVariable, or: sprite.pointee.frame.origin)
+        if let to = newContext.arguments.point(for: Move.toArgument) {
+            let origin = newContext.heap.point(for: Move.originVariable) ?? sprite.pointee.frame.origin
+            newContext.heap[Move.originVariable] = .point(origin)
             destination = origin + (to - origin) * progress
-        } else if let by = newContext.point(for: Move.byArgument) {
-           let origin = newContext.point(for: Move.originVariable, or: sprite.pointee.frame.origin)
-           destination = origin + by * progress
-        } else if let speed = newContext.point(for: Move.speedArgument),
+        } else if let by = newContext.arguments.point(for: Move.byArgument) {
+            let origin = newContext.heap.point(for: Move.originVariable) ?? sprite.pointee.frame.origin
+            newContext.heap[Move.originVariable] = .point(origin)
+            destination = origin + by * progress
+        } else if let speed = newContext.arguments.point(for: Move.speedArgument),
                   let delta = newContext.heap.decimal(for: "delta") {
-           destination = destination + speed * delta
+            destination = destination + speed * delta
         }
         MELSpriteSetFrameOrigin(sprite, destination)
-        if progress == 1 {
-            newContext.heap.removeValue(forKey: Move.originVariable)
-        }
         return newContext
     }
 
