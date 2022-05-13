@@ -222,4 +222,68 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
         }
         self[path[0]] = lastValue
     }
+
+    func string(for name: String) -> String? {
+        if case let .string(value) = self[name] {
+            return value
+        } else {
+            return nil
+        }
+    }
+
+    func integer(for name: String) -> Int32? {
+        if case let .integer(value) = self[name] {
+            return value
+        } else {
+            return nil
+        }
+    }
+
+    func decimal(for name: String) -> Float? {
+        if case let .decimal(value) = self[name] {
+            return value
+        } else {
+            return nil
+        }
+    }
+
+    func point(for name: String) -> MELPoint? {
+        if case let .point(value) = self[name] {
+            return value
+        } else {
+            return nil
+        }
+    }
+
+    func boolean(for name: String) -> Bool? {
+        if case let .boolean(value) = self[name] {
+            return value
+        } else {
+            return nil
+        }
+    }
+
+    func direction(for name: String) -> MELDirection? {
+        if case let .direction(value) = self[name] {
+            return value
+        } else {
+            return nil
+        }
+    }
+
+    func animationName(for name: String) -> String? {
+        if case let .animationName(value) = self[name] {
+            return value
+        } else {
+            return nil
+        }
+    }
+
+    func sprite(for name: String) -> MELSpriteRef? {
+        if case let .sprite(value) = self[name] {
+            return value
+        } else {
+            return nil
+        }
+    }
 }

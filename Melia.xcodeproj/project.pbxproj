@@ -211,27 +211,27 @@
 		6454DA9427F9D85500D5E92B /* Instructions */ = {
 			isa = PBXGroup;
 			children = (
-				6454DA9527FA0EBE00D5E92B /* Instruction.swift */,
-				64A1CE612809A1F10086D752 /* Operator.swift */,
 				64A1CE3B2807649B0086D752 /* AlgebraicOperators.swift */,
 				64A1CE5D28099B0B0086D752 /* BooleanOperators.swift */,
-				64A1CE5F28099F850086D752 /* ComparisonOperators.swift */,
-				64A1CE5B28099AFE0086D752 /* Negative.swift */,
 				64A1CE552808BE040086D752 /* ClearArguments.swift */,
-				64A1CE532808B6CE0086D752 /* PushArgument.swift */,
+				64A1CE5F28099F850086D752 /* ComparisonOperators.swift */,
 				64A1CE2E280726760086D752 /* Constant.swift */,
-				64A1CE2C2807266B0086D752 /* Variable.swift */,
-				64A1CE39280764140086D752 /* SetValue.swift */,
 				6454DAAA27FA1E6B00D5E92B /* During.swift */,
-				64A1CE5928098EAA0086D752 /* While.swift */,
-				6454DAB527FA1FAC00D5E92B /* If.swift */,
-				64A1CE4A2808412C0086D752 /* Wait.swift */,
 				64F35E392809FFC200A5A620 /* GroupStart.swift */,
 				64A1CE4C280843D40086D752 /* GoToGroupStart.swift */,
 				64A1CE4828076D060086D752 /* GoToCurrentState.swift */,
+				6454DA9527FA0EBE00D5E92B /* Instruction.swift */,
+				6454DAB527FA1FAC00D5E92B /* If.swift */,
 				6454DAAC27FA1ED400D5E92B /* Jump.swift */,
 				6454DAB027FA1F0600D5E92B /* Move.swift */,
+				64A1CE5B28099AFE0086D752 /* Negative.swift */,
+				64A1CE612809A1F10086D752 /* Operator.swift */,
+				64A1CE532808B6CE0086D752 /* PushArgument.swift */,
+				64A1CE39280764140086D752 /* SetValue.swift */,
 				6454DABB27FA1FB600D5E92B /* Shoot.swift */,
+				64A1CE2C2807266B0086D752 /* Variable.swift */,
+				64A1CE5928098EAA0086D752 /* While.swift */,
+				64A1CE4A2808412C0086D752 /* Wait.swift */,
 			);
 			path = Instructions;
 			sourceTree = "<group>";

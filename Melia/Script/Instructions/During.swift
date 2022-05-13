@@ -13,38 +13,14 @@ struct During: GroupStart {
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         var newContext = context
 
-        var ease: Bool
-        var duration: MELTimeInterval
+        let ease = newContext.boolean(for: "ease", or: false)
+        let duration: MELTimeInterval = newContext.decimal(for: "duration", or: 0)
 
-        if case let .decimal(d) = newContext.heap["duration"],
-           case let .boolean(e) = newContext.heap["ease"] {
-            duration = d
-            ease = e
-        } else {
-            let arguments = newContext.arguments
-            if case let .decimal(d) = arguments["duration"] {
-                duration = d
-            } else {
-                print("Duration expected but found \(arguments["duration"] ?? .null), skipping during bloc")
-                newContext.instructionPointer = whenDoneSetInstructionPointerTo
-                return newContext
-            }
-            if case let .boolean(e) = arguments["ease"] {
-                ease = e
-            } else {
-                ease = false
-            }
-            newContext.heap["duration"] = .decimal(duration)
-            newContext.heap["ease"] = .boolean(ease)
-        }
-        guard case let .decimal(delta) = newContext.heap["delta"],
-           case let .decimal(time) = newContext.heap["time"]
-        else {
-            newContext.heap["progress"] = .decimal(0)
-            newContext.heap["time"] = .decimal(0)
+        guard case let .decimal(delta) = newContext.heap["delta"] else {
             return newContext
         }
-        // TODO: Gérer le cas le temps dépasse duration et réduire la valeur de delta.
+        let time = newContext.heap.decimal(for: "time") ?? 0
+        // TODO: Gérer le cas où le temps dépasse duration et réduire la valeur de delta.
         if time == duration {
             newContext.instructionPointer = whenDoneSetInstructionPointerTo
             newContext.heap.removeValue(forKey: "duration")
