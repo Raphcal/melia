@@ -28,6 +28,9 @@ struct GeneratedCodeView: View {
         .onChange(of: selectedFile) { newValue in
             regenerateCode()
         }
+        .onAppear {
+            regenerateCode()
+        }
     }
 
     func regenerateCode() {
@@ -38,5 +41,33 @@ struct GeneratedCodeView: View {
                 generatedCode = code
             }
         }
+    }
+}
+
+struct GeneratedCodeView_Previews: PreviewProvider {
+    @State private static var code: String = """
+state main:
+    // Attend 1s
+    self.animation = stand
+    during 1s: wait
+    // Bouge
+    self.animation = walk
+    center = self.center
+    during 1s, ease: true:
+        self.center = center + (128, 0) * progress * self.direction.value
+    self.direction = self.direction.reverse
+"""
+    @State private static var tokens: [FoundToken] = Tokenizer().tokenize(code: code)
+
+    static func createSpriteDefinitionList() -> MELSpriteDefinitionList {
+        var list = MELSpriteDefinitionListMakeWithInitialCapacity(1)
+        let definition = MELSpriteDefinition(name: nil, type: 0, palette: nil, animations: .empty, motionName: nil, loadScript: nil)
+        MELSpriteDefinitionListPush(&list, definition)
+        return list
+    }
+
+    static var previews: some View {
+        GeneratedCodeView(tokens: $tokens, selectedFile: .constant(GeneratedFile.code), sprites: createSpriteDefinitionList(), definitionIndex: .constant(0))
+            .frame(height: 3000)
     }
 }

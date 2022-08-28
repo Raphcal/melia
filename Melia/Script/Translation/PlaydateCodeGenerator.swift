@@ -8,6 +8,7 @@
 import Foundation
 import MeliceFramework
 
+/// Generate header and code files from a TokenTree.
 struct PlaydateCodeGenerator {
     var spriteName: String
     var scriptName: String
@@ -72,9 +73,10 @@ struct PlaydateCodeGenerator {
         #include "\(scriptName).h"
 
         #include "setanimation.h"
+        #include "camera.h"
         #include "../gen/sprite\(spriteName).h"
 
-        extern MELRectangle camera;
+        extern CameraMotion camera;
 
 
         """
@@ -92,11 +94,7 @@ struct PlaydateCodeGenerator {
     private var structDeclaration: String {
         var code = """
             struct \(scriptName) {
-                MELConstSpriteDefinition definition;
-                AnimationName animationName;
-                MELAnimation * _Nullable animation;
-                MELRectangle frame;
-                MELDirection direction;
+                MIASprite super;
 
 
             """
@@ -105,6 +103,7 @@ struct PlaydateCodeGenerator {
             code += "    enum \(scriptName)_state state;\n"
         }
         for (variable, kind) in symbolTable.variables {
+            // Ignore global variables.
             if ["self", "delta", "map"].contains(variable) {
                 continue
             }
@@ -128,7 +127,7 @@ struct PlaydateCodeGenerator {
 
     private var updateFunction: String {
         // TODO: Gérer le nommage en PascalCase
-        let pascalCasedSpriteName = spriteName.capitalized
+        let pascalCasedSpriteName = spriteName.capitalized.replacingOccurrences(of: " ", with: "")
         let defaultState = symbolTable.states.isEmpty ? "default" : symbolTable.states[0].name
         return """
             void \(scriptName)_update(LCDSprite * _Nonnull sprite) {
@@ -137,8 +136,8 @@ struct PlaydateCodeGenerator {
                 if (sprite\(pascalCasedSpriteName).palette == NULL) {
                     loadSprite\(pascalCasedSpriteName)Palette();
                 }
-                self->definition = sprite\(pascalCasedSpriteName);
-                playdate->sprite->getPosition(sprite, &self->frame.origin.x, &self->frame.origin.y);
+                self->super.definition = sprite\(pascalCasedSpriteName);
+                playdate->sprite->getPosition(sprite, &self->super.frame.origin.x, &self->super.frame.origin.y);
 
                 playdate->sprite->setUserdata(sprite, self);
                 playdate->sprite->setUpdateFunction(sprite, &\(defaultState)StatePart0);
@@ -152,10 +151,10 @@ struct PlaydateCodeGenerator {
     private var drawFunction: String {
         return """
             static void draw(struct \(scriptName) * _Nonnull self, LCDSprite * _Nonnull sprite) {
-                self->animation->class->update(self->animation, DELTA);
-                MELPoint origin = self->frame.origin;
-                playdate->sprite->moveTo(sprite, origin.x - camera.origin.x, origin.y - camera.origin.y);
-                playdate->sprite->setImage(sprite, playdate->graphics->getTableBitmap(self->definition.palette, self->animation->bitmapIndex), MELDirectionFlip[self->direction]);
+                self->super.animation->class->update(self->super.animation, DELTA);
+                MELPoint origin = self->super.frame.origin;
+                playdate->sprite->moveTo(sprite, origin.x - camera.frame.origin.x, origin.y - camera.frame.origin.y);
+                playdate->sprite->setImage(sprite, playdate->graphics->getTableBitmap(self->super.definition.palette, self->super.animation->bitmapIndex), MELDirectionFlip[self->super.direction]);
             }
 
 
@@ -166,7 +165,7 @@ struct PlaydateCodeGenerator {
         var code = """
             static void goToCurrentState(LCDSprite * _Nonnull sprite) {
                 struct \(scriptName) *self = (struct \(scriptName) *) playdate->sprite->getUserdata(sprite);
-                switch (self->state) {
+                switch (self->super.state) {
 
             """
 

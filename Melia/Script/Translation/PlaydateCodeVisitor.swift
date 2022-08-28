@@ -15,6 +15,7 @@ extension Array where Element == TreeNode {
     }
 }
 
+// Translate a TreeNode to C code.
 class PlaydateCodeVisitor: TreeNodeVisitor {
     let state: StateNode
     let scriptName: String
@@ -136,7 +137,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         variable += path[0]
 
         if kind == .animationName {
-            return ["    AnimationNameSetAnimation(", assignedValue, ", ", variable, "->direction, ", variable, "->definition, &", variable, "->animationName, &", variable, "->animation);\n"]
+            return ["    AnimationNameSetAnimation(", assignedValue, ", ", variable, "->super.direction, ", variable, "->super.definition, &", variable, "->super.animationName, &", variable, "->super.animation);\n"]
         } else {
             var value = symbolTable.variables[path[0]] ?? .null
             for property in path[1...] {
@@ -144,7 +145,9 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                 case .sprite:
                     switch property {
                     case "center":
-                        variable += "->frame.origin"
+                        variable += "->super.frame.origin"
+                    case "frame", "animation", "direction":
+                        variable += "->super.\(property)"
                     default:
                         variable += "->\(property)"
                     }
@@ -267,7 +270,9 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             case .sprite:
                 switch property {
                 case "center":
-                    translatedName += "->frame.origin"
+                    translatedName += "->super.frame.origin"
+                case "frame", "animation", "direction":
+                    translatedName += "->super.\(property)"
                 default:
                     translatedName += "->\(property)"
                 }
