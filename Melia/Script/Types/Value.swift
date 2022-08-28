@@ -19,6 +19,7 @@ enum Value: Equatable {
     case animation(_ value: MELAnimationDefinition)
     case animations(_ value: MELAnimationDefinitionList)
     case map(_ value: MELMap)
+    case state(_ name: String)
     case null
 
     func value(for property: String) -> Value {
@@ -169,6 +170,10 @@ enum Value: Equatable {
             }
         case .animationName(let lhsValue):
             if case let .animationName(rhsValue) = rhs {
+                return lhsValue == rhsValue
+            }
+        case .state(let lhsValue):
+            if case let .state(rhsValue) = rhs {
                 return lhsValue == rhsValue
             }
         case .null:

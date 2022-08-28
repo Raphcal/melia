@@ -131,7 +131,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
 
         var variable = ""
         let path = node.variable.components(separatedBy: ".")
-        if !symbolTable.isLocalvariable(node.variable) && path[0] != "self" {
+        if !symbolTable.isLocalVariable(node.variable) && path[0] != "self" {
             variable = "self->"
         }
         variable += path[0]
@@ -260,7 +260,8 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     func visit(from node: VariableNode) -> [String] {
         var translatedName = ""
         let path = node.name.components(separatedBy: ".")
-        if !symbolTable.isLocalvariable(node.name) && path[0] != "self" {
+        let isStateName = symbolTable.states.contains { $0.name == node.name }
+        if !symbolTable.isLocalVariable(node.name) && path[0] != "self" && !isStateName {
             translatedName = "self->"
         }
         translatedName += path[0]

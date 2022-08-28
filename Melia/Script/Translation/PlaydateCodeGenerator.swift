@@ -75,6 +75,7 @@ struct PlaydateCodeGenerator {
         #include "setanimation.h"
         #include "camera.h"
         #include "../gen/sprite\(spriteName).h"
+        #include "../lib/meliasprite.h"
 
         extern CameraMotion camera;
 
@@ -104,7 +105,7 @@ struct PlaydateCodeGenerator {
         }
         for (variable, kind) in symbolTable.variables {
             // Ignore global variables.
-            if ["self", "delta", "map"].contains(variable) {
+            if ["self", "delta", "map", "state"].contains(variable) {
                 continue
             }
             code += "    \(kind.cType) \(variable);\n"
@@ -194,7 +195,7 @@ struct PlaydateCodeGenerator {
         let sprite = MELSpriteAllocStandalone(definition)
         let reducedTree = tree.reduceByInliningValues(from: sprite)
 
-        let spriteName = definition.nameAsString.lowercased()
+        let spriteName = definition.nameAsString.lowercased().replacingOccurrences(of: " ", with: "")
         var scriptName = spriteName
         if let motionName = definition.motionName,
            let motionName = String(utf8String: motionName) {
@@ -243,6 +244,8 @@ fileprivate extension ValueKind {
             return "MELAnimationList"
         case .map:
             return "MELMap"
+        case .state:
+            return "enum xxx_state"
         case .null:
             return "void"
         }

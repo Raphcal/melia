@@ -19,6 +19,7 @@ enum ValueKind: Equatable {
     case animation
     case animations
     case map
+    case state
     case null
 
     func kind(for property: String) -> ValueKind {
@@ -90,6 +91,8 @@ extension Value {
             return .animations
         case .map(_):
             return .map
+        case .state(_):
+            return .state
         case .null:
             return .null
         }

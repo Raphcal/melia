@@ -13,6 +13,11 @@ struct SymbolTable {
     var localVariables = [String: ValueKind]()
 
     func kind(of variable: String) -> ValueKind {
+        if states.contains(where: { node in
+            node.name == variable
+        }) {
+            return .state
+        }
         var kind = localVariables.valueKind(for: variable)
         if kind == .null {
             kind = variables.valueKind(for: variable)
@@ -20,7 +25,7 @@ struct SymbolTable {
         return kind
     }
 
-    func isLocalvariable(_ name: String) -> Bool {
+    func isLocalVariable(_ name: String) -> Bool {
         return localVariables.valueKind(for: name) != .null
     }
 }
