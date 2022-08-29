@@ -95,7 +95,7 @@ struct PlaydateCodeGenerator {
     private var structDeclaration: String {
         var code = """
             struct \(scriptName) {
-                MIASprite super;
+                MELSprite super;
 
 
             """
