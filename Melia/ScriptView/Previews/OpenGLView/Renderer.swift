@@ -61,7 +61,7 @@ class Renderer {
         if textureAtlas.texture.pixels == nil {
             textureAtlas = createAtlas(mutableMap.palette, context.spriteDefinitions)
 
-            melMapRenderer = MELMapRendererMakeWithRendererAndMapAndAtlas(&renderer, mutableMap.super, textureAtlas)
+            melMapRenderer = MELMapRendererMakeWithRendererAndMapAndAtlas(&renderer, &mutableMap.super, textureAtlas)
             spriteManager = MELSpriteManagerMake(MELSpriteDefinitionListMakeWithListAndCopyFunction(context.spriteDefinitions, MELSpriteDefinitionMakeWithSpriteDefinition) , textureAtlas, melMapRenderer.layerSurfaces!, 0, nil)
         }
 
