@@ -155,7 +155,7 @@ struct PlaydateCodeGenerator {
                 self->super.animation->class->update(self->super.animation, DELTA);
                 MELPoint origin = self->super.frame.origin;
                 playdate->sprite->moveTo(sprite, origin.x - camera.frame.origin.x, origin.y - camera.frame.origin.y);
-                playdate->sprite->setImage(sprite, playdate->graphics->getTableBitmap(self->super.definition.palette, self->super.animation->bitmapIndex), MELDirectionFlip[self->super.direction]);
+                playdate->sprite->setImage(sprite, playdate->graphics->getTableBitmap(self->super.definition.palette, self->super.animation->frame.atlasIndex), MELDirectionFlip[self->super.direction]);
             }
 
 

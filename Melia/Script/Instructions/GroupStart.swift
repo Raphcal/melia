@@ -12,7 +12,10 @@ protocol GroupStart: Instruction {
 }
 
 extension GroupStart {
-    func clearVariables(context: inout Script.ExecutionContext) {
+    func clearVariables(context: inout Script.ExecutionContext, variableNames: [String] = []) {
+        for variableName in variableNames {
+            context.heap.removeValue(forKey: variableName)
+        }
         for instruction in context.script.instructions[context.instructionPointer...] {
             if instruction is GoToGroupStart {
                 return

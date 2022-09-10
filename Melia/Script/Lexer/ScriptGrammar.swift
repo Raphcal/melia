@@ -65,11 +65,11 @@ struct ScriptGrammar: Grammar {
         case .state:
             return "state +([a-zA-Z0-9]+) *: *"
         case .groupStart:
-            return "(during|while|if|else if|else) +"
+            return "(during|while|jump|if|else if|else) +"
         case .groupEnd:
             return ": *"
         case .instructionStart:
-            return "(move|jump|shoot|new|wait) *"
+            return "(move|shoot|new|wait) *"
         case .instructionArgument:
             return ", *([a-z]+) *: *"
         case .setStart:

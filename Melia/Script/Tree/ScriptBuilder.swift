@@ -61,6 +61,8 @@ class ScriptBuilder: TreeNodeVisitor {
         switch node.name {
         case "during":
             script.instructions.append(During())
+        case "jump":
+            script.instructions.append(Jump())
         default:
             print("Group \(node.name) is not supported yet.")
             return
