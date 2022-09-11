@@ -70,7 +70,25 @@ class MeliaDocument: ReferenceFileDocument {
             var format = MELMmkProjectFormat
             return .init(regularFileWithContents: try format.save(project: snapshot.project))
         } else if configuration.contentType == .mapMakerProjectBundle {
-            return try MELMmkbProjectFormat.fileWrapper(project: snapshot.project)
+            let fileWrapper = try MELMmkbProjectFormat.fileWrapper(project: snapshot.project)
+            var fileWrappers = fileWrapper.fileWrappers!
+            var scriptCount = 0
+            for key in project.scripts.keys {
+                if let key = String(utf8String: key),
+                   let scriptData = project.scripts[key],
+                   scriptData.count > 1 {
+                    let tokens = Tokenizer().tokenize(code: scriptData)
+                    let definition = project.root.sprites.first {
+                        $0.motionName != nil && String(utf8String: $0.motionName!) == key
+                    }
+                    let generator = PlaydateCodeGenerator(tree: TokenTree(tokens: tokens), for: definition)
+
+                    fileWrappers["script\(scriptCount).h"] = .init(regularFileWithContents: generator.headerFile.data(using: .utf8)!)
+                    fileWrappers["script\(scriptCount).c"] = .init(regularFileWithContents: generator.codeFile.data(using: .utf8)!)
+                    scriptCount += 1
+                }
+            }
+            return .init(directoryWithFileWrappers: fileWrappers)
         } else {
             throw CocoaError(.fileWriteUnsupportedScheme)
         }

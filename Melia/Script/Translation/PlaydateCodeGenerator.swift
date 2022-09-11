@@ -191,13 +191,15 @@ struct PlaydateCodeGenerator {
         return code
     }
 
-    init(tree: TokenTree, for definition: MELSpriteDefinition) {
-        let sprite = MELSpriteAllocStandalone(definition)
-        let reducedTree = tree.reduceByInliningValues(from: sprite)
+    init(tree: TokenTree, for definition: MELSpriteDefinition? = nil) {
+        let def = definition ?? MELSpriteDefinition(name: nil, type: 0, palette: nil, animations: .empty, motionName: nil, loadScript: nil)
+        let sprite = MELSpriteAllocStandalone(def)
 
-        let spriteName = definition.nameAsString.lowercased().replacingOccurrences(of: " ", with: "")
+        let reducedTree = definition != nil ? tree.reduceByInliningValues(from: sprite) : tree
+
+        let spriteName = def.nameAsString.lowercased().replacingOccurrences(of: " ", with: "")
         var scriptName = spriteName
-        if let motionName = definition.motionName,
+        if let motionName = def.motionName,
            let motionName = String(utf8String: motionName) {
             scriptName = motionName
         }
