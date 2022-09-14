@@ -12,6 +12,7 @@ import MeliceFramework
 struct PlaydateCodeGenerator {
     var spriteName: String
     var scriptName: String
+    var spriteType: MELSpriteType
     var tree: TokenTree
     var symbolTable: SymbolTable
 
@@ -31,7 +32,7 @@ struct PlaydateCodeGenerator {
             #include "common.h"
             #include "../lib/melice.h"
 
-            void \(scriptName)_update(LCDSprite * _Nonnull sprite);
+            LCDSprite * _Nonnull \(scriptName)_constructor(MELConstSpriteDefinition definition, MELSpriteInstance * _Nonnull instance);
 
             #endif /* \(scriptName)_h */
 
@@ -74,8 +75,8 @@ struct PlaydateCodeGenerator {
 
         #include "setanimation.h"
         #include "camera.h"
+        #include "../gen/spritenames.h"
         #include "../gen/sprite\(spriteName).h"
-        #include "../lib/meliasprite.h"
 
         extern CameraMotion camera;
 
@@ -128,21 +129,45 @@ struct PlaydateCodeGenerator {
 
     private var updateFunction: String {
         // TODO: Gérer le nommage en PascalCase
-        let pascalCasedSpriteName = spriteName.capitalized.replacingOccurrences(of: " ", with: "")
         let defaultState = symbolTable.states.isEmpty ? "default" : symbolTable.states[0].name
         return """
-            void \(scriptName)_update(LCDSprite * _Nonnull sprite) {
+            LCDSprite * _Nonnull \(scriptName)_constructor(MELConstSpriteDefinition definition, MELSpriteInstance * _Nonnull instance) {
+                LCDSprite *sprite = playdate->sprite->newSprite();
+                playdate->sprite->moveTo(sprite, instance->center.x, instance->center.y);
+                // TODO: Voir comment gérer le z-index
+
                 struct \(scriptName) *self = playdate->system->realloc(NULL, sizeof(struct \(scriptName)));
-                memset(self, 0, sizeof(struct \(scriptName)));
-                if (sprite\(pascalCasedSpriteName).palette == NULL) {
-                    loadSprite\(pascalCasedSpriteName)Palette();
+                *self = (struct \(scriptName)) {
+                    .super = (MELSprite) {
+                        .class = &MELSpriteClassDefault,
+                        .definition = definition,
+                        .frame = (MELRectangle) {
+                            .origin = instance->center,
+                            .size = definition.size
+                        },
+                        .oldX = instance->center.x
+                    }
+                };
+                AnimationNameSetAnimation(AnimationNameStand, instance->direction, definition, &self->super.animationName, &self->super.animation);
+
+                if (!MELRectangleEquals(self->super.animation->frame.hitbox, MELRectangleZero)) {
+                    self->super.hitbox = MELSpriteHitboxAlloc(&self->super);
+                } else {
+                    self->super.hitbox = MELSimpleSpriteHitboxAlloc(&self->super);
                 }
-                self->super.definition = sprite\(pascalCasedSpriteName);
-                playdate->sprite->getPosition(sprite, &self->super.frame.origin.x, &self->super.frame.origin.y);
+
+                if (!MELRectangleEquals(self->super.animation->frame.hitbox, MELRectangleZero)) {
+                    self->super.hitbox = MELSpriteHitboxAlloc(&self->super);
+                } else {
+                    self->super.hitbox = MELSimpleSpriteHitboxAlloc(&self->super);
+                }
 
                 playdate->sprite->setUserdata(sprite, self);
                 playdate->sprite->setUpdateFunction(sprite, &\(defaultState)StatePart0);
-                \(defaultState)StatePart0(sprite);
+                playdate->sprite->addSprite(sprite);
+
+                instance->sprite = sprite;
+                return sprite;
             }
 
 
@@ -150,16 +175,44 @@ struct PlaydateCodeGenerator {
     }
 
     private var drawFunction: String {
-        return """
-            static void draw(struct \(scriptName) * _Nonnull self, LCDSprite * _Nonnull sprite) {
-                self->super.animation->class->update(self->super.animation, DELTA);
-                MELPoint origin = self->super.frame.origin;
-                playdate->sprite->moveTo(sprite, origin.x - camera.frame.origin.x, origin.y - camera.frame.origin.y);
-                playdate->sprite->setImage(sprite, playdate->graphics->getTableBitmap(self->super.definition.palette, self->super.animation->frame.atlasIndex), MELDirectionFlip[self->super.direction]);
-            }
+        if spriteType == MELSpriteTypePlatform {
+            return """
+                static void draw(struct \(scriptName) * _Nonnull self, LCDSprite * _Nonnull sprite) {
+                    self->super.animation->class->update(self->super.animation, DELTA);
+
+                    const MELRectangle frame = self->super.frame;
+                    playdate->sprite->moveTo(sprite, frame.origin.x - camera.frame.origin.x, frame.origin.y - camera.frame.origin.y);
+                    playdate->sprite->setImage(sprite, playdate->graphics->getTableBitmap(self->super.definition.palette, self->super.animation->frame.atlasIndex), MELDirectionFlip[self->super.direction]);
+
+                    LCDSprite *landedSprite = self->super.landedSprite;
+                    if (landedSprite) {
+                        MELSprite *landedSpriteSelf = playdate->sprite->getUserdata(landedSprite);
+                        MELRectangle landedSpriteFrame = landedSpriteSelf->frame;
+                        landedSpriteFrame.origin.x += frame.origin.x - self->super.oldX;
+                        // TODO: Utiliser locationForSpriteOnPlatform
+                        landedSpriteFrame.origin.y = frame.origin.y - frame.size.height / 2 - landedSpriteFrame.size.height / 2;
+                        landedSpriteSelf->frame = landedSpriteFrame;
+
+                        playdate->sprite->moveTo(landedSprite, landedSpriteFrame.origin.x - camera.frame.origin.x, landedSpriteFrame.origin.y - camera.frame.origin.y);
+                    }
+                    self->super.oldX = frame.origin.x;
+                }
 
 
-            """
+                """
+        } else {
+            return """
+                static void draw(struct \(scriptName) * _Nonnull self, LCDSprite * _Nonnull sprite) {
+                    self->super.animation->class->update(self->super.animation, DELTA);
+
+                    const MELPoint origin = self->super.frame.origin;
+                    playdate->sprite->moveTo(sprite, origin.x - camera.frame.origin.x, origin.y - camera.frame.origin.y);
+                    playdate->sprite->setImage(sprite, playdate->graphics->getTableBitmap(self->super.definition.palette, self->super.animation->frame.atlasIndex), MELDirectionFlip[self->super.direction]);
+                }
+
+
+                """
+        }
     }
 
     private var goToStateFunction: String {
@@ -192,7 +245,7 @@ struct PlaydateCodeGenerator {
     }
 
     init(tree: TokenTree, for definition: MELSpriteDefinition? = nil) {
-        let def = definition ?? MELSpriteDefinition(name: nil, type: 0, palette: nil, animations: .empty, motionName: nil, loadScript: nil)
+        let def = definition ?? MELSpriteDefinition(name: nil, type: MELSpriteTypeDecor, palette: nil, animations: .empty, motionName: nil, loadScript: nil)
         let sprite = MELSpriteAllocStandalone(def)
 
         let reducedTree = definition != nil ? tree.reduceByInliningValues(from: sprite) : tree
@@ -206,6 +259,7 @@ struct PlaydateCodeGenerator {
 
         self.spriteName = spriteName
         self.scriptName = PlaydateCodeGenerator.removeSpecialCharacters(from: scriptName)
+        self.spriteType = def.type
         self.tree = reducedTree
         self.symbolTable = reducedTree.symbolTable
     }
