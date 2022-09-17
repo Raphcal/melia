@@ -73,7 +73,6 @@ struct PlaydateCodeGenerator {
 
         #include "\(scriptName).h"
 
-        #include "setanimation.h"
         #include "camera.h"
         #include "../gen/spritenames.h"
         #include "../gen/sprite\(spriteName).h"
@@ -141,14 +140,16 @@ struct PlaydateCodeGenerator {
                     .super = (MELSprite) {
                         .class = &MELSpriteClassDefault,
                         .definition = definition,
+                        .instance = instance,
                         .frame = (MELRectangle) {
                             .origin = instance->center,
                             .size = definition.size
                         },
+                        .direction = instance->direction,
                         .oldX = instance->center.x
                     }
                 };
-                AnimationNameSetAnimation(AnimationNameStand, instance->direction, definition, &self->super.animationName, &self->super.animation);
+                MELSpriteSetAnimation(&self->super, AnimationNameStand);
 
                 if (!MELRectangleEquals(self->super.animation->frame.hitbox, MELRectangleZero)) {
                     self->super.hitbox = MELSpriteHitboxAlloc(&self->super);

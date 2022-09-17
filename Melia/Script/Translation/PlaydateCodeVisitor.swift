@@ -137,7 +137,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         variable += path[0]
 
         if kind == .animationName {
-            return ["    AnimationNameSetAnimation(", assignedValue, ", ", variable, "->super.direction, ", variable, "->super.definition, &", variable, "->super.animationName, &", variable, "->super.animation);\n"]
+            return ["    MELSpriteSetAnimation(&", variable, "->super, ", assignedValue, ");\n"]
         } else {
             var value = symbolTable.variables[path[0]] ?? .null
             for property in path[1...] {
