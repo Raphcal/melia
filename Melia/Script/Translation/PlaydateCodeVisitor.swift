@@ -68,6 +68,13 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     }
 
     func visit(from node: GroupNode) -> [String] {
+        if node.name == "during" {
+            return visitDuring(node)
+        }
+        return []
+    }
+
+    func visitDuring(_ node: GroupNode) -> [String] {
         part += 1
         var code = [String]()
         code.reserveCapacity(6)

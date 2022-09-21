@@ -57,6 +57,10 @@ enum Value: Equatable {
             case "isJumping":
                 // TODO: Vérifier si le sprite est en train de sauter
                 return .boolean(false)
+            case "animation":
+                if let animation = sprite.animation.pointee.definition?.pointee {
+                    return .animation(animation)
+                }
             case "animations":
                 return .animations(sprite.pointee.definition.animations)
             default:
@@ -120,18 +124,17 @@ enum Value: Equatable {
         }
     }
 
+    /// Indique s'il possible d'inliner la propriété ou un de ses descendants
     func isInlineable(property: String) -> Bool {
         switch self {
         case .point(_):
-            if property == "x" {
-                return true
-            } else if property == "y" {
-                return true
-            }
+            return property == "x" || property == "y"
         case .sprite(_):
-            if property == "animation" {
-                return true
-            }
+            return property == "animations"
+        case .animations(_):
+            return true
+        case .animation(_):
+            return property == "duration"
         default:
             break
         }
@@ -203,7 +206,7 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
         }
         var value = self[path[0]] ?? .null
         var index = 1
-        while index < path.count && value.isInlineable {
+        while index < path.count && value.isInlineable(property: path[index]) {
             value = value.value(for: path[index])
             index += 1
         }

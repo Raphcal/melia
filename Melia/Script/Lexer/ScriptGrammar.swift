@@ -18,7 +18,7 @@ struct ScriptGrammar: Grammar {
         case .state:
             return [.newLine, .instructionStart, .setStart]
         case .groupStart:
-            return [.valueDuration,.valueBoolean, .valueVariable]
+            return [.valueDuration, .valueBoolean, .valueVariable]
         case .groupEnd:
             return [.newLine, .instructionStart, .setStart]
         case .instructionStart:

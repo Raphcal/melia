@@ -21,7 +21,7 @@ struct During: GroupStart, DeclareVariables {
         var newContext = context
 
         let ease = newContext.arguments.boolean(for: During.easeArgument) ?? false
-        let duration: MELTimeInterval = newContext.arguments.decimal(for: During.durationArgument) ?? 0
+        let duration = newContext.arguments.decimal(for: During.durationArgument) ?? 0
 
         guard case let .decimal(delta) = newContext.heap["delta"] else {
             return newContext
