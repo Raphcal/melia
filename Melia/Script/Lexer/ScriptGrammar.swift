@@ -75,13 +75,13 @@ struct ScriptGrammar: Grammar {
         case .setStart:
             return "([a-z][a-zA-Z0-9_.]*) *= *"
         case .valuePoint:
-            return "\\(([0-9]+), *([0-9]+)\\) *"
+            return "\\((-?[0-9.]+), *(-?[0-9.]+)\\) *"
         case .valueInt:
             return "([0-9][0-9_]*) *"
         case .valueDecimal:
             return "([0-9][0-9_]*\\.[0-9][0-9_]*) *"
         case .valueDuration:
-            return "([0-9][0-9_]*)(ms|s|min) *"
+            return "([0-9][0-9._]*)(ms|s|min) *"
         case .valueDirection:
             return "(up|down|left|right) *"
         case .valueAnimation:

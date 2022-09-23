@@ -27,7 +27,7 @@ struct FoundToken: Equatable {
                 let duration = try DurationUnit.named(matches[2])
                 return .decimal(
                     duration.toTimeInterval(
-                        Int32(matches[1]) ?? 0
+                        MELTimeInterval(matches[1]) ?? 0
                     )
                 )
             } catch {
@@ -52,10 +52,10 @@ struct FoundToken: Equatable {
                 print("Unable to parse direction: \(error)")
             }
         case .valuePoint:
-            let intPoint = MELIntPoint(
-                x: Int32(matches[1]) ?? 0,
-                y: Int32(matches[2]) ?? 0)
-            return .point(MELPoint(intPoint))
+            let point = MELPoint(
+                x: GLfloat(matches[1]) ?? 0,
+                y: GLfloat(matches[2]) ?? 0)
+            return .point(point)
         default:
             break
         }

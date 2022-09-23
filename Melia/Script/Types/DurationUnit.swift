@@ -25,7 +25,7 @@ enum DurationUnit {
         }
     }
 
-    var toMilliseconds: Int32 {
+    var toMilliseconds: MELTimeInterval {
         switch self {
         case .millisecond:
             return 1
@@ -36,8 +36,8 @@ enum DurationUnit {
         }
     }
 
-    func toTimeInterval(_ value: Int32) -> MELTimeInterval {
-        return MELTimeInterval(value * toMilliseconds) / 1000
+    func toTimeInterval(_ value: MELTimeInterval) -> MELTimeInterval {
+        return (value * toMilliseconds) / 1000
     }
 }
 
