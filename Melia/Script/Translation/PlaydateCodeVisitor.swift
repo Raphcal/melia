@@ -35,7 +35,8 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     var stateEnd: String {
         if symbolTable.states.count > 1 {
             return """
-                    goToCurrentState(sprite);
+                    self->statePart = 0;
+                    goToCurrentState(self);
                     draw(self, sprite);
                 }
 
@@ -43,6 +44,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                 """
         } else {
             return """
+                    self->statePart = 0;
                     playdate->sprite->setUpdateFunction(sprite, &\(state.name)StatePart0);
                     draw(self, sprite);
                 }
@@ -81,6 +83,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         code.append("""
                 // \(node.name)
                 self->time = 0;
+                self->statePart = \(part);
                 playdate->sprite->setUpdateFunction(sprite, &\(state.name)StatePart\(part));
 
                 draw(self, sprite);
@@ -116,6 +119,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         part += 1
         code.append("""
                 } else {
+                    self->statePart = \(part);
                     playdate->sprite->setUpdateFunction(sprite, &\(state.name)StatePart\(part));
                 }
 
