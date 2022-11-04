@@ -12,6 +12,7 @@ import MeliceFramework
 struct PlaydateCodeGenerator {
     var spriteName: String
     var scriptName: String
+    var pascalCasedScriptName: String
     var spriteType: MELSpriteType
     var tree: TokenTree
     var symbolTable: SymbolTable
@@ -32,7 +33,8 @@ struct PlaydateCodeGenerator {
             #include "common.h"
             #include "../lib/melice.h"
 
-            LCDSprite * _Nonnull \(scriptName)_constructor(MELConstSpriteDefinition definition, MELSpriteInstance * _Nonnull instance);
+            LCDSprite * _Nonnull \(pascalCasedScriptName)Constructor(MELConstSpriteDefinition definition, MELSpriteInstance * _Nonnull instance, SpriteLoader * _Nonnull spriteLoader);
+            MELSprite * _Nullable \(pascalCasedScriptName)Loader(MELConstSpriteDefinition * _Nonnull definition, MELInputStream * _Nonnull inputStream);
 
             #endif /* \(scriptName)_h */
 
@@ -48,7 +50,10 @@ struct PlaydateCodeGenerator {
         }
         code += structDeclaration
         code += stateFunctionsDeclaration
-        code += updateFunction
+        code += saveFunction
+        code += loadFunction
+        code += classDeclaration
+        code += constructorFunction
         code += drawFunction
 
         if symbolTable.states.count > 1 {
@@ -126,19 +131,111 @@ struct PlaydateCodeGenerator {
         return code
     }
 
-    private var updateFunction: String {
+    private var hasSomethingToSave: Bool {
+        return symbolTable.states.count > 1 || symbolTable.variables.keys.contains { !["self", "delta", "map", "state"].contains($0) }
+    }
+
+    private var saveFunction: String {
+        var code = ""
+        if symbolTable.states.count > 1 {
+            code += "    MELOutputStreamWriteByte(outputStream, self->state);\n"
+        }
+        for (variable, kind) in symbolTable.variables {
+            // Ignore global variables.
+            if ["self", "delta", "map", "state"].contains(variable) {
+                continue
+            }
+            switch (kind) {
+            case .direction, .boolean:
+                code += "    MELOutputStreamWriteByte(outputStream, self->\(variable));\n"
+            case .integer:
+                code += "    MELOutputStreamWriteInt(outputStream, self->\(variable));\n"
+            case .decimal:
+                code += "    MELOutputStreamWriteFloat(outputStream, self->\(variable));\n"
+            case .point:
+                code += "    MELOutputStreamWritePoint(outputStream, self->\(variable));\n"
+            default:
+                break
+            }
+        }
+        if code.isEmpty {
+            return ""
+        } else {
+            return """
+                static void save(MELSprite * _Nonnull sprite, MELOutputStream * _Nonnull outputStream) {
+                    struct \(scriptName) *self = (struct \(scriptName) *)sprite;
+                \(code)}
+
+
+                """
+        }
+    }
+
+    private var loadFunction: String {
+        var code = ""
+        if symbolTable.states.count > 1 {
+            code += "    self->state = MELInputStreamReadByte(inputStream);\n"
+        }
+        for (variable, kind) in symbolTable.variables {
+            // Ignore global variables.
+            if ["self", "delta", "map", "state"].contains(variable) {
+                continue
+            }
+            switch (kind) {
+            case .direction, .boolean:
+                code += "    self->\(variable) = MELInputStreamReadByte(inputStream);\n"
+            case .integer:
+                code += "    self->\(variable) = MELInputStreamReadInt(inputStream);\n"
+            case .decimal:
+                code += "    self->\(variable) = MELInputStreamReadFloat(inputStream);\n"
+            case .point:
+                code += "    self->\(variable) = MELInputStreamReadPoint(inputStream);\n"
+            default:
+                break
+            }
+        }
+        if code.isEmpty {
+            return ""
+        } else {
+            return """
+                MELSprite * _Nullable \(pascalCasedScriptName)Loader(MELConstSpriteDefinition * _Nonnull definition, MELInputStream * _Nonnull inputStream) {
+                    struct \(scriptName) *self = playdate->system->realloc(NULL, sizeof(struct \(scriptName)));
+                \(code)    return &self->super;
+                }
+
+
+                """
+        }
+    }
+
+    private var classDeclaration: String {
+        if hasSomethingToSave {
+            return """
+                const MELSpriteClass \(pascalCasedScriptName)Class = (MELSpriteClass) {
+                    .destroy = MELSpriteDealloc,
+                    .save = save
+                };
+
+
+                """
+        } else {
+            return ""
+        }
+    }
+
+    private var constructorFunction: String {
         // TODO: Gérer le nommage en PascalCase
         let defaultState = symbolTable.states.isEmpty ? "default" : symbolTable.states[0].name
         return """
-            LCDSprite * _Nonnull \(scriptName)_constructor(MELConstSpriteDefinition definition, MELSpriteInstance * _Nonnull instance) {
+            LCDSprite * _Nonnull \(pascalCasedScriptName)Constructor(MELConstSpriteDefinition definition, MELSpriteInstance * _Nonnull instance, SpriteLoader * _Nonnull spriteLoader) {
                 LCDSprite *sprite = playdate->sprite->newSprite();
                 playdate->sprite->moveTo(sprite, instance->center.x, instance->center.y);
-                // TODO: Voir comment gérer le z-index
+                playdate->sprite->setZIndex(sprite, instance->zIndex);
 
                 struct \(scriptName) *self = playdate->system->realloc(NULL, sizeof(struct \(scriptName)));
                 *self = (struct \(scriptName)) {
                     .super = (MELSprite) {
-                        .class = &MELSpriteClassDefault,
+                        .class = \(hasSomethingToSave ? "&\(pascalCasedScriptName)Class" : "&MELSpriteClassDefault"),
                         .definition = definition,
                         .instance = instance,
                         .frame = (MELRectangle) {
@@ -146,16 +243,11 @@ struct PlaydateCodeGenerator {
                             .size = definition.size
                         },
                         .direction = instance->direction,
-                        .oldX = instance->center.x
+                        .oldX = instance->center.x,
+                        .otherSprites = &spriteLoader->sprites,
                     }
                 };
                 MELSpriteSetAnimation(&self->super, AnimationNameStand);
-
-                if (!MELRectangleEquals(self->super.animation->frame.hitbox, MELRectangleZero)) {
-                    self->super.hitbox = MELSpriteHitboxAlloc(&self->super);
-                } else {
-                    self->super.hitbox = MELSimpleSpriteHitboxAlloc(&self->super);
-                }
 
                 if (!MELRectangleEquals(self->super.animation->frame.hitbox, MELRectangleZero)) {
                     self->super.hitbox = MELSpriteHitboxAlloc(&self->super);
@@ -219,7 +311,7 @@ struct PlaydateCodeGenerator {
     private var goToStateFunction: String {
         var code = """
             static void goToCurrentState(LCDSprite * _Nonnull sprite) {
-                struct \(scriptName) *self = (struct \(scriptName) *) playdate->sprite->getUserdata(sprite);
+                struct \(scriptName) *self = playdate->sprite->getUserdata(sprite);
                 switch (self->super.state) {
 
             """
@@ -260,6 +352,7 @@ struct PlaydateCodeGenerator {
 
         self.spriteName = spriteName
         self.scriptName = PlaydateCodeGenerator.removeSpecialCharacters(from: scriptName)
+        self.pascalCasedScriptName = PlaydateCodeGenerator.toPascalCase(scriptName)
         self.spriteType = def.type
         self.tree = reducedTree
         self.symbolTable = reducedTree.symbolTable
@@ -273,6 +366,25 @@ struct PlaydateCodeGenerator {
             }
         }
         return String(characters)
+    }
+
+    private static func toPascalCase(_ string: String) -> String {
+        var letters = [Character]()
+        letters.reserveCapacity(string.count)
+
+        var toUppercase: Bool? = true
+        for letter in string {
+            if !letter.isLetter && !letter.isNumber {
+                toUppercase = true
+            } else if toUppercase == true || (toUppercase == nil && letter.isUppercase) {
+                toUppercase = false
+                letters.append(contentsOf: letter.uppercased())
+            } else {
+                toUppercase = nil
+                letters.append(letter)
+            }
+        }
+        return String(letters);
     }
 }
 
