@@ -107,28 +107,24 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
            case let .boolean(value) = easeArgument.value {
             easeInOut = value
         }
-        code.append("        const float progress = \(easeInOut ? "MELEaseInOut(0, duration, newTime)" : "newTime / duration");\n")
-
-        code.append("        self->time = newTime;\n\n")
 
         symbolTable.localVariables["progress"] = .decimal
-        code.append(contentsOf: node.children.accept(visitor: self).map({ "    " + $0 }))
+        let innerCode = node.children.accept(visitor: self).map({ "    " + $0 })
         symbolTable.localVariables.removeValue(forKey: "progress")
 
-        // TODO: Voir comment intégrer les étapes d'après during dans le else après setUpdateFunction.
-        part += 1
+        // TODO: Un peu basique, vérifier mieux la présence de "progress".
+        if (innerCode.contains(where: { $0.contains("progress") })) {
+            code.append("        const float progress = \(easeInOut ? "MELEaseInOut(0, duration, newTime)" : "newTime / duration");\n")
+        }
+        code.append("        self->time = newTime;\n\n")
+        code.append(contentsOf: innerCode)
+
         code.append("""
-                } else {
-                    self->statePart = \(part);
-                    playdate->sprite->setUpdateFunction(sprite, &\(state.name)StatePart\(part));
+                    draw(self, sprite);
+                    return;
                 }
 
-                draw(self, sprite);
-            }
-
-
             """)
-        code.append(statePartStart)
         return code
     }
 

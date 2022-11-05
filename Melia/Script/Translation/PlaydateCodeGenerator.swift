@@ -440,17 +440,6 @@ fileprivate extension ValueKind {
 
 fileprivate extension StateNode {
     var partCount: Int {
-        var count = 1
-        var lastWasAGroup = false
-        for child in children {
-            if child is GroupNode {
-                count += 1
-                lastWasAGroup = true
-            } else if lastWasAGroup {
-                count += 1
-                lastWasAGroup = false
-            }
-        }
-        return count
+        return children.filter { $0 is GroupNode }.count + 1
     }
 }
