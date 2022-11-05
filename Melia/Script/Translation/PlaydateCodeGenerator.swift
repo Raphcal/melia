@@ -34,6 +34,7 @@ struct PlaydateCodeGenerator {
             #include "../lib/melice.h"
 
             LCDSprite * _Nonnull \(pascalCasedScriptName)Constructor(MELConstSpriteDefinition definition, MELSpriteInstance * _Nonnull instance, SpriteLoader * _Nonnull spriteLoader);
+
             MELSprite * _Nullable \(pascalCasedScriptName)Loader(MELConstSpriteDefinition * _Nonnull definition, LCDSprite * _Nonnull sprite, MELInputStream * _Nonnull inputStream);
 
             #endif /* \(scriptName)_h */
@@ -107,11 +108,12 @@ struct PlaydateCodeGenerator {
             code += "    enum \(scriptName)_state state;\n"
         }
         code += "    uint8_t statePart;\n"
-        for (variable, kind) in symbolTable.variables {
+        let variables = symbolTable.variables.keys
             // Ignore global variables.
-            if ["self", "delta", "map", "state"].contains(variable) {
-                continue
-            }
+            .filter { !["self", "delta", "map", "state"].contains($0) }
+            .sorted()
+        for variable in variables {
+            let kind = symbolTable.variables[variable]!
             code += "    \(kind.cType) \(variable);\n"
         }
 
@@ -136,11 +138,12 @@ struct PlaydateCodeGenerator {
             code += "    MELOutputStreamWriteByte(outputStream, self->state);\n"
         }
         code += "    MELOutputStreamWriteByte(outputStream, self->statePart);\n"
-        for (variable, kind) in symbolTable.variables {
+        let variables = symbolTable.variables.keys
             // Ignore global variables.
-            if ["self", "delta", "map", "state"].contains(variable) {
-                continue
-            }
+            .filter { !["self", "delta", "map", "state"].contains($0) }
+            .sorted()
+        for variable in variables {
+            let kind = symbolTable.variables[variable]
             switch (kind) {
             case .direction, .boolean:
                 code += "    MELOutputStreamWriteByte(outputStream, self->\(variable));\n"
@@ -166,16 +169,17 @@ struct PlaydateCodeGenerator {
     private var loadFunction: String {
         var code = ""
         if symbolTable.states.count > 1 {
-            code += "    const state \(scriptName) state = MELInputStreamReadByte(inputStream);\n"
+            code += "    const enum \(scriptName)_state state = MELInputStreamReadByte(inputStream);\n"
             code += "    self->state = state;\n"
         }
         code += "    const uint8_t statePart = MELInputStreamReadByte(inputStream);\n"
         code += "    self->statePart = statePart;\n"
-        for (variable, kind) in symbolTable.variables {
+        let variables = symbolTable.variables.keys
             // Ignore global variables.
-            if ["self", "delta", "map", "state"].contains(variable) {
-                continue
-            }
+            .filter { !["self", "delta", "map", "state"].contains($0) }
+            .sorted()
+        for variable in variables {
+            let kind = symbolTable.variables[variable]
             switch (kind) {
             case .direction, .boolean:
                 code += "    self->\(variable) = MELInputStreamReadByte(inputStream);\n"
@@ -189,7 +193,7 @@ struct PlaydateCodeGenerator {
                 break
             }
         }
-        code += "    goToCurrentState(self);\n"
+        code += "    goToCurrentState(self, sprite);\n"
 
         return """
             MELSprite * _Nullable \(pascalCasedScriptName)Loader(MELConstSpriteDefinition * _Nonnull definition, LCDSprite * _Nonnull sprite, MELInputStream * _Nonnull inputStream) {
@@ -324,12 +328,12 @@ struct PlaydateCodeGenerator {
             return ""
         }
         var code = """
-            static void goToCurrentState(struct \(scriptName) * _Nonnull sprite) {
+            static void goToCurrentState(struct \(scriptName) * _Nonnull self, LCDSprite * _Nonnull sprite) {
 
             """
         if symbolTable.states.count > 1 {
             code += """
-                    switch (self->super.state) {
+                    switch (self->state) {
 
                 """
 

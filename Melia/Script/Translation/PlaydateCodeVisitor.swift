@@ -26,7 +26,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     var statePartStart: String {
         return """
             static void \(state.name)StatePart\(part)(LCDSprite * _Nonnull sprite) {
-                struct \(scriptName) *self = (struct \(scriptName) *) playdate->sprite->getUserdata(sprite);
+                struct \(scriptName) *self = playdate->sprite->getUserdata(sprite);
 
 
             """
@@ -36,7 +36,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         if symbolTable.states.count > 1 {
             return """
                     self->statePart = 0;
-                    goToCurrentState(self);
+                    goToCurrentState(self, sprite);
                     draw(self, sprite);
                 }
 
@@ -101,7 +101,6 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                     const float newTime = MELFloatMin(self->time + DELTA, duration);\n
             """)
 
-        // TODO: Ne pas générer "progress" s'il n'est pas utilisé.
         var easeInOut = false
         if let easeArgument = node.arguments.first(where: { $0.name == "ease" })?.value as? ConstantNode,
            case let .boolean(value) = easeArgument.value {
@@ -265,6 +264,9 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     }
 
     func visit(from node: VariableNode) -> [String] {
+        if node.name == "delta" {
+            return ["DELTA"]
+        }
         var translatedName = ""
         let path = node.name.components(separatedBy: ".")
         let isStateName = symbolTable.states.contains { $0.name == node.name }
