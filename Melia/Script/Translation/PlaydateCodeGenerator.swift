@@ -33,9 +33,9 @@ struct PlaydateCodeGenerator {
             #include "common.h"
             #include "../lib/melice.h"
 
-            LCDSprite * _Nonnull \(pascalCasedScriptName)Constructor(MELConstSpriteDefinition definition, MELSpriteInstance * _Nonnull instance, SpriteLoader * _Nonnull spriteLoader);
+            LCDSprite * _Nonnull \(pascalCasedScriptName)Constructor(MELConstSpriteDefinition * _Nonnull definition, MELSpriteInstance * _Nonnull instance, SpriteLoader * _Nonnull spriteLoader);
 
-            MELSprite * _Nullable \(pascalCasedScriptName)Loader(MELConstSpriteDefinition * _Nonnull definition, LCDSprite * _Nonnull sprite, MELInputStream * _Nonnull inputStream);
+            MELSprite * _Nullable \(pascalCasedScriptName)Loader(MELConstSpriteDefinition * _Nonnull definition, LCDSprite * _Nonnull sprite, SpriteLoader * _Nonnull spriteLoader, MELInputStream * _Nonnull inputStream);
 
             #endif /* \(scriptName)_h */
 
@@ -53,8 +53,8 @@ struct PlaydateCodeGenerator {
         code += stateFunctionsDeclaration
         code += goToStateFunction
         code += saveFunction
-        code += loadFunction
         code += classDeclaration
+        code += loadFunction
         code += constructorFunction
         code += drawFunction
 
@@ -196,8 +196,9 @@ struct PlaydateCodeGenerator {
         code += "    goToCurrentState(self, sprite);\n"
 
         return """
-            MELSprite * _Nullable \(pascalCasedScriptName)Loader(MELConstSpriteDefinition * _Nonnull definition, LCDSprite * _Nonnull sprite, MELInputStream * _Nonnull inputStream) {
+            MELSprite * _Nullable \(pascalCasedScriptName)Loader(MELConstSpriteDefinition * _Nonnull definition, LCDSprite * _Nonnull sprite, SpriteLoader * _Nonnull spriteLoader, MELInputStream * _Nonnull inputStream) {
                 struct \(scriptName) *self = playdate->system->realloc(NULL, sizeof(struct \(scriptName)));
+                self->super.class = &\(pascalCasedScriptName)Class;
             \(code)    return &self->super;
             }
 
@@ -219,39 +220,11 @@ struct PlaydateCodeGenerator {
     private var constructorFunction: String {
         let defaultState = symbolTable.states.isEmpty ? "default" : symbolTable.states[0].name
         return """
-            LCDSprite * _Nonnull \(pascalCasedScriptName)Constructor(MELConstSpriteDefinition definition, MELSpriteInstance * _Nonnull instance, SpriteLoader * _Nonnull spriteLoader) {
-                LCDSprite *sprite = playdate->sprite->newSprite();
-                playdate->sprite->moveTo(sprite, instance->center.x, instance->center.y);
-                playdate->sprite->setZIndex(sprite, instance->zIndex);
-
+            LCDSprite * _Nonnull \(pascalCasedScriptName)Constructor(MELConstSpriteDefinition * _Nonnull definition, MELSpriteInstance * _Nonnull instance, SpriteLoader * _Nonnull spriteLoader) {
                 struct \(scriptName) *self = playdate->system->realloc(NULL, sizeof(struct \(scriptName)));
-                *self = (struct \(scriptName)) {
-                    .super = (MELSprite) {
-                        .class = &\(pascalCasedScriptName)Class,
-                        .definition = definition,
-                        .instance = instance,
-                        .frame = (MELRectangle) {
-                            .origin = instance->center,
-                            .size = definition.size
-                        },
-                        .direction = instance->direction,
-                        .oldX = instance->center.x,
-                        .otherSprites = &spriteLoader->sprites,
-                    },\(symbolTable.states.count > 1 ? "\n        .state = \(defaultState)," : "")
-                };
-                MELSpriteSetAnimation(&self->super, AnimationNameStand);
-
-                if (!MELRectangleEquals(self->super.animation->frame.hitbox, MELRectangleZero)) {
-                    self->super.hitbox = MELSpriteHitboxAlloc(&self->super);
-                } else {
-                    self->super.hitbox = MELSimpleSpriteHitboxAlloc(&self->super);
-                }
-
-                playdate->sprite->setUserdata(sprite, self);
+                LCDSprite *sprite = MELSpriteInit(&self->super, definition, instance, &spriteLoader->sprites);
+                self->super.class = &\(pascalCasedScriptName)Class;
                 playdate->sprite->setUpdateFunction(sprite, &\(defaultState)StatePart0);
-                playdate->sprite->addSprite(sprite);
-
-                instance->sprite = sprite;
                 return sprite;
             }
 
