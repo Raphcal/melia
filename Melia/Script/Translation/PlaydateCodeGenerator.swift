@@ -33,9 +33,9 @@ struct PlaydateCodeGenerator {
             #include "common.h"
             #include "../lib/melice.h"
 
-            LCDSprite * _Nonnull \(pascalCasedScriptName)Constructor(MELConstSpriteDefinition * _Nonnull definition, MELSpriteInstance * _Nonnull instance, SpriteLoader * _Nonnull spriteLoader);
+            LCDSprite * _Nonnull \(pascalCasedScriptName)Constructor(MELSpriteDefinition * _Nonnull definition, MELSpriteInstance * _Nonnull instance, SpriteLoader * _Nonnull spriteLoader);
 
-            MELSprite * _Nullable \(pascalCasedScriptName)Loader(MELConstSpriteDefinition * _Nonnull definition, LCDSprite * _Nonnull sprite, SpriteLoader * _Nonnull spriteLoader, MELInputStream * _Nonnull inputStream);
+            MELSprite * _Nullable \(pascalCasedScriptName)Loader(MELSpriteDefinition * _Nonnull definition, LCDSprite * _Nonnull sprite, SpriteLoader * _Nonnull spriteLoader, MELInputStream * _Nonnull inputStream);
 
             #endif /* \(scriptName)_h */
 
@@ -170,36 +170,56 @@ struct PlaydateCodeGenerator {
         var code = ""
         if symbolTable.states.count > 1 {
             code += "    const enum \(scriptName)_state state = MELInputStreamReadByte(inputStream);\n"
-            code += "    self->state = state;\n"
         }
         code += "    const uint8_t statePart = MELInputStreamReadByte(inputStream);\n"
-        code += "    self->statePart = statePart;\n"
         let variables = symbolTable.variables.keys
             // Ignore global variables.
             .filter { !["self", "delta", "map", "state"].contains($0) }
             .sorted()
         for variable in variables {
-            let kind = symbolTable.variables[variable]
+            let kind = symbolTable.variables[variable]!
             switch (kind) {
             case .direction, .boolean:
-                code += "    self->\(variable) = MELInputStreamReadByte(inputStream);\n"
+                code += "    const \(kind.cType) \(variable) = MELInputStreamReadByte(inputStream);\n"
             case .integer:
-                code += "    self->\(variable) = MELInputStreamReadInt(inputStream);\n"
+                code += "    const \(kind.cType) \(variable) = MELInputStreamReadInt(inputStream);\n"
             case .decimal:
-                code += "    self->\(variable) = MELInputStreamReadFloat(inputStream);\n"
+                code += "    const \(kind.cType) \(variable) = MELInputStreamReadFloat(inputStream);\n"
             case .point:
-                code += "    self->\(variable) = MELInputStreamReadPoint(inputStream);\n"
+                code += "    const \(kind.cType) \(variable) = MELInputStreamReadPoint(inputStream);\n"
             default:
                 break
             }
         }
-        code += "    goToCurrentState(self, sprite);\n"
+        code += """
+                *self = (struct \(scriptName)) {
+                    .super = {
+                        .class = &\(pascalCasedScriptName)Class
+                    },
+
+            """
+        if symbolTable.states.count > 1 {
+            code += "        .state = state,\n"
+        }
+        code += "        .statePart = statePart,\n"
+
+        for variable in variables {
+            let kind = symbolTable.variables[variable]!
+            switch (kind) {
+            case .direction, .boolean, .integer, .decimal, .point:
+                code += "        .\(variable) = \(variable),\n"
+            default:
+                break
+            }
+        }
+        code += "    };"
 
         return """
-            MELSprite * _Nullable \(pascalCasedScriptName)Loader(MELConstSpriteDefinition * _Nonnull definition, LCDSprite * _Nonnull sprite, SpriteLoader * _Nonnull spriteLoader, MELInputStream * _Nonnull inputStream) {
+            MELSprite * _Nullable \(pascalCasedScriptName)Loader(MELSpriteDefinition * _Nonnull definition, LCDSprite * _Nonnull sprite, SpriteLoader * _Nonnull spriteLoader, MELInputStream * _Nonnull inputStream) {
                 struct \(scriptName) *self = playdate->system->realloc(NULL, sizeof(struct \(scriptName)));
-                self->super.class = &\(pascalCasedScriptName)Class;
-            \(code)    return &self->super;
+            \(code)
+                goToCurrentState(self, sprite);
+                return &self->super;
             }
 
 
@@ -220,7 +240,7 @@ struct PlaydateCodeGenerator {
     private var constructorFunction: String {
         let defaultState = symbolTable.states.isEmpty ? "default" : symbolTable.states[0].name
         return """
-            LCDSprite * _Nonnull \(pascalCasedScriptName)Constructor(MELConstSpriteDefinition * _Nonnull definition, MELSpriteInstance * _Nonnull instance, SpriteLoader * _Nonnull spriteLoader) {
+            LCDSprite * _Nonnull \(pascalCasedScriptName)Constructor(MELSpriteDefinition * _Nonnull definition, MELSpriteInstance * _Nonnull instance, SpriteLoader * _Nonnull spriteLoader) {
                 struct \(scriptName) *self = playdate->system->realloc(NULL, sizeof(struct \(scriptName)));
                 LCDSprite *sprite = MELSpriteInit(&self->super, definition, instance, &spriteLoader->sprites);
                 self->super.class = &\(pascalCasedScriptName)Class;
