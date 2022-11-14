@@ -81,7 +81,7 @@ struct PlaydateCodeGenerator {
         #include "../gen/spritenames.h"
         #include "../gen/sprite\(spriteName).h"
 
-        extern CameraMotion camera;
+        extern Camera camera;
 
 
         """
