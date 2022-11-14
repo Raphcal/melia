@@ -7,37 +7,7 @@
 
 import Foundation
 
-extension TokenTree {
-    var script: Script {
-        let builder = ScriptBuilder()
-
-        if let firstState = children.first(where: { $0 is StateNode }) as? StateNode {
-            builder.script.initialState = firstState.name
-        }
-
-        children.accept(visitor: builder)
-        return builder.script
-    }
-}
-
-extension Array where Element == TreeNode {
-    func accept(visitor: ScriptBuilder) {
-        for node in self {
-            node.accept(visitor: visitor)
-        }
-    }
-}
-
-extension Array where Element == ArgumentNode {
-    func accept(visitor: ScriptBuilder) {
-        visitor.script.instructions.append(ClearArguments())
-        for argument in self {
-            argument.value.accept(visitor: visitor)
-            visitor.script.instructions.append(PushArgument(name: argument.name))
-        }
-    }
-}
-
+/// Construit une instance de `Script` à partir d'un `TokenTree`.
 class ScriptBuilder: TreeNodeVisitor {
     var script = Script(states: [:], initialState: "default", instructions: [])
 
@@ -95,6 +65,8 @@ class ScriptBuilder: TreeNodeVisitor {
             break
         case "move":
             script.instructions.append(Move())
+        case "new":
+            script.instructions.append(NewSprite())
         default:
             print("Instruction \(node.name) is not supported yet.")
         }
@@ -116,6 +88,12 @@ class ScriptBuilder: TreeNodeVisitor {
         switch node.operator {
         case "-", "!":
             script.instructions.append(Negative())
+        case "cos":
+            script.instructions.append(Cosinus())
+        case "sin":
+            script.instructions.append(Sinus())
+        case "sqrt":
+            script.instructions.append(SquareRoot())
         default:
             print("Unary operator \(node.operator) is not supported yet.")
         }
@@ -131,5 +109,36 @@ class ScriptBuilder: TreeNodeVisitor {
     
     func visit(from node: ConstantNode) -> Void {
         script.instructions.append(Constant(value: node.value))
+    }
+}
+
+extension TokenTree {
+    var script: Script {
+        let builder = ScriptBuilder()
+
+        if let firstState = children.first(where: { $0 is StateNode }) as? StateNode {
+            builder.script.initialState = firstState.name
+        }
+
+        children.accept(visitor: builder)
+        return builder.script
+    }
+}
+
+extension Array where Element == TreeNode {
+    func accept(visitor: ScriptBuilder) {
+        for node in self {
+            node.accept(visitor: visitor)
+        }
+    }
+}
+
+extension Array where Element == ArgumentNode {
+    func accept(visitor: ScriptBuilder) {
+        visitor.script.instructions.append(ClearArguments())
+        for argument in self {
+            argument.value.accept(visitor: visitor)
+            visitor.script.instructions.append(PushArgument(name: argument.name))
+        }
     }
 }

@@ -39,6 +39,8 @@ class Renderer {
 
     var oldTime: MELTimeInterval = 0
 
+    var isParsing = false
+
     deinit {
         // Le renderer est libéré après la désallocation du contexte OpenGL.
         textureAtlas.texture.name = 0
@@ -48,8 +50,9 @@ class Renderer {
     }
 
     func load(context: RendererContext) {
-        if let sprite = sprite {
-            MELSpriteRemove(sprite)
+        isParsing = true
+        if sprite != nil {
+            MELSpriteManagerRemoveAllSprites(&spriteManager)
             self.sprite = nil
         }
         if !MELPaletteRefEquals(mutableMap.palette, context.map.palette) || mutableMap.nameAsString != context.map.nameAsString {
@@ -83,8 +86,11 @@ class Renderer {
             DispatchQueue.parse.async { [self] in
                 let newScript = TokenTree(tokens: self.tokens).script
                 DispatchQueue.main.sync {
+                    let executionContext = newScript.executionContext(spriteManager: &self.spriteManager)
+
                     self.script = newScript
-                    self.executionContext = newScript.executionContext
+                    self.executionContext = executionContext
+                    self.isParsing = false
                 }
             }
         }
@@ -110,7 +116,9 @@ class Renderer {
     func update(elasped time: TimeInterval) {
         // TODO: Calculer le temps écoulé en fonction du temps donné.
         let elapsedTime: MELTimeInterval = 1 / 60
-        executionContext = script.run(sprite: sprite, map: nil, delta: elapsedTime, resumeWith: executionContext)
+        if !isParsing {
+            executionContext = script.run(sprite: sprite, map: nil, delta: elapsedTime, resumeWith: executionContext)
+        }
         MELSpriteManagerUpdate(&spriteManager, elapsedTime)
     }
 

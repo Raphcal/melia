@@ -23,6 +23,10 @@
 		647D5E2D281876E50073F1BB /* TreeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647D5E2C281876E50073F1BB /* TreeNode.swift */; };
 		647D5E362819CE1F0073F1BB /* OperatorKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647D5E352819CE1F0073F1BB /* OperatorKind.swift */; };
 		647D5E41281BEFEB0073F1BB /* TreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647D5E40281BEFEB0073F1BB /* TreeTests.swift */; };
+		648ABC8D2922452800A74423 /* NewSprite.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648ABC892922452800A74423 /* NewSprite.swift */; };
+		648ABC8F2923684300A74423 /* Cosinus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648ABC8E2923684300A74423 /* Cosinus.swift */; };
+		648ABC912923684F00A74423 /* Sinus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648ABC902923684F00A74423 /* Sinus.swift */; };
+		648ABC932923685B00A74423 /* SquareRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648ABC922923685B00A74423 /* SquareRoot.swift */; };
 		648D886A282EE2D800739770 /* DeclareVariables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648D8869282EE2D800739770 /* DeclareVariables.swift */; };
 		64A1CE2B280726530086D752 /* Script.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE2A280726530086D752 /* Script.swift */; };
 		64A1CE2D2807266B0086D752 /* Variable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE2C2807266B0086D752 /* Variable.swift */; };
@@ -127,6 +131,10 @@
 		647D5E2C281876E50073F1BB /* TreeNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeNode.swift; sourceTree = "<group>"; };
 		647D5E352819CE1F0073F1BB /* OperatorKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperatorKind.swift; sourceTree = "<group>"; };
 		647D5E40281BEFEB0073F1BB /* TreeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeTests.swift; sourceTree = "<group>"; };
+		648ABC892922452800A74423 /* NewSprite.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewSprite.swift; sourceTree = "<group>"; };
+		648ABC8E2923684300A74423 /* Cosinus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cosinus.swift; sourceTree = "<group>"; };
+		648ABC902923684F00A74423 /* Sinus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sinus.swift; sourceTree = "<group>"; };
+		648ABC922923685B00A74423 /* SquareRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquareRoot.swift; sourceTree = "<group>"; };
 		648D8869282EE2D800739770 /* DeclareVariables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeclareVariables.swift; sourceTree = "<group>"; };
 		64A1CE2A280726530086D752 /* Script.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Script.swift; sourceTree = "<group>"; };
 		64A1CE2C2807266B0086D752 /* Variable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variable.swift; sourceTree = "<group>"; };
@@ -218,6 +226,7 @@
 				64A1CE552808BE040086D752 /* ClearArguments.swift */,
 				64A1CE5F28099F850086D752 /* ComparisonOperators.swift */,
 				64A1CE2E280726760086D752 /* Constant.swift */,
+				648ABC8E2923684300A74423 /* Cosinus.swift */,
 				648D8869282EE2D800739770 /* DeclareVariables.swift */,
 				6454DAAA27FA1E6B00D5E92B /* During.swift */,
 				64F35E392809FFC200A5A620 /* GroupStart.swift */,
@@ -228,10 +237,13 @@
 				6454DAAC27FA1ED400D5E92B /* Jump.swift */,
 				6454DAB027FA1F0600D5E92B /* Move.swift */,
 				64A1CE5B28099AFE0086D752 /* Negative.swift */,
+				648ABC892922452800A74423 /* NewSprite.swift */,
 				64A1CE612809A1F10086D752 /* Operator.swift */,
 				64A1CE532808B6CE0086D752 /* PushArgument.swift */,
+				648ABC902923684F00A74423 /* Sinus.swift */,
 				64A1CE39280764140086D752 /* SetValue.swift */,
 				6454DABB27FA1FB600D5E92B /* Shoot.swift */,
+				648ABC922923685B00A74423 /* SquareRoot.swift */,
 				64A1CE2C2807266B0086D752 /* Variable.swift */,
 				64A1CE5928098EAA0086D752 /* While.swift */,
 				64A1CE4A2808412C0086D752 /* Wait.swift */,
@@ -546,8 +558,10 @@
 				64A1CE3E280768340086D752 /* Token.swift in Sources */,
 				64262C5027FC6D0F004E16D7 /* Renderer.swift in Sources */,
 				64A1CE4D280843D40086D752 /* GoToGroupStart.swift in Sources */,
+				648ABC8F2923684300A74423 /* Cosinus.swift in Sources */,
 				64F35E3A2809FFC200A5A620 /* GroupStart.swift in Sources */,
 				64A1CE3128073E7E0086D752 /* Value.swift in Sources */,
+				648ABC912923684F00A74423 /* Sinus.swift in Sources */,
 				64B4980A281F163C00A474A2 /* SymbolTableBuilder.swift in Sources */,
 				64D435F328270593006950F3 /* PlaydateCodeVisitor.swift in Sources */,
 				64C242D427F8E10E0018BE2B /* MeliaApp.swift in Sources */,
@@ -559,6 +573,7 @@
 				6454DAB627FA1FAC00D5E92B /* If.swift in Sources */,
 				64A1CE542808B6CE0086D752 /* PushArgument.swift in Sources */,
 				64B497EF281C587000A474A2 /* ScriptBuilder.swift in Sources */,
+				648ABC8D2922452800A74423 /* NewSprite.swift in Sources */,
 				6454DAB127FA1F0600D5E92B /* Move.swift in Sources */,
 				64A1CE2F280726760086D752 /* Constant.swift in Sources */,
 				64A1CE5C28099AFE0086D752 /* Negative.swift in Sources */,
@@ -583,6 +598,7 @@
 				64A1CE3C2807649B0086D752 /* AlgebraicOperators.swift in Sources */,
 				64D435EE2826F484006950F3 /* TreeNodeVisitor.swift in Sources */,
 				64A1CE5A28098EAA0086D752 /* While.swift in Sources */,
+				648ABC932923685B00A74423 /* SquareRoot.swift in Sources */,
 				64A1CE4928076D060086D752 /* GoToCurrentState.swift in Sources */,
 				64262C4D27FC6CED004E16D7 /* GestureListener.swift in Sources */,
 				64A1CE44280769FE0086D752 /* Tokenizer.swift in Sources */,

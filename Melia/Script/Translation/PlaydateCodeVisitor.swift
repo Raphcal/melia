@@ -93,7 +93,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             """)
         code.append(statePartStart)
 
-        let duration = node.arguments.first { $0.name == "duration" }?.value ?? ConstantNode(value: .decimal(0))
+        let duration = node.arguments.first { $0.name == During.durationArgument }?.value ?? ConstantNode(value: .decimal(0))
         code.append("""
                 // \(node.name)
                 const float duration = \(duration.accept(visitor: self).joined());
@@ -102,7 +102,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             """)
 
         var easeInOut = false
-        if let easeArgument = node.arguments.first(where: { $0.name == "ease" })?.value as? ConstantNode,
+        if let easeArgument = node.arguments.first(where: { $0.name == During.easeArgument })?.value as? ConstantNode,
            case let .boolean(value) = easeArgument.value {
             easeInOut = value
         }
@@ -128,7 +128,21 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     }
 
     func visit(from node: InstructionNode) -> [String] {
-        return ["    // \(node.name)\n"]
+        switch node.name {
+        case "new":
+            return visitNewSprite(node)
+        default:
+            return ["    // \(node.name)\n"]
+        }
+    }
+
+    func visitNewSprite(_ node: InstructionNode) -> [String] {
+        // TODO: Trouver la définition ? Gérer l'animation
+        if let animationName = node.arguments.first(where: { $0.name == NewSprite.animationArgument })?.value.accept(visitor: self).joined(separator: "") {
+            return ["MELSubSpriteAlloc(sprite, &self->definition, ", animationName, ")"]
+        } else {
+            return ["MELSubSpriteAlloc(sprite, &self->definition, AnimationNameStand)"]
+        }
     }
 
     func visit(from node: SetNode) -> [String] {
@@ -256,7 +270,22 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     }
 
     func visit(from node: UnaryOperationNode) -> [String] {
-        return [node.operator, node.value.accept(visitor: self).joined()]
+        switch node.operator {
+        case "cos":
+            return node.value is BracesNode
+                ? ["cosf", node.value.accept(visitor: self).joined()]
+                : ["cosf(", node.value.accept(visitor: self).joined(), ")"]
+        case "sin":
+            return node.value is BracesNode
+                ? ["sinf", node.value.accept(visitor: self).joined()]
+                : ["sinf(", node.value.accept(visitor: self).joined(), ")"]
+        case "sqrt":
+            return node.value is BracesNode
+                ? ["sqrtf", node.value.accept(visitor: self).joined()]
+                : ["sqrtf(", node.value.accept(visitor: self).joined(), ")"]
+        default:
+            return [node.operator, node.value.accept(visitor: self).joined()]
+        }
     }
 
     func visit(from node: BracesNode) -> [String] {

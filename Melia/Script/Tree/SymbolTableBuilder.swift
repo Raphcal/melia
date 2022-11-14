@@ -7,22 +7,7 @@
 
 import Foundation
 
-extension TokenTree {
-    var symbolTable: SymbolTable {
-        let builder = SymbolTableBuilder()
-        children.accept(visitor: builder)
-        return builder.symbolTable
-    }
-}
-
-extension Array where Element == TreeNode {
-    func accept(visitor: SymbolTableBuilder) {
-        for element in self {
-            element.accept(visitor: visitor)
-        }
-    }
-}
-
+/// Créé une table des symboles (`SymbolTable`) à partir d'un `TokenTree`.
 class SymbolTableBuilder: TreeNodeVisitor {
     var symbolTable = SymbolTable(states: [], variables: [
         "self": .sprite,
@@ -95,6 +80,22 @@ class SymbolTableBuilder: TreeNodeVisitor {
     
     func visit(from node: ConstantNode) -> Void {
         // Vide
+    }
+}
+
+extension TokenTree {
+    var symbolTable: SymbolTable {
+        let builder = SymbolTableBuilder()
+        children.accept(visitor: builder)
+        return builder.symbolTable
+    }
+}
+
+extension Array where Element == TreeNode {
+    func accept(visitor: SymbolTableBuilder) {
+        for element in self {
+            element.accept(visitor: visitor)
+        }
     }
 }
 

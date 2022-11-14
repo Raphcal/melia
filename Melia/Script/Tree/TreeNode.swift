@@ -7,14 +7,6 @@
 
 import Foundation
 
-struct TokenTree: Equatable {
-    var children: [TreeNode]
-
-    static func == (lhs: TokenTree, rhs: TokenTree) -> Bool {
-        return lhs.children == rhs.children
-    }
-}
-
 protocol TreeNode {
     func kind(symbolTable: SymbolTable) -> ValueKind
     func equals(_ other: TreeNode) -> Bool
@@ -84,6 +76,14 @@ struct InstructionNode: TreeNode {
 
     func accept<V>(visitor: V) -> V.Result where V : TreeNodeVisitor {
         return visitor.visit(from: self)
+    }
+
+    func kind(symbolTable: SymbolTable) -> ValueKind {
+        if name == "new" {
+            return .sprite
+        } else {
+            return .null
+        }
     }
 }
 

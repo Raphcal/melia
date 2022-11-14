@@ -26,7 +26,7 @@ struct ScriptGrammar: Grammar {
         case .instructionArgument:
             return Token.anyValue
         case .setStart:
-            return Token.anyValue
+            return [.instructionStart] + Token.anyValue
         case .valuePoint, .valueInt, .valueDecimal:
             return Token.anyBinaryOperator + [.braceClose, .instructionArgument, .newLine]
         case .valueBoolean:
@@ -97,7 +97,7 @@ struct ScriptGrammar: Grammar {
         case .multiplyOrDivide:
             return "([*/]) *"
         case .unaryOperator:
-            return "(-|!) *"
+            return "(-|!|cos|sin|sqrt) *"
         case .andOrOr:
             return "(and|&&|or|\\|\\|) *"
         case .braceOpen:
