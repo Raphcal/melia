@@ -57,7 +57,9 @@ class SymbolTableBuilder: TreeNodeVisitor {
     }
     
     func visit(from node: SetNode) -> Void {
-        if !node.variable.contains(".") {
+        if node.variable == "state" {
+            symbolTable.variables[node.variable] = .state
+        } else if !node.variable.contains(".") {
             symbolTable.variables[node.variable] = node.value.kind(symbolTable: symbolTable)
         }
     }

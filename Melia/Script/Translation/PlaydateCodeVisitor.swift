@@ -147,7 +147,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
 
     func visit(from node: SetNode) -> [String] {
         let kind = node.value.kind(symbolTable: symbolTable)
-        let assignedValue = node.value.accept(visitor: self).joined()
+        var assignedValue = node.value.accept(visitor: self).joined()
 
         var variable = ""
         let path = node.variable.components(separatedBy: ".")
@@ -175,6 +175,11 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                     variable += ".\(property)"
                 }
                 value = value.kind(for: property)
+            }
+            if value == .state && assignedValue[assignedValue.startIndex] == "\"" {
+                let start = assignedValue.index(after: assignedValue.startIndex)
+                let end = assignedValue.index(before: assignedValue.endIndex)
+                assignedValue = String(assignedValue[start ..< end])
             }
             return ["    ", variable, " = ", assignedValue, ";\n"]
         }

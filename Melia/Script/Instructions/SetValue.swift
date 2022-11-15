@@ -13,7 +13,18 @@ struct SetValue: Instruction {
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         var newContext = context
         if let value = newContext.stack.popLast() {
-            newContext.heap.setValue(value, at: path)
+            if path.joined() == "state" {
+                switch value {
+                case .state(let state):
+                    newContext.state = state
+                case .string(let state):
+                    newContext.state = state
+                default:
+                    print("Bad state: \(value)")
+                }
+            } else {
+                newContext.heap.setValue(value, at: path)
+            }
         }
         return newContext
     }
