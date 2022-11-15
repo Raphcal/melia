@@ -16,6 +16,10 @@ struct Script: Equatable {
         return ExecutionContext(script: self, state: initialState)
     }
 
+    func executionContext(spriteManager: UnsafeMutablePointer<MELSpriteManager>) -> ExecutionContext {
+        return ExecutionContext(script: self, state: initialState, spriteManager: spriteManager)
+    }
+
     func run(sprite: MELSpriteRef? = nil, map: MELMap? = nil, delta: MELTimeInterval = 1 / 60, resumeWith oldContext: ExecutionContext? = nil) -> ExecutionContext {
         var context = oldContext ?? executionContext
         context.yield = false
@@ -52,5 +56,6 @@ struct Script: Equatable {
         var arguments = [String: Value]()
         var yield = false
         var state: String
+        var spriteManager: UnsafeMutablePointer<MELSpriteManager>? = nil
     }
 }

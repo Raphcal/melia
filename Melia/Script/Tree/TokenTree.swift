@@ -7,6 +7,14 @@
 
 import MeliceFramework
 
+struct TokenTree: Equatable {
+    var children: [TreeNode]
+
+    static func == (lhs: TokenTree, rhs: TokenTree) -> Bool {
+        return lhs.children == rhs.children
+    }
+}
+
 extension TokenTree {
     static let empty = TokenTree(children: [])
 
@@ -258,6 +266,8 @@ final class SetBuilder: CompositeNodeBuilder {
 
     func consumeInner(found: FoundToken) -> Bool {
         if let builder = OperationBuilder(found: found) {
+            self.builder = builder
+        } else if let builder = InstructionBuilder(found: found) {
             self.builder = builder
         } else {
             return false

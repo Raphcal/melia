@@ -78,6 +78,7 @@ struct PlaydateCodeGenerator {
         #include "\(scriptName).h"
 
         #include "camera.h"
+        #include "../lib/subsprite.h"
         #include "../gen/spritenames.h"
         #include "../gen/sprite\(spriteName).h"
 
@@ -418,7 +419,7 @@ fileprivate extension ValueKind {
         case .direction:
             return "MELDirection"
         case .sprite:
-            return "LCDSprite * _Nullable"
+            return "MELSubSprite * _Nullable"
         case .animationName:
             return "AnimationName"
         case .animation:

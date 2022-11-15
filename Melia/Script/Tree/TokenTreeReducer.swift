@@ -7,32 +7,7 @@
 
 import MeliceFramework
 
-extension TokenTree {
-    func reduceByInliningValues(from sprite: MELSpriteRef) -> TokenTree {
-        return TokenTree(children: children.accept(visitor: TokenTreeReducer(sprite: sprite)))
-    }
-
-    func reduceByInliningValues(from heap: [String: Value]) -> TokenTree {
-        return TokenTree(children: children.accept(visitor: TokenTreeReducer(heap: heap)))
-    }
-}
-
-extension Array where Element == TreeNode {
-    func accept(visitor: TokenTreeReducer) -> [TreeNode] {
-        return self.map { node in
-            node.accept(visitor: visitor)
-        }
-    }
-}
-
-extension Array where Element == ArgumentNode {
-    func accept(visitor: TokenTreeReducer) -> [ArgumentNode] {
-        return self.map { node in
-            node.accept(visitor: visitor) as! ArgumentNode
-        }
-    }
-}
-
+/// Optimise l'arbre donné en faisant de l'inlining.
 class TokenTreeReducer: TreeNodeVisitor {
     var heap: [String: Value]
 
@@ -119,5 +94,32 @@ class TokenTreeReducer: TreeNodeVisitor {
     
     func visit(from node: ConstantNode) -> TreeNode {
         return node
+    }
+}
+
+
+extension TokenTree {
+    func reduceByInliningValues(from sprite: MELSpriteRef) -> TokenTree {
+        return TokenTree(children: children.accept(visitor: TokenTreeReducer(sprite: sprite)))
+    }
+
+    func reduceByInliningValues(from heap: [String: Value]) -> TokenTree {
+        return TokenTree(children: children.accept(visitor: TokenTreeReducer(heap: heap)))
+    }
+}
+
+extension Array where Element == TreeNode {
+    func accept(visitor: TokenTreeReducer) -> [TreeNode] {
+        return self.map { node in
+            node.accept(visitor: visitor)
+        }
+    }
+}
+
+extension Array where Element == ArgumentNode {
+    func accept(visitor: TokenTreeReducer) -> [ArgumentNode] {
+        return self.map { node in
+            node.accept(visitor: visitor) as! ArgumentNode
+        }
     }
 }
