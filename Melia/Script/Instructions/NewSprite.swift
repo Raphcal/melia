@@ -13,7 +13,8 @@ struct NewSprite: Instruction {
     static let animationArgument = "animation"
 
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
-        guard let player = context.spriteManager?.pointee.sprites[0]
+        guard let spriteManager = context.spriteManager,
+            let player = spriteManager.pointee.sprites[0]
         else { return context }
         var newContext = context
 
@@ -22,12 +23,14 @@ struct NewSprite: Instruction {
         let definitionIndex = context.arguments.integer(for: NewSprite.definitionArgument) ?? definitionIndex(sprite: player, context: context)
         let definition = context.spriteManager!.pointee.definitions[Int(definitionIndex)]
 
-        let sprite = MELSpriteAlloc(newContext.spriteManager!, definition, player.pointee.layer)
+        let sprite = MELSpriteAlloc(spriteManager, definition, player.pointee.layer)
 
         if let animationName = context.arguments.animationName(for: "animation"),
            let animationIndex = sprite.definition.animations.firstIndex(where: { $0.nameAsString == animationName }) {
-            MELAnimationDealloc(sprite.animation)
             MELSpriteSetAnimation(sprite, MELAnimationAlloc(sprite.definition.animations.memory!.advanced(by: animationIndex)))
+            let frameIndex = Int(sprite.pointee.animation.pointee.frame.atlasIndex)
+            let frameRectangle = spriteManager.pointee.atlas.sources![frameIndex]
+            sprite.pointee.frame.size = MELSize(frameRectangle.size)
         }
         newContext.stack.append(.sprite(sprite))
         return newContext
