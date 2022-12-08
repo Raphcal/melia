@@ -33,12 +33,20 @@ class ScriptBuilder: TreeNodeVisitor {
             script.instructions.append(During())
         case "jump":
             script.instructions.append(Jump())
+        case "if":
+            script.instructions.append(If())
         default:
             print("Group \(node.name) is not supported yet.")
             return
         }
         node.children.accept(visitor: self)
-        script.instructions.append(goToGroupStart)
+        switch node.name {
+        case "during", "jump":
+            script.instructions.append(goToGroupStart)
+        default:
+            // Pas de boucle pour "if"
+            break
+        }
 
         if var groupStart = script.instructions[groupIndex] as? GroupStart {
             groupStart.whenDoneSetInstructionPointerTo = script.instructions.count

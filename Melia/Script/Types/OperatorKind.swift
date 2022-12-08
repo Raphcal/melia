@@ -11,10 +11,11 @@ enum OperatorKind {
     case add, substract
     case multiply, divide
     case and, or
+    case lessThan, lessThanOrEquals, greaterThan, greaterThanOrEquals, equals, notEquals
 
     static func from(found: FoundToken) -> OperatorKind? {
         switch found.token {
-        case .addOrSubstract, .multiplyOrDivide, .unaryOperator, .andOrOr:
+        case .addOrSubstract, .multiplyOrDivide, .unaryOperator, .andOrOr, .equalityOrComparison:
             return named(found.matches[1])
         default:
             return nil
@@ -35,6 +36,18 @@ enum OperatorKind {
             return .add
         case "||", "or":
             return .or
+        case "<":
+            return .lessThan
+        case "<=":
+            return .lessThanOrEquals
+        case ">":
+            return .greaterThan
+        case ">=":
+            return .greaterThanOrEquals
+        case "==":
+            return .equals
+        case "!=":
+            return .notEquals
         default:
             return nil
         }
@@ -65,6 +78,18 @@ enum OperatorKind {
             return And()
         case .or:
             return Or()
+        case .lessThan:
+            return LessThan()
+        case .lessThanOrEquals:
+            return LessThanOrEquals()
+        case .greaterThan:
+            return GreaterThan()
+        case .greaterThanOrEquals:
+            return GreaterThanOrEquals()
+        case .equals:
+            return Equals()
+        case .notEquals:
+            return NotEquals()
         }
     }
 }

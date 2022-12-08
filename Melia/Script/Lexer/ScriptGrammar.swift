@@ -18,7 +18,7 @@ struct ScriptGrammar: Grammar {
         case .state:
             return [.newLine, .instructionStart, .setStart]
         case .groupStart:
-            return [.valueDuration, .valueBoolean, .valueVariable]
+            return Token.anyValue
         case .groupEnd:
             return [.newLine, .instructionStart, .setStart]
         case .instructionStart:
@@ -28,13 +28,13 @@ struct ScriptGrammar: Grammar {
         case .setStart:
             return [.instructionStart] + Token.anyValue
         case .valuePoint, .valueInt, .valueDecimal:
-            return Token.anyBinaryOperator + [.braceClose, .instructionArgument, .newLine]
+            return Token.anyBinaryOperator + [.braceClose, .instructionArgument, .groupEnd, .newLine]
         case .valueBoolean:
             return [.andOrOr, .instructionArgument, .newLine, .groupEnd]
         case .valueDuration:
             return [.instructionArgument, .newLine, .groupEnd]
         case .valueDirection:
-            return [.instructionArgument, .newLine]
+            return [.instructionArgument, .newLine, .groupEnd]
         case .valueString:
             return [.instructionArgument, .newLine, .groupEnd]
         case .valueAnimation:
@@ -45,10 +45,12 @@ struct ScriptGrammar: Grammar {
             return Token.anyNumericValue
         case .andOrOr:
             return [.valueBoolean, .valueVariable]
+        case .equalityOrComparison:
+            return Token.anyValue
         case .braceOpen:
             return Token.anyNumericValue
         case .braceClose:
-            return Token.anyBinaryOperator + [.braceClose, .instructionArgument, .newLine]
+            return Token.anyBinaryOperator + [.braceClose, .instructionArgument, .groupEnd, .newLine]
         case .comment:
             return [.newLine]
         default:
@@ -100,6 +102,8 @@ struct ScriptGrammar: Grammar {
             return "(-|!|abs|cos|sin|sqrt) *"
         case .andOrOr:
             return "(and|&&|or|\\|\\|) *"
+        case .equalityOrComparison:
+            return "(<=|<|>=|>|==|!=) *"
         case .braceOpen:
             return "\\( *"
         case .braceClose:

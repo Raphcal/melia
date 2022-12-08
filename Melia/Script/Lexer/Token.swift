@@ -19,6 +19,7 @@ enum Token {
     case braceOpen, braceClose
     case addOrSubstract, multiplyOrDivide, unaryOperator
     case andOrOr
+    case equalityOrComparison
     case comment, preprocessorDirective
     case keyword
     case syntaxError
@@ -31,7 +32,7 @@ enum Token {
         return [.unaryOperator, .valueDuration, .valueDecimal, .valueInt, .valuePoint, .valueVariable, .braceOpen]
     }
     static var anyBinaryOperator: [Token] {
-        return [.addOrSubstract, .multiplyOrDivide]
+        return [.addOrSubstract, .multiplyOrDivide, .andOrOr, .equalityOrComparison]
     }
 
     // MARK: - Syntax

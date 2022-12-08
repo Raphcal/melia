@@ -190,7 +190,9 @@ final class GroupBuilder: BlockNodeBuilder {
     static func defaultArgumentName(for groupName: String) -> String {
         switch groupName {
         case "during":
-            return "duration"
+            return During.durationArgument
+        case "if":
+            return If.testArgument
         default:
             return "default"
         }

@@ -70,10 +70,14 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     }
 
     func visit(from node: GroupNode) -> [String] {
-        if node.name == "during" {
+        switch node.name {
+        case "during":
             return visitDuring(node)
+        case "if":
+            return visitIf(node)
+        default:
+            return []
         }
-        return []
     }
 
     func visitDuring(_ node: GroupNode) -> [String] {
@@ -125,6 +129,15 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
 
             """)
         return code
+    }
+
+    func visitIf(_ node: GroupNode) -> [String] {
+        let test = node.arguments.first { $0.name == If.testArgument }?.value ?? ConstantNode(value: .boolean(false))
+        return ["    if ("]
+            + test.accept(visitor: self)
+            + [") {\n"]
+            + node.children.accept(visitor: self).map({ "    " + $0 })
+            + ["    }\n"]
     }
 
     func visit(from node: InstructionNode) -> [String] {
@@ -209,6 +222,18 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                     return [lhs, " && ", rhs]
                 case .or:
                     return [lhs, " || ", rhs]
+                case .lessThan:
+                    return [lhs, " < ", rhs]
+                case .lessThanOrEquals:
+                    return [lhs, " <= ", rhs]
+                case .greaterThan:
+                    return [lhs, " > ", rhs]
+                case .greaterThanOrEquals:
+                    return [lhs, " >= ", rhs]
+                case .equals:
+                    return [lhs, " == ", rhs]
+                case .notEquals:
+                    return [lhs, " != ", rhs]
                 }
             case .point:
                 switch node.operator {
@@ -251,6 +276,10 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                     return ["MELPointMultiply(", lhs, ", ", rhs, ")"]
                 case .divide:
                     return ["MELPointDivide(", lhs, ", ", rhs, ")"]
+                case .equals:
+                    return ["MELPointEquals(", rhs, ", ", lhs, ")"]
+                case .notEquals:
+                    return ["!MELPointEquals(", rhs, ", ", lhs, ")"]
                 default:
                     break
                 }
@@ -264,6 +293,10 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                     return [lhs, " && ", rhs]
                 case .or:
                     return [lhs, " || ", rhs]
+                case .equals:
+                    return [lhs, " == ", rhs]
+                case .notEquals:
+                    return [lhs, " != ", rhs]
                 default:
                     break
                 }
