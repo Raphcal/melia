@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6404BBCF29413C0900309C02 /* Absolute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6404BBCE29413C0900309C02 /* Absolute.swift */; };
 		641BA13228109A450045A1F9 /* ScriptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641BA13128109A450045A1F9 /* ScriptView.swift */; };
 		64262C4A27FC6CDD004E16D7 /* NSOpenGLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64262C4927FC6CDD004E16D7 /* NSOpenGLView.swift */; };
 		64262C4D27FC6CED004E16D7 /* GestureListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64262C4B27FC6CED004E16D7 /* GestureListener.swift */; };
@@ -115,6 +116,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6404BBCE29413C0900309C02 /* Absolute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Absolute.swift; sourceTree = "<group>"; };
 		641BA13128109A450045A1F9 /* ScriptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptView.swift; sourceTree = "<group>"; };
 		64262C4927FC6CDD004E16D7 /* NSOpenGLView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSOpenGLView.swift; sourceTree = "<group>"; };
 		64262C4B27FC6CED004E16D7 /* GestureListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GestureListener.swift; sourceTree = "<group>"; };
@@ -225,6 +227,7 @@
 				64A1CE5D28099B0B0086D752 /* BooleanOperators.swift */,
 				64A1CE552808BE040086D752 /* ClearArguments.swift */,
 				64A1CE5F28099F850086D752 /* ComparisonOperators.swift */,
+				6404BBCE29413C0900309C02 /* Absolute.swift */,
 				64A1CE2E280726760086D752 /* Constant.swift */,
 				648ABC8E2923684300A74423 /* Cosinus.swift */,
 				648D8869282EE2D800739770 /* DeclareVariables.swift */,
@@ -573,6 +576,7 @@
 				6454DAB627FA1FAC00D5E92B /* If.swift in Sources */,
 				64A1CE542808B6CE0086D752 /* PushArgument.swift in Sources */,
 				64B497EF281C587000A474A2 /* ScriptBuilder.swift in Sources */,
+				6404BBCF29413C0900309C02 /* Absolute.swift in Sources */,
 				648ABC8D2922452800A74423 /* NewSprite.swift in Sources */,
 				6454DAB127FA1F0600D5E92B /* Move.swift in Sources */,
 				64A1CE2F280726760086D752 /* Constant.swift in Sources */,
@@ -790,6 +794,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = fr.rca.Melia;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -822,6 +827,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = fr.rca.Melia;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};

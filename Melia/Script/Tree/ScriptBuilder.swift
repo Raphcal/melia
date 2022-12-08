@@ -88,6 +88,8 @@ class ScriptBuilder: TreeNodeVisitor {
         switch node.operator {
         case "-", "!":
             script.instructions.append(Negative())
+        case "abs":
+            script.instructions.append(Absolute())
         case "cos":
             script.instructions.append(Cosinus())
         case "sin":

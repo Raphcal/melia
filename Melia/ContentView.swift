@@ -15,6 +15,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             let scriptNames: [String] = document.project.scripts.keys.map({ String(utf8String: $0)! })
+                .sorted()
             List(scriptNames, id: \.self, selection: $scriptName) { script in
                 Label(script, systemImage: "text.alignleft")
             }

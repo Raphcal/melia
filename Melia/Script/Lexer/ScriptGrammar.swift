@@ -97,7 +97,7 @@ struct ScriptGrammar: Grammar {
         case .multiplyOrDivide:
             return "([*/]) *"
         case .unaryOperator:
-            return "(-|!|cos|sin|sqrt) *"
+            return "(-|!|abs|cos|sin|sqrt) *"
         case .andOrOr:
             return "(and|&&|or|\\|\\|) *"
         case .braceOpen:

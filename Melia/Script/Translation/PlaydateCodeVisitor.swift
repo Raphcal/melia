@@ -276,6 +276,10 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
 
     func visit(from node: UnaryOperationNode) -> [String] {
         switch node.operator {
+        case "abs":
+            return node.value is BracesNode
+                ? ["fabsf", node.value.accept(visitor: self).joined()]
+                : ["fabsf(", node.value.accept(visitor: self).joined(), ")"]
         case "cos":
             return node.value is BracesNode
                 ? ["cosf", node.value.accept(visitor: self).joined()]
