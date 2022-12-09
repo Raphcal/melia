@@ -30,6 +30,7 @@
 		648ABC932923685B00A74423 /* SquareRoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648ABC922923685B00A74423 /* SquareRoot.swift */; };
 		648D886A282EE2D800739770 /* DeclareVariables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648D8869282EE2D800739770 /* DeclareVariables.swift */; };
 		649D83A829428CFD00E3C161 /* EqualityOperators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649D83A729428CFD00E3C161 /* EqualityOperators.swift */; };
+		649D83AD2943DEE300E3C161 /* Else.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649D83AC2943DEE300E3C161 /* Else.swift */; };
 		64A1CE2B280726530086D752 /* Script.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE2A280726530086D752 /* Script.swift */; };
 		64A1CE2D2807266B0086D752 /* Variable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE2C2807266B0086D752 /* Variable.swift */; };
 		64A1CE2F280726760086D752 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A1CE2E280726760086D752 /* Constant.swift */; };
@@ -140,6 +141,7 @@
 		648ABC922923685B00A74423 /* SquareRoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SquareRoot.swift; sourceTree = "<group>"; };
 		648D8869282EE2D800739770 /* DeclareVariables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeclareVariables.swift; sourceTree = "<group>"; };
 		649D83A729428CFD00E3C161 /* EqualityOperators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EqualityOperators.swift; sourceTree = "<group>"; };
+		649D83AC2943DEE300E3C161 /* Else.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Else.swift; sourceTree = "<group>"; };
 		64A1CE2A280726530086D752 /* Script.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Script.swift; sourceTree = "<group>"; };
 		64A1CE2C2807266B0086D752 /* Variable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variable.swift; sourceTree = "<group>"; };
 		64A1CE2E280726760086D752 /* Constant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
@@ -240,6 +242,7 @@
 				64A1CE4828076D060086D752 /* GoToCurrentState.swift */,
 				6454DA9527FA0EBE00D5E92B /* Instruction.swift */,
 				6454DAB527FA1FAC00D5E92B /* If.swift */,
+				649D83AC2943DEE300E3C161 /* Else.swift */,
 				6454DAAC27FA1ED400D5E92B /* Jump.swift */,
 				6454DAB027FA1F0600D5E92B /* Move.swift */,
 				64A1CE5B28099AFE0086D752 /* Negative.swift */,
@@ -586,6 +589,7 @@
 				64A1CE5C28099AFE0086D752 /* Negative.swift in Sources */,
 				64A5AF3D2822A0F300ED792A /* GeneratedCodeView.swift in Sources */,
 				64262C4A27FC6CDD004E16D7 /* NSOpenGLView.swift in Sources */,
+				649D83AD2943DEE300E3C161 /* Else.swift in Sources */,
 				648D886A282EE2D800739770 /* DeclareVariables.swift in Sources */,
 				64C242D627F8E10E0018BE2B /* MeliaDocument.swift in Sources */,
 				641BA13228109A450045A1F9 /* ScriptView.swift in Sources */,

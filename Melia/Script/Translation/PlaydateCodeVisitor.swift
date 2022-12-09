@@ -75,6 +75,8 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             return visitDuring(node)
         case "if":
             return visitIf(node)
+        case "else":
+            return visitElse(node)
         default:
             return []
         }
@@ -112,15 +114,18 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         }
 
         symbolTable.localVariables["progress"] = .decimal
-        let innerCode = node.children.accept(visitor: self).map({ "    " + $0 })
+        let innerCode = node.children.accept(visitor: self)
+            .joined()
+            .replacingOccurrences(of: "\n", with: "\n    ")
+            .dropLastFourSpaces()
         symbolTable.localVariables.removeValue(forKey: "progress")
 
         // TODO: Un peu basique, vérifier mieux la présence de "progress".
-        if (innerCode.contains(where: { $0.contains("progress") })) {
+        if (innerCode.contains("progress")) {
             code.append("        const float progress = \(easeInOut ? "MELEaseInOut(0, duration, newTime)" : "newTime / duration");\n")
         }
-        code.append("        self->time = newTime;\n\n")
-        code.append(contentsOf: innerCode)
+        code.append("        self->time = newTime;\n\n    ")
+        code.append(innerCode)
 
         code.append("""
                     draw(self, sprite);
@@ -133,11 +138,25 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
 
     func visitIf(_ node: GroupNode) -> [String] {
         let test = node.arguments.first { $0.name == If.testArgument }?.value ?? ConstantNode(value: .boolean(false))
-        return ["    if ("]
-            + test.accept(visitor: self)
-            + [") {\n"]
-            + node.children.accept(visitor: self).map({ "    " + $0 })
-            + ["    }\n"]
+        
+        return [
+            test is BracesNode
+                ? "    if " + test.accept(visitor: self).joined() + " {\n    "
+                : "    if (" + test.accept(visitor: self).joined() + ") {\n    ",
+            node.children.accept(visitor: self)
+                .joined()
+                .replacingOccurrences(of: "\n", with: "\n        ")
+                .dropLastFourSpaces(),
+            "}\n"]
+    }
+
+    func visitElse(_ node: GroupNode) -> [String] {
+        return ["    else {\n    ",
+            node.children.accept(visitor: self)
+                .joined()
+                .replacingOccurrences(of: "\n", with: "\n        ")
+                .dropLastFourSpaces(),
+            "}\n"]
     }
 
     func visit(from node: InstructionNode) -> [String] {
@@ -415,5 +434,15 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             break
         }
         return []
+    }
+}
+
+extension String {
+    func dropLastFourSpaces() -> String {
+        if count >= 4 && self.last == " " {
+            return String(self.dropLast(4))
+        } else {
+            return self
+        }
     }
 }

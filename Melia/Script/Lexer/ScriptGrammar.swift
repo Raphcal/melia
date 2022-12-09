@@ -18,7 +18,7 @@ struct ScriptGrammar: Grammar {
         case .state:
             return [.newLine, .instructionStart, .setStart]
         case .groupStart:
-            return Token.anyValue
+            return Token.anyValue + [.groupEnd]
         case .groupEnd:
             return [.newLine, .instructionStart, .setStart]
         case .instructionStart:
@@ -67,7 +67,7 @@ struct ScriptGrammar: Grammar {
         case .state:
             return "state +([a-zA-Z0-9]+) *: *"
         case .groupStart:
-            return "(during|while|jump|if|else if|else) +"
+            return "(during|while|jump|if|else if|else) *"
         case .groupEnd:
             return ": *"
         case .instructionStart:

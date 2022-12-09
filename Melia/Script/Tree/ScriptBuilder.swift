@@ -25,7 +25,9 @@ class ScriptBuilder: TreeNodeVisitor {
     func visit(from node: GroupNode) -> Void {
         let goToGroupStart = GoToGroupStart(groupStart: script.instructions.count)
 
-        node.arguments.accept(visitor: self)
+        if node.name != "else" {
+            node.arguments.accept(visitor: self)
+        }
         let groupIndex = script.instructions.count
 
         switch node.name {
@@ -35,6 +37,17 @@ class ScriptBuilder: TreeNodeVisitor {
             script.instructions.append(Jump())
         case "if":
             script.instructions.append(If())
+        case "else":
+            if let ifIndex = script.instructions.lastIndex(where: { $0 is If }) {
+                script.instructions.append(Else())
+
+                var parentIf = script.instructions[ifIndex] as! If
+                parentIf.whenDoneSetInstructionPointerTo += 1
+                script.instructions[ifIndex] = parentIf
+            } else {
+                print("Else clause without if.")
+                return
+            }
         default:
             print("Group \(node.name) is not supported yet.")
             return
@@ -44,11 +57,12 @@ class ScriptBuilder: TreeNodeVisitor {
         case "during", "jump":
             script.instructions.append(goToGroupStart)
         default:
-            // Pas de boucle pour "if"
+            // Pas de boucle pour if et else
             break
         }
 
-        if var groupStart = script.instructions[groupIndex] as? GroupStart {
+        if groupIndex < script.instructions.count,
+           var groupStart = script.instructions[groupIndex] as? GroupStart {
             groupStart.whenDoneSetInstructionPointerTo = script.instructions.count
             script.instructions[groupIndex] = groupStart
         }
