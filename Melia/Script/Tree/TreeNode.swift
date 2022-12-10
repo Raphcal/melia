@@ -41,35 +41,6 @@ struct GroupNode: TreeNode {
     }
 }
 
-// TODO: Voir s'il faut ajouter un IfNode
-struct IfNode: TreeNode {
-    var condition: TreeNode
-    var children: [TreeNode]
-    var `else`: TreeNode?
-
-    func accept<V>(visitor: V) -> V.Result where V : TreeNodeVisitor {
-        return visitor.visit(from: self)
-    }
-}
-
-struct ElseIfNode: TreeNode {
-    var condition: TreeNode
-    var children: [TreeNode]
-    var `else`: TreeNode?
-
-    func accept<V>(visitor: V) -> V.Result where V : TreeNodeVisitor {
-        return visitor.visit(from: self)
-    }
-}
-
-struct ElseNode: TreeNode {
-    var children: [TreeNode]
-
-    func accept<V>(visitor: V) -> V.Result where V : TreeNodeVisitor {
-        return visitor.visit(from: self)
-    }
-}
-
 struct InstructionNode: TreeNode {
     var name: String
     var arguments: [ArgumentNode]

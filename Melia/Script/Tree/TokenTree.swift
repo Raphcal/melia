@@ -193,6 +193,8 @@ final class GroupBuilder: BlockNodeBuilder {
             return During.durationArgument
         case "if":
             return If.testArgument
+        case "while":
+            return While.testArgument
         default:
             return "default"
         }

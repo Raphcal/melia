@@ -29,18 +29,6 @@ class TokenTreeReducer: TreeNodeVisitor {
                          children: node.children.accept(visitor: self))
     }
 
-    func visit(from node: IfNode) -> TreeNode {
-        return node
-    }
-
-    func visit(from node: ElseIfNode) -> TreeNode {
-        return node
-    }
-
-    func visit(from node: ElseNode) -> TreeNode {
-        return node
-    }
-
     func visit(from node: ArgumentNode) -> TreeNode {
         return ArgumentNode(name: node.name, value: node.value.accept(visitor: self))
     }

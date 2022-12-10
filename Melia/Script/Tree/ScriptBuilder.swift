@@ -48,13 +48,15 @@ class ScriptBuilder: TreeNodeVisitor {
                 print("Else clause without if.")
                 return
             }
+        case "while":
+            script.instructions.append(While())
         default:
             print("Group \(node.name) is not supported yet.")
             return
         }
         node.children.accept(visitor: self)
         switch node.name {
-        case "during", "jump":
+        case "during", "jump", "while":
             script.instructions.append(goToGroupStart)
         default:
             // Pas de boucle pour if et else
@@ -66,18 +68,6 @@ class ScriptBuilder: TreeNodeVisitor {
             groupStart.whenDoneSetInstructionPointerTo = script.instructions.count
             script.instructions[groupIndex] = groupStart
         }
-    }
-
-    func visit(from node: IfNode) -> Void {
-        // Non supporté.
-    }
-
-    func visit(from node: ElseIfNode) -> Void {
-        // Non supporté.
-    }
-
-    func visit(from node: ElseNode) -> Void {
-        // Non supporté.
     }
 
     func visit(from node: InstructionNode) -> Void {

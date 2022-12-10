@@ -36,18 +36,6 @@ class SymbolTableBuilder: TreeNodeVisitor {
         }
     }
     
-    func visit(from node: IfNode) -> Void {
-        // Vide
-    }
-    
-    func visit(from node: ElseIfNode) -> Void {
-        // Vide
-    }
-    
-    func visit(from node: ElseNode) -> Void {
-        // Vide
-    }
-    
     func visit(from node: InstructionNode) -> Void {
         // Vide
     }

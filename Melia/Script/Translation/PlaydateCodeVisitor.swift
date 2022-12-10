@@ -77,6 +77,8 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             return visitIf(node)
         case "else":
             return visitElse(node)
+        case "while":
+            return visitWhile(node)
         default:
             return []
         }
@@ -145,18 +147,51 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                 : "    if (" + test.accept(visitor: self).joined() + ") {\n    ",
             node.children.accept(visitor: self)
                 .joined()
-                .replacingOccurrences(of: "\n", with: "\n        ")
+                .replacingOccurrences(of: "\n", with: "\n    ")
                 .dropLastFourSpaces(),
-            "}\n"]
+            "    }\n"]
     }
 
     func visitElse(_ node: GroupNode) -> [String] {
         return ["    else {\n    ",
             node.children.accept(visitor: self)
                 .joined()
-                .replacingOccurrences(of: "\n", with: "\n        ")
+                .replacingOccurrences(of: "\n", with: "\n    ")
                 .dropLastFourSpaces(),
-            "}\n"]
+            "    }\n"]
+    }
+
+    func visitWhile(_ node: GroupNode) -> [String] {
+        part += 1
+        var code = [String]()
+        code.reserveCapacity(5)
+        code.append("""
+                // \(node.name)
+                self->statePart = \(part);
+                playdate->sprite->setUpdateFunction(sprite, &\(state.name)StatePart\(part));
+                \(state.name)StatePart\(part)(sprite);
+            }
+
+
+            """)
+        code.append(statePartStart)
+
+        let test = node.arguments.first { $0.name == While.testArgument }?.value ?? ConstantNode(value: .boolean(false))
+        code.append(test is BracesNode
+                    ? "    if " + test.accept(visitor: self).joined() + " {\n    "
+                    : "    if (" + test.accept(visitor: self).joined() + ") {\n    ")
+        code.append(node.children.accept(visitor: self)
+            .joined()
+            .replacingOccurrences(of: "\n", with: "\n    ")
+            .dropLastFourSpaces())
+        code.append("""
+                    draw(self, sprite);
+                    return;
+                }
+
+            """)
+
+        return code
     }
 
     func visit(from node: InstructionNode) -> [String] {
@@ -296,9 +331,9 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                 case .divide:
                     return ["MELPointDivide(", lhs, ", ", rhs, ")"]
                 case .equals:
-                    return ["MELPointEquals(", rhs, ", ", lhs, ")"]
+                    return ["MELPointEquals(", lhs, ", ", rhs, ")"]
                 case .notEquals:
-                    return ["!MELPointEquals(", rhs, ", ", lhs, ")"]
+                    return ["!MELPointEquals(", lhs, ", ", rhs, ")"]
                 default:
                     break
                 }
@@ -408,7 +443,9 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         case let .decimal(value):
             return [value.description, "f"]
         case let .point(value):
-            return ["MELPointMake(\(value.x)f, \(value.y)f)"]
+            return MELPointEquals(value, .zero)
+                ? ["MELPointZero"]
+                : ["MELPointMake(\(value.x)f, \(value.y)f)"]
         case let .boolean(value):
             return [value.description]
         case let .string(value):

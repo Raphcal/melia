@@ -11,9 +11,6 @@ protocol TreeNodeVisitor {
     associatedtype Result
     func visit(from node: StateNode) -> Result
     func visit(from node: GroupNode) -> Result
-    func visit(from node: IfNode) -> Result
-    func visit(from node: ElseIfNode) -> Result
-    func visit(from node: ElseNode) -> Result
     func visit(from node: InstructionNode) -> Result
     func visit(from node: ArgumentNode) -> Result
     func visit(from node: SetNode) -> Result
@@ -41,18 +38,6 @@ extension TreeNodeVisitor where Result : HasEmptyValue {
     }
 
     func visit(from node: GroupNode) -> Result {
-        return Result.empty
-    }
-
-    func visit(from node: IfNode) -> Result {
-        return Result.empty
-    }
-
-    func visit(from node: ElseIfNode) -> Result {
-        return Result.empty
-    }
-
-    func visit(from node: ElseNode) -> Result {
         return Result.empty
     }
 
