@@ -154,6 +154,8 @@ struct PlaydateCodeGenerator {
                 code += "    MELOutputStreamWriteFloat(outputStream, self->\(variable));\n"
             case .point:
                 code += "    MELOutputStreamWritePoint(outputStream, self->\(variable));\n"
+            case .sprite:
+                code += "    // Sub-sprite \(variable) is saved by MELSubSprite."
             default:
                 break
             }
@@ -188,6 +190,8 @@ struct PlaydateCodeGenerator {
                 code += "    const \(kind.cType) \(variable) = MELInputStreamReadFloat(inputStream);\n"
             case .point:
                 code += "    const \(kind.cType) \(variable) = MELInputStreamReadPoint(inputStream);\n"
+            case .sprite:
+                code += "    // Sub-sprite \(variable) is loaded by MELSubSprite."
             default:
                 break
             }

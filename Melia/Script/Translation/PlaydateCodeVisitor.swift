@@ -164,7 +164,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     func visitWhile(_ node: GroupNode) -> [String] {
         part += 1
         var code = [String]()
-        code.reserveCapacity(5)
+        code.reserveCapacity(6)
         code.append("""
                 // \(node.name)
                 self->statePart = \(part);
@@ -175,6 +175,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
 
             """)
         code.append(statePartStart)
+        code.append("    // \(node.name)\n")
 
         let test = node.arguments.first { $0.name == While.testArgument }?.value ?? ConstantNode(value: .boolean(false))
         code.append(test is BracesNode
@@ -206,9 +207,9 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     func visitNewSprite(_ node: InstructionNode) -> [String] {
         // TODO: Trouver la définition ? Gérer l'animation
         if let animationName = node.arguments.first(where: { $0.name == NewSprite.animationArgument })?.value.accept(visitor: self).joined(separator: "") {
-            return ["MELSubSpriteAlloc(sprite, &self->definition, ", animationName, ")"]
+            return ["MELSubSpriteAlloc(sprite, &self->super.definition, ", animationName, ")"]
         } else {
-            return ["MELSubSpriteAlloc(sprite, &self->definition, AnimationNameStand)"]
+            return ["MELSubSpriteAlloc(sprite, &self->super.definition, AnimationNameStand)"]
         }
     }
 
