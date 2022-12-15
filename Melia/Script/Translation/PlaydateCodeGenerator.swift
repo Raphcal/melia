@@ -17,6 +17,12 @@ struct PlaydateCodeGenerator {
     var tree: TokenTree
     var symbolTable: SymbolTable
 
+    var hasSubSprite: Bool {
+        return symbolTable.variables.contains {
+            $0.key != "self" && $0.value == .sprite
+        }
+    }
+
     var headerFile: String {
         let today = Date().formatted(.dateTime.day(.twoDigits).month(.twoDigits).year(.defaultDigits))
 
@@ -50,12 +56,13 @@ struct PlaydateCodeGenerator {
             code += stateEnumDeclaration
         }
         code += structDeclaration
-        code += stateFunctionsDeclaration
-        code += goToStateFunction
-        code += saveFunction
+        code += functionDeclarations
         code += classDeclaration
-        code += loadFunction
         code += constructorFunction
+        code += destroyFunction
+        code += saveFunction
+        code += loadFunction
+        code += goToStateFunction
         code += drawFunction
 
         for state in symbolTable.states {
@@ -122,7 +129,7 @@ struct PlaydateCodeGenerator {
         return code
     }
 
-    private var stateFunctionsDeclaration: String {
+    private var functionDeclarations: String {
         var code = ""
         for state in symbolTable.states {
             for part in 0 ..< state.partCount {
@@ -130,7 +137,38 @@ struct PlaydateCodeGenerator {
             }
             code += "\n"
         }
+        if symbolTable.states.count > 1 {
+            code += "static void goToCurrentState(struct morningstar * _Nonnull self, LCDSprite * _Nonnull sprite);\n"
+        }
+        if hasSubSprite {
+            code += "static void destroy(LCDSprite * _Nonnull sprite);\n"
+        }
+        code += "static void save(MELSprite * _Nonnull sprite, MELOutputStream * _Nonnull outputStream);\n\n"
         return code
+    }
+
+    private var destroyFunction: String {
+        if !hasSubSprite {
+            return ""
+        }
+        let code = symbolTable.variables
+            .compactMap {
+                $0.key != "self" && $0.value == .sprite ? $0.key : nil
+            }
+            .sorted()
+            .map {
+                "    MELSpriteDealloc(self->\($0)->sprite);"
+            }
+            .joined(separator: "\n")
+        return """
+            static void destroy(LCDSprite * _Nonnull sprite) {
+                struct \(scriptName) *self = playdate->sprite->getUserdata(sprite);
+            \(code)
+                MELSpriteDealloc(sprite);
+            }
+
+
+            """
     }
 
     private var saveFunction: String {
@@ -155,7 +193,7 @@ struct PlaydateCodeGenerator {
             case .point:
                 code += "    MELOutputStreamWritePoint(outputStream, self->\(variable));\n"
             case .sprite:
-                code += "    // Sub-sprite \(variable) is saved by MELSubSprite."
+                code += "    MELSubSpriteSave(self->\(variable), outputStream);\n"
             default:
                 break
             }
@@ -191,12 +229,13 @@ struct PlaydateCodeGenerator {
             case .point:
                 code += "    const \(kind.cType) \(variable) = MELInputStreamReadPoint(inputStream);\n"
             case .sprite:
-                code += "    // Sub-sprite \(variable) is loaded by MELSubSprite."
+                code += "    MELSubSprite *\(variable) = MELSubSpriteLoad(inputStream, spriteLoader);\n"
             default:
                 break
             }
         }
         code += """
+
                 *self = (struct \(scriptName)) {
                     .super = {
                         .class = &\(pascalCasedScriptName)Class
@@ -211,7 +250,7 @@ struct PlaydateCodeGenerator {
         for variable in variables {
             let kind = symbolTable.variables[variable]!
             switch (kind) {
-            case .direction, .boolean, .integer, .decimal, .point:
+            case .direction, .boolean, .integer, .decimal, .point, .sprite:
                 code += "        .\(variable) = \(variable),\n"
             default:
                 break
@@ -234,8 +273,8 @@ struct PlaydateCodeGenerator {
     private var classDeclaration: String {
         return """
             const MELSpriteClass \(pascalCasedScriptName)Class = (MELSpriteClass) {
-                .destroy = MELSpriteDealloc,
-                .save = save
+                .destroy = \(hasSubSprite ? "destroy" : "MELSpriteDealloc"),
+                .save = save,
             };
 
 
