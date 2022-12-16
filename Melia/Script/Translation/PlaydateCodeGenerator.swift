@@ -19,7 +19,7 @@ struct PlaydateCodeGenerator {
 
     var states: [StateNode] {
         return symbolTable.states.filter {
-            $0.name != "init"
+            $0.name != StateNode.constructorName
         }
     }
 
@@ -287,11 +287,10 @@ struct PlaydateCodeGenerator {
 
     private var constructorFunction: String {
         let defaultState = states.isEmpty ? "default" : states[0].name
-        let initState = symbolTable.states.first(where: { $0.name == "init" })
         var code = ""
-        if let initState = initState {
-            let visitor = PlaydateCodeVisitor(state: initState, scriptName: scriptName, spriteName: spriteName, symbolTable: symbolTable)
-            code = initState.children
+        if let constructor = symbolTable.states.first(where: { $0.name == StateNode.constructorName }) {
+            let visitor = PlaydateCodeVisitor(state: constructor, scriptName: scriptName, spriteName: spriteName, symbolTable: symbolTable)
+            code = constructor.children
                 .filter {
                     if states.count <= 1, let setNode = $0 as? SetNode {
                         return setNode.variable != "state"

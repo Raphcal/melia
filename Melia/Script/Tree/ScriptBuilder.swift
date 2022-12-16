@@ -14,7 +14,10 @@ class ScriptBuilder: TreeNodeVisitor {
     func visit(from node: StateNode) -> Void {
         script.states[node.name] = script.instructions.count
         node.children.accept(visitor: self)
-        script.instructions.append(GoToCurrentState())
+
+        if !node.isContructor {
+            script.instructions.append(GoToCurrentState())
+        }
     }
 
     func visit(from node: ArgumentNode) -> Void {

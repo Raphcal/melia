@@ -145,10 +145,10 @@ final class StateBuilder: BlockNodeBuilder {
     var children = [TreeNode]()
 
     init?(found: FoundToken) {
-        guard found.token == .state else {
+        guard [Token.state, .constructor].contains(found.token) else {
             return nil
         }
-        name = found.matches[1]
+        name = found.token == .state ? found.matches[1] : StateNode.constructorName
     }
 
     func builderDidProduce(result: TreeNode) {

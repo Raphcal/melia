@@ -12,9 +12,11 @@ struct ScriptGrammar: Grammar {
     func tokensExpected(after token: Token) -> [Token] {
         switch token {
         case .newLine:
-            return [.newLine, .indent, .comment, .state, .setStart, .groupStart, .instructionStart, .braceOpen] + Token.anyValue
+            return [.newLine, .indent, .comment, .constructor, .state, .groupStart, .braceOpen] + Token.anyValue
         case .indent:
             return [.comment, .setStart, .groupStart, .instructionStart]
+        case .constructor:
+            return [.newLine]
         case .state:
             return [.newLine, .instructionStart, .setStart]
         case .groupStart:
@@ -66,6 +68,8 @@ struct ScriptGrammar: Grammar {
             return "(?: |\t)+"
         case .state:
             return "state +([a-zA-Z0-9]+) *: *"
+        case .constructor:
+            return "constructor: *"
         case .groupStart:
             return "(during|while|jump|if|else if|else) *"
         case .groupEnd:
@@ -122,7 +126,7 @@ struct ScriptGrammar: Grammar {
             .backgroundColor: NSColor.white
         ]
         switch token {
-        case .state, .instructionStart, .groupStart, .groupEnd:
+        case .state, .constructor, .instructionStart, .groupStart, .groupEnd:
             attributes[.font] = boldFont
             attributes[.foregroundColor] = NSColor.systemPurple
         case .instructionArgument:

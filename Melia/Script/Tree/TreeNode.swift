@@ -23,8 +23,13 @@ extension TreeNode {
 }
 
 struct StateNode: TreeNode {
+    static let constructorName = "init"
     var name: String
     var children: [TreeNode]
+
+    var isContructor: Bool {
+        return name == StateNode.constructorName
+    }
 
     func accept<V>(visitor: V) -> V.Result where V : TreeNodeVisitor {
         return visitor.visit(from: self)
