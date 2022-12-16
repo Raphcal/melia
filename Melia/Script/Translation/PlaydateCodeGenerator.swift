@@ -138,7 +138,7 @@ struct PlaydateCodeGenerator {
             code += "\n"
         }
         if symbolTable.states.count > 1 {
-            code += "static void goToCurrentState(struct morningstar * _Nonnull self, LCDSprite * _Nonnull sprite);\n"
+            code += "static void goToCurrentState(struct \(scriptName) * _Nonnull self, LCDSprite * _Nonnull sprite);\n"
         }
         if hasSubSprite {
             code += "static void destroy(LCDSprite * _Nonnull sprite);\n"
