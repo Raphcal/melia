@@ -14,7 +14,6 @@
 		64262C4E27FC6CED004E16D7 /* OpenGLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64262C4C27FC6CED004E16D7 /* OpenGLView.swift */; };
 		64262C5027FC6D0F004E16D7 /* Renderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64262C4F27FC6D0F004E16D7 /* Renderer.swift */; };
 		6454DA9627FA0EBE00D5E92B /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6454DA9527FA0EBE00D5E92B /* Instruction.swift */; };
-		6454DAA527FA0FC500D5E92B /* MeliceFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6454DAA327FA0FAA00D5E92B /* MeliceFramework.framework */; };
 		6454DAAB27FA1E6B00D5E92B /* During.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6454DAAA27FA1E6B00D5E92B /* During.swift */; };
 		6454DAAD27FA1ED400D5E92B /* Jump.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6454DAAC27FA1ED400D5E92B /* Jump.swift */; };
 		6454DAB127FA1F0600D5E92B /* Move.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6454DAB027FA1F0600D5E92B /* Move.swift */; };
@@ -77,6 +76,8 @@
 		64D435F328270593006950F3 /* PlaydateCodeVisitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D435F228270592006950F3 /* PlaydateCodeVisitor.swift */; };
 		64F35DF62809E72900A5A620 /* ScriptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64F35DF52809E72900A5A620 /* ScriptTests.swift */; };
 		64F35E3A2809FFC200A5A620 /* GroupStart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64F35E392809FFC200A5A620 /* GroupStart.swift */; };
+		64FA14B4294CBC2A009E4ADB /* MeliceFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6454DAA327FA0FAA00D5E92B /* MeliceFramework.framework */; };
+		64FA14B5294CBC2A009E4ADB /* MeliceFramework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6454DAA327FA0FAA00D5E92B /* MeliceFramework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -116,6 +117,20 @@
 			remoteInfo = Melia;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		64FA14B6294CBC2A009E4ADB /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				64FA14B5294CBC2A009E4ADB /* MeliceFramework.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		6404BBCE29413C0900309C02 /* Absolute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Absolute.swift; sourceTree = "<group>"; };
@@ -195,18 +210,18 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		64C242CD27F8E10E0018BE2B /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				6454DAA527FA0FC500D5E92B /* MeliceFramework.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		64F35DF02809E72900A5A620 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		64FA14B1294CBBC9009E4ADB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				64FA14B4294CBC2A009E4ADB /* MeliceFramework.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -439,8 +454,9 @@
 			buildConfigurationList = 64C242E227F8E1100018BE2B /* Build configuration list for PBXNativeTarget "Melia" */;
 			buildPhases = (
 				64C242CC27F8E10E0018BE2B /* Sources */,
-				64C242CD27F8E10E0018BE2B /* Frameworks */,
+				64FA14B1294CBBC9009E4ADB /* Frameworks */,
 				64C242CE27F8E10E0018BE2B /* Resources */,
+				64FA14B6294CBC2A009E4ADB /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

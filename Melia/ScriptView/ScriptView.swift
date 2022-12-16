@@ -31,7 +31,7 @@ struct ScriptView: View {
     @State private var origin = MELPoint(x: 32, y: 32)
 
     var body: some View {
-        HStack {
+        HSplitView {
             CodeEditor(scriptName: scriptName, code: $code, tokens: $tokens)
             Previews(scriptName: scriptName, code: $code, sprites: sprites, maps: maps, tokens: $tokens, mapIndex: $mapIndex, definitionIndex: $definitionIndex, origin: $origin)
         }
