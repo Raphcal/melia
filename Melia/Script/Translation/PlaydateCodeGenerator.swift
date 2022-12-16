@@ -17,6 +17,12 @@ struct PlaydateCodeGenerator {
     var tree: TokenTree
     var symbolTable: SymbolTable
 
+    var states: [StateNode] {
+        return symbolTable.states.filter {
+            $0.name != "init"
+        }
+    }
+
     var hasSubSprite: Bool {
         return symbolTable.variables.contains {
             $0.key != "self" && $0.value == .sprite
@@ -52,7 +58,7 @@ struct PlaydateCodeGenerator {
     var codeFile: String {
         var code =  cFileStart
 
-        if symbolTable.states.count > 1 {
+        if states.count > 1 {
             code += stateEnumDeclaration
         }
         code += structDeclaration
@@ -65,7 +71,7 @@ struct PlaydateCodeGenerator {
         code += goToStateFunction
         code += drawFunction
 
-        for state in symbolTable.states {
+        for state in states {
             let visitor = PlaydateCodeVisitor(state: state, scriptName: scriptName, spriteName: spriteName, symbolTable: symbolTable)
             code += state.accept(visitor: visitor).joined()
         }
@@ -97,7 +103,7 @@ struct PlaydateCodeGenerator {
 
     private var stateEnumDeclaration: String {
         var code = "enum \(scriptName)_state {\n"
-        for state in symbolTable.states {
+        for state in states {
             code += "    \(state.name),\n"
         }
         code += "};\n\n"
@@ -112,7 +118,7 @@ struct PlaydateCodeGenerator {
 
             """
 
-        if symbolTable.states.count > 1 {
+        if states.count > 1 {
             code += "    enum \(scriptName)_state state;\n"
         }
         code += "    uint8_t statePart;\n"
@@ -131,13 +137,13 @@ struct PlaydateCodeGenerator {
 
     private var functionDeclarations: String {
         var code = ""
-        for state in symbolTable.states {
+        for state in states {
             for part in 0 ..< state.partCount {
                 code += "static void \(state.name)StatePart\(part)(LCDSprite * _Nonnull sprite);\n"
             }
             code += "\n"
         }
-        if symbolTable.states.count > 1 {
+        if states.count > 1 {
             code += "static void goToCurrentState(struct \(scriptName) * _Nonnull self, LCDSprite * _Nonnull sprite);\n"
         }
         if hasSubSprite {
@@ -173,7 +179,7 @@ struct PlaydateCodeGenerator {
 
     private var saveFunction: String {
         var code = ""
-        if symbolTable.states.count > 1 {
+        if states.count > 1 {
             code += "    MELOutputStreamWriteByte(outputStream, self->state);\n"
         }
         code += "    MELOutputStreamWriteByte(outputStream, self->statePart);\n"
@@ -209,7 +215,7 @@ struct PlaydateCodeGenerator {
 
     private var loadFunction: String {
         var code = ""
-        if symbolTable.states.count > 1 {
+        if states.count > 1 {
             code += "    const enum \(scriptName)_state state = MELInputStreamReadByte(inputStream);\n"
         }
         code += "    const uint8_t statePart = MELInputStreamReadByte(inputStream);\n"
@@ -242,7 +248,7 @@ struct PlaydateCodeGenerator {
                     },
 
             """
-        if symbolTable.states.count > 1 {
+        if states.count > 1 {
             code += "        .state = state,\n"
         }
         code += "        .statePart = statePart,\n"
@@ -282,12 +288,19 @@ struct PlaydateCodeGenerator {
     }
 
     private var constructorFunction: String {
-        let defaultState = symbolTable.states.isEmpty ? "default" : symbolTable.states[0].name
+        let defaultState = states.isEmpty ? "default" : states[0].name
+        let initState = symbolTable.states.first(where: { $0.name == "init" })
+        var code = ""
+        if let initState = initState {
+            let visitor = PlaydateCodeVisitor(state: initState, scriptName: scriptName, spriteName: spriteName, symbolTable: symbolTable)
+            code = initState.children.accept(visitor: visitor).joined()
+        }
         return """
             LCDSprite * _Nonnull \(pascalCasedScriptName)Constructor(MELSpriteDefinition * _Nonnull definition, MELSpriteInstance * _Nonnull instance, SpriteLoader * _Nonnull spriteLoader) {
                 struct \(scriptName) *self = playdate->system->realloc(NULL, sizeof(struct \(scriptName)));
                 LCDSprite *sprite = MELSpriteInit(&self->super, definition, instance, &spriteLoader->sprites);
                 self->super.class = &\(pascalCasedScriptName)Class;
+            \(code)
                 playdate->sprite->setUpdateFunction(sprite, &\(defaultState)StatePart0);
                 return sprite;
             }
@@ -361,20 +374,20 @@ struct PlaydateCodeGenerator {
     }
 
     private var goToStateFunction: String {
-        if symbolTable.states.isEmpty {
+        if states.isEmpty {
             return ""
         }
         var code = """
             static void goToCurrentState(struct \(scriptName) * _Nonnull self, LCDSprite * _Nonnull sprite) {
 
             """
-        if symbolTable.states.count > 1 {
+        if states.count > 1 {
             code += """
                     switch (self->state) {
 
                 """
 
-            for state in symbolTable.states[1...] {
+            for state in states[1...] {
                 code += """
                             case \(state.name):
                     \(parts(for: state, indent: "            "))            break;
@@ -384,12 +397,12 @@ struct PlaydateCodeGenerator {
 
             code += """
                         default:
-                \(parts(for: symbolTable.states[0], indent: "            "))            break;
+                \(parts(for: states[0], indent: "            "))            break;
                     }
 
                 """
         } else {
-            code += parts(for: symbolTable.states[0])
+            code += parts(for: states[0])
         }
         code += "}\n\n"
         return code
