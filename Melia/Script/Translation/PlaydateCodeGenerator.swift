@@ -143,9 +143,7 @@ struct PlaydateCodeGenerator {
             }
             code += "\n"
         }
-        if states.count > 1 {
-            code += "static void goToCurrentState(struct \(scriptName) * _Nonnull self, LCDSprite * _Nonnull sprite);\n"
-        }
+        code += "static void goToCurrentState(struct \(scriptName) * _Nonnull self, LCDSprite * _Nonnull sprite);\n"
         if hasSubSprite {
             code += "static void destroy(LCDSprite * _Nonnull sprite);\n"
         }
@@ -293,7 +291,15 @@ struct PlaydateCodeGenerator {
         var code = ""
         if let initState = initState {
             let visitor = PlaydateCodeVisitor(state: initState, scriptName: scriptName, spriteName: spriteName, symbolTable: symbolTable)
-            code = initState.children.accept(visitor: visitor).joined()
+            code = initState.children
+                .filter {
+                    if states.count <= 1, let setNode = $0 as? SetNode {
+                        return setNode.variable != "state"
+                    }
+                    return true
+                }
+                .accept(visitor: visitor)
+                .joined()
         }
         return """
             LCDSprite * _Nonnull \(pascalCasedScriptName)Constructor(MELSpriteDefinition * _Nonnull definition, MELSpriteInstance * _Nonnull instance, SpriteLoader * _Nonnull spriteLoader) {
