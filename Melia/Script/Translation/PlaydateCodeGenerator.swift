@@ -161,7 +161,7 @@ struct PlaydateCodeGenerator {
             }
             .sorted()
             .map {
-                "    MELSpriteDealloc(self->\($0)->sprite);"
+                "    playdate->sprite->setUpdateFunction(self->\($0)->sprite, MELSpriteDealloc);"
             }
             .joined(separator: "\n")
         return """
