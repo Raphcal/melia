@@ -17,17 +17,8 @@ struct PlaydateCodeGenerator {
     var tree: TokenTree
     var symbolTable: SymbolTable
 
-    var states: [StateNode] {
-        return symbolTable.states.filter {
-            $0.name != StateNode.constructorName
-        }
-    }
-
-    var hasSubSprite: Bool {
-        return symbolTable.variables.contains {
-            $0.key != "self" && $0.value == .sprite
-        }
-    }
+    var states: [StateNode]
+    var hasSubSprite: Bool
 
     var headerFile: String {
         let today = Date().formatted(.dateTime.day(.twoDigits).month(.twoDigits).year(.defaultDigits))
@@ -300,6 +291,10 @@ struct PlaydateCodeGenerator {
                 .accept(visitor: visitor)
                 .joined()
         }
+        if states.count > 1 {
+            code += "    self->state = \(defaultState);\n"
+        }
+        code += "    self->statePart = 0;"
         return """
             LCDSprite * _Nonnull \(pascalCasedScriptName)Constructor(MELSpriteDefinition * _Nonnull definition, MELSpriteInstance * _Nonnull instance, SpriteLoader * _Nonnull spriteLoader) {
                 struct \(scriptName) *self = playdate->system->realloc(NULL, sizeof(struct \(scriptName)));
@@ -432,6 +427,12 @@ struct PlaydateCodeGenerator {
         self.spriteType = def.type
         self.tree = reducedTree
         self.symbolTable = reducedTree.symbolTable
+        self.states = symbolTable.states.filter {
+            $0.name != StateNode.constructorName
+        }
+        self.hasSubSprite = symbolTable.variables.contains {
+            $0.key != "self" && $0.value == .sprite
+        }
     }
 
     private static func removeSpecialCharacters(from string: String) -> String {
