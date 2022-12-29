@@ -16,7 +16,7 @@ enum Value: Equatable {
     case direction(_ value: MELDirection)
     case sprite(_ value: MELSpriteRef)
     case animationName(_ value: String)
-    case animation(_ value: MELAnimationDefinition)
+    case animation(_ value: AnimationValue)
     case animations(_ value: MELAnimationDefinitionList)
     case map(_ value: MELMap)
     case state(_ name: String)
@@ -58,9 +58,7 @@ enum Value: Equatable {
                 // TODO: Vérifier si le sprite est en train de sauter
                 return .boolean(false)
             case "animation":
-                if let animation = sprite.animation.pointee.definition?.pointee {
-                    return .animation(animation)
-                }
+                return .animation(AnimationValue(animationRef: sprite.animation))
             case "animations":
                 return .animations(sprite.pointee.definition.animations)
             default:
@@ -68,11 +66,21 @@ enum Value: Equatable {
             }
         case .animations(let animations):
             if let animation = animations.first(where: { $0.nameAsString == property }) {
-                return .animation(animation)
+                return .animation(AnimationValue(animationDefinition: animation))
             }
         case .animation(let animation):
-            if property == "duration" {
-                return .decimal(Float(animation.frameCount) * 1 / Float(animation.frequency))
+            if let animationRef = animation.animationRef {
+                if property == "duration" {
+                    return .decimal(Float(animationRef.definition.frameCount) / (Float(animationRef.definition.frequency) * Float(animationRef.pointee.speed)))
+                } else if property == "speed" {
+                    return .decimal(Float(animationRef.pointee.speed))
+                }
+            } else {
+                if property == "duration" {
+                    return .decimal(Float(animation.definition.frameCount) / Float(animation.definition.frequency))
+                } else if property == "speed" {
+                    return .decimal(1)
+                }
             }
         default:
             break
@@ -107,8 +115,24 @@ enum Value: Equatable {
                 let animationDefinition = sprite.pointee.definition.animations.memory!.advanced(by: animationIndex)
                 let animationRef = MELAnimationAlloc(animationDefinition)
                 MELSpriteSetAnimation(sprite, animationRef)
+            } else if property == "animation",
+                      case let .animation(animation) = value {
+                MELSpriteSetAnimation(sprite, animation.getAnimationRef())
+                animation.isStrongRef = false
             }
             return .sprite(sprite)
+        case .animation(let animation):
+            let animationRef = animation.getAnimationRef()
+            if property == "duration", case let .integer(duration) = value {
+                animationRef.pointee.speed = MELTimeInterval(animation.definition.frameCount) / (MELTimeInterval(duration) * MELTimeInterval(animation.definition.frequency))
+            } else if property == "duration", case let .decimal(duration) = value {
+                animationRef.pointee.speed = MELTimeInterval(animation.definition.frameCount) / (MELTimeInterval(duration) * MELTimeInterval(animation.definition.frequency))
+            } else if property == "speed", case let .integer(speed) = value {
+                animationRef.pointee.speed = MELTimeInterval(speed)
+            } else if property == "speed", case let .decimal(speed) = value {
+                animationRef.pointee.speed = MELTimeInterval(speed)
+            }
+            return .animation(animation)
         default:
             break
         }

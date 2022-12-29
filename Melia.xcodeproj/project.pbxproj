@@ -69,6 +69,7 @@
 		64C242D827F8E10E0018BE2B /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C242D727F8E10E0018BE2B /* ContentView.swift */; };
 		64C242DA27F8E1100018BE2B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64C242D927F8E1100018BE2B /* Assets.xcassets */; };
 		64C242DD27F8E1100018BE2B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64C242DC27F8E1100018BE2B /* Preview Assets.xcassets */; };
+		64C380E9295E40B2007CF6D1 /* AnimationValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C380E8295E40B2007CF6D1 /* AnimationValue.swift */; };
 		64C6C1A9282BD84500BA7B26 /* Grammar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C6C1A8282BD84500BA7B26 /* Grammar.swift */; };
 		64C6C1AB282C2A9800BA7B26 /* ScriptGrammar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C6C1AA282C2A9800BA7B26 /* ScriptGrammar.swift */; };
 		64C6C1AD282C2B4300BA7B26 /* CGrammar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64C6C1AC282C2B4300BA7B26 /* CGrammar.swift */; };
@@ -199,6 +200,7 @@
 		64C242DC27F8E1100018BE2B /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		64C242DE27F8E1100018BE2B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		64C242DF27F8E1100018BE2B /* Melia.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Melia.entitlements; sourceTree = "<group>"; };
+		64C380E8295E40B2007CF6D1 /* AnimationValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationValue.swift; sourceTree = "<group>"; };
 		64C6C1A8282BD84500BA7B26 /* Grammar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grammar.swift; sourceTree = "<group>"; };
 		64C6C1AA282C2A9800BA7B26 /* ScriptGrammar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptGrammar.swift; sourceTree = "<group>"; };
 		64C6C1AC282C2B4300BA7B26 /* CGrammar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGrammar.swift; sourceTree = "<group>"; };
@@ -342,6 +344,7 @@
 				64A1CE3328073ECE0086D752 /* DurationUnit.swift */,
 				64A1CE3528073EF10086D752 /* LookUpError.swift */,
 				64B49807281F15B600A474A2 /* SymbolTable.swift */,
+				64C380E8295E40B2007CF6D1 /* AnimationValue.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -601,6 +604,7 @@
 				6404BBCF29413C0900309C02 /* Absolute.swift in Sources */,
 				648ABC8D2922452800A74423 /* NewSprite.swift in Sources */,
 				6454DAB127FA1F0600D5E92B /* Move.swift in Sources */,
+				64C380E9295E40B2007CF6D1 /* AnimationValue.swift in Sources */,
 				64A1CE2F280726760086D752 /* Constant.swift in Sources */,
 				64A1CE5C28099AFE0086D752 /* Negative.swift in Sources */,
 				64A5AF3D2822A0F300ED792A /* GeneratedCodeView.swift in Sources */,
