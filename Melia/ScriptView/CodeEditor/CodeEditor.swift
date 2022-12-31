@@ -50,6 +50,7 @@ struct CodeEditor: NSViewRepresentable {
     func updateNSView(_ nsView: NSScrollView, context: Context) {
         let coordinator = context.coordinator
         coordinator.tokenizer.grammar = grammar
+        coordinator.undoManager = undoManager
 
         guard let textView = nsView.documentView as? NSTextView else {
             print("No text view")
