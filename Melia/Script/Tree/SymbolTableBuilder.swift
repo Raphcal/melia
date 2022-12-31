@@ -47,8 +47,20 @@ class SymbolTableBuilder: TreeNodeVisitor {
     func visit(from node: SetNode) -> Void {
         if node.variable == "state" {
             symbolTable.variables[node.variable] = .state
-        } else if !node.variable.contains(".") {
+            return
+        }
+        let firstDot = node.variable.firstIndex(of: ".")
+        if let value = node.value as? ConstantNode, firstDot == nil && symbolTable.constants[node.variable] == nil {
+            symbolTable.constants[node.variable] = value
+        } else if let firstDot {
+            let variable = String(node.variable[node.variable.startIndex ..< firstDot])
+            if let constant = symbolTable.constants[variable] {
+                symbolTable.constants.removeValue(forKey: variable)
+                symbolTable.variables[variable] = constant.value.kind
+            }
+        } else {
             symbolTable.variables[node.variable] = node.value.kind(symbolTable: symbolTable)
+            symbolTable.constants.removeValue(forKey: node.variable)
         }
     }
     

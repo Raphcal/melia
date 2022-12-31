@@ -214,6 +214,10 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     }
 
     func visit(from node: SetNode) -> [String] {
+        if symbolTable.constants[node.variable] != nil {
+            // Pas d'affectation s'il s'agit d'une constante.
+            return []
+        }
         let kind = node.value.kind(symbolTable: symbolTable)
         var assignedValue = node.value.accept(visitor: self).joined()
 
@@ -239,6 +243,11 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                     default:
                         variable += "->\(property)"
                     }
+                case .animation:
+                    if property == "duration" {
+                        return ["    ", variable, "->speed = ", variable, "->definition.frameCount / (", variable, "->definition.frequency * ", assignedValue, ");"]
+                    }
+                    variable += "->\(property)"
                 default:
                     variable += ".\(property)"
                 }
@@ -393,10 +402,27 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         if node.name == "delta" {
             return ["DELTA"]
         }
+        let isStateName = symbolTable.states.contains { $0.name == node.name }
+        if isStateName {
+            return [node.name]
+        }
         var translatedName = ""
         let path = node.name.components(separatedBy: ".")
-        let isStateName = symbolTable.states.contains { $0.name == node.name }
-        if !symbolTable.isLocalVariable(node.name) && path[0] != "self" && !isStateName {
+        if let constant = symbolTable.constants[path[0]] {
+            var valueToDisplay = constant
+            switch constant.value {
+            case .point(let point):
+                if path.count == 2 && path[1] == "x" {
+                    valueToDisplay = ConstantNode(value: .decimal(point.x))
+                } else if path.count == 2 && path[1] == "y" {
+                    valueToDisplay = ConstantNode(value: .decimal(point.y))
+                }
+            default:
+                break
+            }
+            return valueToDisplay.accept(visitor: self) + [" /* ", node.name, " */"]
+        }
+        if !symbolTable.isLocalVariable(node.name) && path[0] != "self" {
             translatedName = "self->"
         }
         translatedName += path[0]

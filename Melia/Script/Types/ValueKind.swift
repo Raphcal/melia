@@ -112,3 +112,21 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == ValueKi
         return valueKind
     }
 }
+
+extension Dictionary where Dictionary.Key == String, Dictionary.Value == ConstantNode {
+    func valueKind(for name: String) -> ValueKind {
+        let path = name.components(separatedBy: ".")
+        if path.isEmpty {
+            return .null
+        }
+        if let constant = self[path[0]] {
+            var valueKind = constant.value.kind
+            for index in 1 ..< path.count {
+                valueKind = valueKind.kind(for: path[index])
+            }
+            return valueKind
+        } else {
+            return .null
+        }
+    }
+}
