@@ -30,6 +30,19 @@ struct Script: Equatable {
             context.heap["map"] = .map(map)
         }
         context.heap["delta"] = .decimal(delta)
+        context = runInstructions(context: context)
+
+        if let drawState = states[StateNode.drawName] {
+            var drawContext = context
+            drawContext.instructionPointer = drawState
+            drawContext.yield = false
+            _ = runInstructions(context: drawContext)
+        }
+        return context
+    }
+
+    private func runInstructions(context contextToUse: ExecutionContext) -> ExecutionContext {
+        var context = contextToUse
         while !context.yield && context.instructionPointer < instructions.count {
             let oldInstructionPointer = context.instructionPointer
             context = instructions[context.instructionPointer].update(context: context)

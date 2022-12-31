@@ -11,7 +11,7 @@ import AppKit
 enum Token {
     // MARK: - Tokens
     case newLine, indent, endOfFile
-    case state, constructor
+    case state, specialState
     case groupStart, groupEnd
     case instructionStart, instructionArgument
     case setStart

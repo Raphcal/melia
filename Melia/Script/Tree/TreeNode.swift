@@ -23,11 +23,13 @@ extension TreeNode {
 }
 
 struct StateNode: TreeNode {
-    static let constructorName = "init"
+    static let constructorName = "constructor"
+    static let drawName = "draw"
+
     var name: String
     var children: [TreeNode]
 
-    var isContructor: Bool {
+    var isConstructor: Bool {
         return name == StateNode.constructorName
     }
 

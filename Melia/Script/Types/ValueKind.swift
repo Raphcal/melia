@@ -48,6 +48,8 @@ enum ValueKind: Equatable {
                 return .point
             case "collidesWithWall", "isJumping":
                 return .boolean
+            case "animation":
+                return .animation
             case "animations":
                 return .animations
             default:

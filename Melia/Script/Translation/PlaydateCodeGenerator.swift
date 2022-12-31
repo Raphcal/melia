@@ -310,10 +310,17 @@ struct PlaydateCodeGenerator {
     }
 
     private var drawFunction: String {
+        var code = ""
+        if let draw = symbolTable.states.first(where: { $0.name == StateNode.drawName }) {
+            let visitor = PlaydateCodeVisitor(state: draw, scriptName: scriptName, spriteName: spriteName, symbolTable: symbolTable)
+            code = draw.children
+                .accept(visitor: visitor)
+                .joined()
+        }
         if spriteType == MELSpriteTypePlatform {
             return """
                 static void draw(struct \(scriptName) * _Nonnull self, LCDSprite * _Nonnull sprite) {
-                    self->super.animation->class->update(self->super.animation, DELTA);
+                \(code)    self->super.animation->class->update(self->super.animation, DELTA);
 
                     const MELRectangle frame = self->super.frame;
                     playdate->sprite->moveTo(sprite, frame.origin.x - camera.frame.origin.x, frame.origin.y - camera.frame.origin.y);
@@ -338,7 +345,7 @@ struct PlaydateCodeGenerator {
         } else {
             return """
                 static void draw(struct \(scriptName) * _Nonnull self, LCDSprite * _Nonnull sprite) {
-                    self->super.animation->class->update(self->super.animation, DELTA);
+                \(code)    self->super.animation->class->update(self->super.animation, DELTA);
 
                     const MELPoint origin = self->super.frame.origin;
                     playdate->sprite->moveTo(sprite, origin.x - camera.frame.origin.x, origin.y - camera.frame.origin.y);
@@ -428,7 +435,7 @@ struct PlaydateCodeGenerator {
         self.tree = reducedTree
         self.symbolTable = reducedTree.symbolTable
         self.states = symbolTable.states.filter {
-            $0.name != StateNode.constructorName
+            $0.name != StateNode.constructorName && $0.name != StateNode.drawName
         }
         self.hasSubSprite = symbolTable.variables.contains {
             $0.key != "self" && $0.value == .sprite

@@ -15,9 +15,11 @@ class ScriptBuilder: TreeNodeVisitor {
         script.states[node.name] = script.instructions.count
         node.children.accept(visitor: self)
 
-        if !node.isContructor {
-            script.instructions.append(GoToCurrentState())
+        if node.isConstructor {
+            script.instructions.append(Constant(value: .state(script.initialState)))
+            script.instructions.append(SetValue(path: ["state"]))
         }
+        script.instructions.append(GoToCurrentState())
     }
 
     func visit(from node: ArgumentNode) -> Void {
@@ -133,7 +135,13 @@ extension TokenTree {
     var script: Script {
         let builder = ScriptBuilder()
 
-        if let firstState = children.first(where: { $0 is StateNode }) as? StateNode {
+        let firstState = children.first {
+            guard let state = $0 as? StateNode else {
+                return false
+            }
+            return state.name != StateNode.constructorName && state.name != StateNode.drawName
+        } as? StateNode
+        if let firstState {
             builder.script.initialState = firstState.name
         }
 
