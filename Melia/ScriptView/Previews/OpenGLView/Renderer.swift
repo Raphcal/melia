@@ -104,8 +104,12 @@ class Renderer {
     }
     func renderFrame(size frameSize: MELSize) {
         if let sprite = sprite {
+            let halfFrameSize = frameSize / MELSize(width: 2, height: 2)
+            let mapSize = MELSize(mutableMap.size * mutableMap.palette.pointee.tileSize)
             let origin = sprite.pointee.frame.origin
-            camera = MELPoint(x: max(0, origin.x - frameSize.width / 2), y: max(0, origin.y - frameSize.height / 2))
+            camera = MELPoint(
+                x: max(0, min(origin.x - halfFrameSize.width, mapSize.width - frameSize.width)),
+                y: max(0, min(origin.y - halfFrameSize.height, mapSize.height - frameSize.height)))
         } else {
             camera = .zero
         }
