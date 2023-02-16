@@ -50,7 +50,8 @@ class SymbolTableBuilder: TreeNodeVisitor {
             return
         }
         let firstDot = node.variable.firstIndex(of: ".")
-        if let value = node.value as? ConstantNode, firstDot == nil && symbolTable.constants[node.variable] == nil {
+        if let value = node.value as? ConstantNode,
+           firstDot == nil && symbolTable.kind(of: node.variable) == .null {
             symbolTable.constants[node.variable] = value
         } else if let firstDot {
             let variable = String(node.variable[node.variable.startIndex ..< firstDot])
