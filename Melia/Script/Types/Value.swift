@@ -26,9 +26,9 @@ enum Value: Equatable {
         switch self {
         case .point(let point):
             switch property {
-            case "x":
+            case "x", "width":
                 return .decimal(point.x)
-            case "y":
+            case "y", "height":
                 return .decimal(point.y)
             default:
                 break
@@ -48,6 +48,9 @@ enum Value: Equatable {
                 return .direction(sprite.pointee.direction)
             case "center":
                 return .point(sprite.pointee.frame.origin)
+            case "size":
+                let size = sprite.pointee.frame.size
+                return .point(MELPoint(x: size.width, y: size.height))
             case "frame":
                 // TODO: Ajouter un type rectangle pour le cadre
                 return .point(sprite.pointee.frame.origin)
@@ -91,13 +94,13 @@ enum Value: Equatable {
     func edited(bySetting value: Value, for property: String) -> Value {
         switch self {
         case .point(let point):
-            if property == "x", case let .integer(rhs) = value {
+            if property == "x" || property == "width", case let .integer(rhs) = value {
                 return .point(MELPoint(x: GLfloat(rhs), y: point.y))
-            } else if property == "x", case let .decimal(rhs) = value {
+            } else if property == "x" || property == "width", case let .decimal(rhs) = value {
                 return .point(MELPoint(x: rhs, y: point.y))
-            } else if property == "y", case let .integer(rhs) = value {
+            } else if property == "y" || property == "height", case let .integer(rhs) = value {
                 return .point(MELPoint(x: point.x, y: GLfloat(rhs)))
-            } else if property == "y", case let .decimal(rhs) = value {
+            } else if property == "y" || property == "height", case let .decimal(rhs) = value {
                 return .point(MELPoint(x: point.x, y: rhs))
             }
         case .sprite(let sprite):
@@ -105,6 +108,10 @@ enum Value: Equatable {
                 sprite.pointee.direction = direction
             } else if property == "center", case let .point(point) = value {
                 MELSpriteSetFrameOrigin(sprite, point)
+            } else if property == "size", case let .point(point) = value {
+                var frame = sprite.pointee.frame
+                frame.size = MELSize(width: point.x, height: point.y)
+                MELSpriteSetFrame(sprite, frame)
             } else if property == "animation",
                       case let .animationName(animation) = value {
                 guard sprite.animation.definition.nameAsString != animation,
@@ -152,7 +159,7 @@ enum Value: Equatable {
     func isInlineable(property: String) -> Bool {
         switch self {
         case .point(_):
-            return property == "x" || property == "y"
+            return ["x", "y", "width", "height"].contains(property)
         case .sprite(_):
             return property == "animations"
         case .animations(_):
