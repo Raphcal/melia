@@ -15,6 +15,7 @@ class MeliaDocument: ReferenceFileDocument {
     }
 
     @Published var project: MELProject
+    var git: FileWrapper?
 
     var spriteDefinitions: Binding<MELSpriteDefinitionList> {
         Binding {
@@ -37,6 +38,7 @@ class MeliaDocument: ReferenceFileDocument {
             self.project = try MeliaDocument.openMmk(configuration: configuration)
         } else if configuration.contentType == .mapMakerProjectBundle {
             self.project = try MeliaDocument.openMmkb(configuration: configuration)
+            self.git = configuration.file.fileWrappers?[".git"]
         } else {
             throw CocoaError(.fileReadUnsupportedScheme)
         }
@@ -87,6 +89,9 @@ class MeliaDocument: ReferenceFileDocument {
                     fileWrappers["script\(scriptCount).c"] = .init(regularFileWithContents: generator.codeFile.data(using: .utf8)!)
                     scriptCount += 1
                 }
+            }
+            if let git {
+                fileWrappers[".git"] = git
             }
             return .init(directoryWithFileWrappers: fileWrappers)
         } else {
