@@ -36,7 +36,9 @@ struct Script: Equatable {
             var drawContext = context
             drawContext.instructionPointer = drawState
             drawContext.yield = false
-            _ = runInstructions(context: drawContext)
+            drawContext = runInstructions(context: drawContext)
+            // Mise à jour des données du tas.
+            context.heap = drawContext.heap
         }
         return context
     }
