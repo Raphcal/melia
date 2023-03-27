@@ -12,6 +12,7 @@ enum OperatorKind {
     case multiply, divide
     case and, or
     case lessThan, lessThanOrEquals, greaterThan, greaterThanOrEquals, equals, notEquals
+    case modulo, bitshiftLeft, bitshiftRight
 
     static func from(found: FoundToken) -> OperatorKind? {
         switch found.token {
@@ -48,6 +49,12 @@ enum OperatorKind {
             return .equals
         case "!=":
             return .notEquals
+        case "%":
+            return .modulo
+        case "<<":
+            return .bitshiftLeft
+        case ">>":
+            return .bitshiftRight
         default:
             return nil
         }
@@ -90,6 +97,12 @@ enum OperatorKind {
             return Equals()
         case .notEquals:
             return NotEquals()
+        case .modulo:
+            return Modulo()
+        case .bitshiftLeft:
+            return BitshiftLeft()
+        case .bitshiftRight:
+            return BitshiftRight()
         }
     }
 }

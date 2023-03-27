@@ -298,6 +298,12 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                     return [lhs, " == ", rhs]
                 case .notEquals:
                     return [lhs, " != ", rhs]
+                case .modulo:
+                    return [lhs, " % ", rhs]
+                case .bitshiftLeft:
+                    return [lhs, " << ", rhs]
+                case .bitshiftRight:
+                    return [lhs, " >> ", rhs]
                 }
             case .point:
                 switch node.operator {

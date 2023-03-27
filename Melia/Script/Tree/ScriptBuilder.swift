@@ -113,6 +113,8 @@ class ScriptBuilder: TreeNodeVisitor {
             script.instructions.append(Sinus())
         case "sqrt":
             script.instructions.append(SquareRoot())
+        case "random":
+            script.instructions.append(Random())
         default:
             print("Unary operator \(node.operator) is not supported yet.")
         }

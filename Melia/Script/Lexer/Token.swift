@@ -17,7 +17,7 @@ enum Token {
     case setStart
     case valueInt, valueDecimal, valueDuration, valueBoolean, valuePoint, valueDirection, valueAnimation, valueVariable, valueString
     case braceOpen, braceClose
-    case addOrSubstract, multiplyOrDivide, unaryOperator
+    case addOrSubstract, multiplyOrDivide, unaryOperator, bitshiftOperator
     case andOrOr
     case equalityOrComparison
     case comment, preprocessorDirective
@@ -32,7 +32,7 @@ enum Token {
         return [.unaryOperator, .valueDuration, .valueDecimal, .valueInt, .valuePoint, .valueVariable, .braceOpen]
     }
     static var anyBinaryOperator: [Token] {
-        return [.addOrSubstract, .multiplyOrDivide, .andOrOr, .equalityOrComparison]
+        return [.addOrSubstract, .multiplyOrDivide, .andOrOr, .equalityOrComparison, .bitshiftOperator]
     }
 
     // MARK: - Syntax
@@ -40,8 +40,10 @@ enum Token {
     var priority: Int {
         switch self {
         case .multiplyOrDivide:
-            return 2
+            return 3
         case .addOrSubstract:
+            return 2
+        case .bitshiftOperator:
             return 1
         default:
             return 0

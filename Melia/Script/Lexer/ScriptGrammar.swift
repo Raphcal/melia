@@ -43,7 +43,7 @@ struct ScriptGrammar: Grammar {
             return [.instructionArgument, .newLine, .groupEnd]
         case .valueVariable:
             return Token.anyBinaryOperator + [.braceClose, .instructionArgument, .groupEnd, .newLine]
-        case .addOrSubstract, .multiplyOrDivide, .unaryOperator :
+        case .addOrSubstract, .multiplyOrDivide, .unaryOperator, .bitshiftOperator :
             return Token.anyNumericValue
         case .andOrOr:
             return [.valueBoolean, .valueVariable]
@@ -101,9 +101,11 @@ struct ScriptGrammar: Grammar {
         case .addOrSubstract:
             return "([+-]) *"
         case .multiplyOrDivide:
-            return "([*/]) *"
+            return "([*/%]) *"
         case .unaryOperator:
-            return "(-|!|abs|cos|sin|sqrt) *"
+            return "(-|!|abs|cos|sin|sqrt|random) *"
+        case .bitshiftOperator:
+            return "(<<|>>) *"
         case .andOrOr:
             return "(and|&&|or|\\|\\|) *"
         case .equalityOrComparison:
