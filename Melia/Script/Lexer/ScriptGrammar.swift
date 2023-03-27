@@ -75,7 +75,7 @@ struct ScriptGrammar: Grammar {
         case .groupEnd:
             return ": *"
         case .instructionStart:
-            return "(move|shoot|new|wait) *"
+            return "(move|shoot|new|wait|stride) *"
         case .instructionArgument:
             return ", *([a-z]+) *: *"
         case .setStart:

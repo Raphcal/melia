@@ -10,6 +10,7 @@
 		6404BBCF29413C0900309C02 /* Absolute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6404BBCE29413C0900309C02 /* Absolute.swift */; };
 		64120D5629D21D1600C30A50 /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64120D5529D21D1600C30A50 /* Random.swift */; };
 		64120D5B29D21E2500C30A50 /* IntegerOperators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64120D5A29D21E2500C30A50 /* IntegerOperators.swift */; };
+		64120D5D29D22A0F00C30A50 /* Stride.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64120D5C29D22A0F00C30A50 /* Stride.swift */; };
 		641BA13228109A450045A1F9 /* ScriptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641BA13128109A450045A1F9 /* ScriptView.swift */; };
 		64262C4A27FC6CDD004E16D7 /* NSOpenGLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64262C4927FC6CDD004E16D7 /* NSOpenGLView.swift */; };
 		64262C4D27FC6CED004E16D7 /* GestureListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64262C4B27FC6CED004E16D7 /* GestureListener.swift */; };
@@ -139,6 +140,7 @@
 		6404BBCE29413C0900309C02 /* Absolute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Absolute.swift; sourceTree = "<group>"; };
 		64120D5529D21D1600C30A50 /* Random.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
 		64120D5A29D21E2500C30A50 /* IntegerOperators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegerOperators.swift; sourceTree = "<group>"; };
+		64120D5C29D22A0F00C30A50 /* Stride.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stride.swift; sourceTree = "<group>"; };
 		641BA13128109A450045A1F9 /* ScriptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptView.swift; sourceTree = "<group>"; };
 		64262C4927FC6CDD004E16D7 /* NSOpenGLView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSOpenGLView.swift; sourceTree = "<group>"; };
 		64262C4B27FC6CED004E16D7 /* GestureListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GestureListener.swift; sourceTree = "<group>"; };
@@ -276,6 +278,7 @@
 				64A1CE39280764140086D752 /* SetValue.swift */,
 				6454DABB27FA1FB600D5E92B /* Shoot.swift */,
 				648ABC922923685B00A74423 /* SquareRoot.swift */,
+				64120D5C29D22A0F00C30A50 /* Stride.swift */,
 				64A1CE2C2807266B0086D752 /* Variable.swift */,
 				64A1CE5928098EAA0086D752 /* While.swift */,
 				64A1CE4A2808412C0086D752 /* Wait.swift */,
@@ -630,6 +633,7 @@
 				64A1CE3428073ECE0086D752 /* DurationUnit.swift in Sources */,
 				64A1CE2B280726530086D752 /* Script.swift in Sources */,
 				6454DA9627FA0EBE00D5E92B /* Instruction.swift in Sources */,
+				64120D5D29D22A0F00C30A50 /* Stride.swift in Sources */,
 				64A1CE6028099F850086D752 /* ComparisonOperators.swift in Sources */,
 				647D5E2B28172D550073F1BB /* TokenTree.swift in Sources */,
 				64A5AF4128230F7200ED792A /* Previews.swift in Sources */,

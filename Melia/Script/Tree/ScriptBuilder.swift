@@ -84,6 +84,8 @@ class ScriptBuilder: TreeNodeVisitor {
             script.instructions.append(Move())
         case "new":
             script.instructions.append(NewSprite())
+        case "stride":
+            script.instructions.append(Stride())
         default:
             print("Instruction \(node.name) is not supported yet.")
         }
