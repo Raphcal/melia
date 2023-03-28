@@ -23,6 +23,9 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     var symbolTable: SymbolTable
     var part = 0
 
+    var strideCount = 0
+    var strides = [PlaydateCodeStride]()
+
     var statePartStart: String {
         return """
             static void \(state.name)StatePart\(part)(LCDSprite * _Nonnull sprite) {
@@ -86,10 +89,23 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
 
     func visitDuring(_ node: GroupNode) -> [String] {
         part += 1
+        strideCount = 0
+        strides = node.accept(visitor: PlaydateCodeStrideVisitor(symbolTable: symbolTable))
+
         var code = [String]()
-        code.reserveCapacity(6)
+        code.reserveCapacity(7 + strides.count)
+        code.append("    // \(node.name)\n")
+        code.append(contentsOf: strides.map {
+            var result = ""
+            if !($0.fromValue is ConstantNode) {
+                result = "    \($0.fromName) = \($0.fromValue.accept(visitor: self).joined());\n"
+            }
+            if !($0.toValue is ConstantNode) {
+                result += "    \($0.toName) = \($0.toValue.accept(visitor: self).joined());\n"
+            }
+            return result
+        })
         code.append("""
-                // \(node.name)
                 self->time = 0;
                 self->statePart = \(part);
                 playdate->sprite->setUpdateFunction(sprite, &\(state.name)StatePart\(part));
@@ -199,6 +215,8 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         switch node.name {
         case "new":
             return visitNewSprite(node)
+        case "stride":
+            return visitStride(node)
         default:
             return ["    // \(node.name)\n"]
         }
@@ -211,6 +229,13 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         } else {
             return ["MELSubSpriteAlloc(sprite, &self->super.definition, AnimationNameStand)"]
         }
+    }
+
+    func visitStride(_ node: InstructionNode) -> [String] {
+        let stride = strides[strideCount]
+        strideCount += 1
+
+        return stride.operation.accept(visitor: self)
     }
 
     func visit(from node: SetNode) -> [String] {
@@ -478,7 +503,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         case let .point(value):
             return MELPointEquals(value, .zero)
                 ? ["MELPointZero"]
-                : ["MELPointMake(\(value.x)f, \(value.y)f)"]
+                : ["(MELPoint) { .x = \(value.x)f, .y = \(value.y)f }"]
         case let .boolean(value):
             return [value.description]
         case let .string(value):

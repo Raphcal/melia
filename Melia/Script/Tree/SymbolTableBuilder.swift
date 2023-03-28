@@ -14,6 +14,8 @@ class SymbolTableBuilder: TreeNodeVisitor {
         "map": .map,
         "delta": .decimal
     ])
+    var strideCount = 0
+    var lastSetKind = ValueKind.null
 
     func visit(from node: StateNode) -> Void {
         symbolTable.states.append(node)
@@ -27,6 +29,7 @@ class SymbolTableBuilder: TreeNodeVisitor {
             symbolTable.variables["time"] = .decimal
             symbolTable.localVariables["progress"] = .decimal
             localVariables.append("progress")
+            strideCount = 0
         default:
             break
         }
@@ -37,7 +40,31 @@ class SymbolTableBuilder: TreeNodeVisitor {
     }
     
     func visit(from node: InstructionNode) -> Void {
-        // Vide
+        switch node.name {
+        case "stride":
+            let from = node.arguments.first { $0.name == Stride.fromArgument }?.value ?? ConstantNode(value: .decimal(0))
+            let to = node.arguments.first { $0.name == Stride.toArgument }?.value ?? ConstantNode(value: .decimal(0))
+            if !(from is ConstantNode) || !(to is ConstantNode) {
+                let fromKind = from.kind(symbolTable: symbolTable)
+                let toKind = to.kind(symbolTable: symbolTable)
+
+                let kind: ValueKind
+                if fromKind == toKind {
+                    kind = fromKind
+                } else if fromKind == .point || toKind == .point {
+                    kind = .point
+                } else {
+                    kind = .decimal
+                }
+                let kindCapitalized = String(describing: kind).capitalized
+
+                symbolTable.variables["stride\(kindCapitalized)From\(strideCount)"] = kind
+                symbolTable.variables["stride\(kindCapitalized)To\(strideCount)"] = kind
+                strideCount += 1
+            }
+        default:
+            break
+        }
     }
     
     func visit(from node: ArgumentNode) -> Void {
@@ -52,6 +79,7 @@ class SymbolTableBuilder: TreeNodeVisitor {
         let firstDot = node.variable.firstIndex(of: ".")
         if let value = node.value as? ConstantNode,
            firstDot == nil && symbolTable.kind(of: node.variable) == .null {
+            // La variable est peut-être une constante.
             symbolTable.constants[node.variable] = value
         } else if let firstDot {
             let variable = String(node.variable[node.variable.startIndex ..< firstDot])
@@ -63,6 +91,7 @@ class SymbolTableBuilder: TreeNodeVisitor {
             symbolTable.variables[node.variable] = node.value.kind(symbolTable: symbolTable)
             symbolTable.constants.removeValue(forKey: node.variable)
         }
+        node.value.accept(visitor: self)
     }
     
     func visit(from node: BinaryOperationNode) -> Void {

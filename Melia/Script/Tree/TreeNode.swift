@@ -57,9 +57,21 @@ struct InstructionNode: TreeNode {
     }
 
     func kind(symbolTable: SymbolTable) -> ValueKind {
-        if name == "new" {
+        switch name {
+        case "new":
             return .sprite
-        } else {
+        case "stride":
+            let fromKind = arguments.first { $0.name == Stride.fromArgument }?.value.kind(symbolTable: symbolTable) ?? .null
+            let toKind = arguments.first { $0.name == Stride.toArgument }?.value.kind(symbolTable: symbolTable) ?? .null
+            if fromKind == toKind {
+                // Seul cas permettant de renvoyer un type integer
+                return fromKind
+            } else if fromKind == .point || toKind == .point {
+                return .point
+            } else {
+                return .decimal
+            }
+        default:
             return .null
         }
     }

@@ -10,6 +10,7 @@ import Foundation
 /// Construit une instance de `Script` à partir d'un `TokenTree`.
 class ScriptBuilder: TreeNodeVisitor {
     var script = Script(states: [:], initialState: "default", instructions: [])
+    var strideCount = 0
 
     func visit(from node: StateNode) -> Void {
         script.states[node.name] = script.instructions.count
@@ -37,6 +38,7 @@ class ScriptBuilder: TreeNodeVisitor {
 
         switch node.name {
         case "during":
+            strideCount = 0
             script.instructions.append(During())
         case "jump":
             script.instructions.append(Jump())
@@ -85,7 +87,8 @@ class ScriptBuilder: TreeNodeVisitor {
         case "new":
             script.instructions.append(NewSprite())
         case "stride":
-            script.instructions.append(Stride())
+            script.instructions.append(Stride(index: strideCount))
+            strideCount += 1
         default:
             print("Instruction \(node.name) is not supported yet.")
         }

@@ -8,35 +8,27 @@
 import Foundation
 import MeliceFramework
 
-struct Stride: Instruction {
+struct Stride: Instruction, DeclareVariables {
     static let fromArgument = "from"
     static let toArgument = "to"
-    static let setArgument = "set"
+
+    var index: Int
+    var variables: [String]
+
+    init(index: Int) {
+        self.index = index
+        self.variables = ["strideFrom\(index)", "strideTo\(index)"]
+    }
 
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         var newContext = context
-        if let variableToSet = newContext.arguments.string(for: Stride.setArgument) {
-            let path = variableToSet.components(separatedBy: ".")
-            let strideFromVariable = "\(variableToSet)StrideFrom"
-            let strideToVariable = "\(variableToSet)StrideTo"
+        let progress = newContext.heap.decimal(for: "progress") ?? 0
+        let from = newContext.heap[variables[0]] ?? newContext.arguments[Stride.fromArgument] ?? .decimal(0)
+        let to = newContext.heap[variables[1]] ?? newContext.arguments[Stride.toArgument] ?? .decimal(0)
 
-            let progress = newContext.heap.decimal(for: "progress") ?? 0
-            var from = newContext.heap[strideFromVariable] ?? newContext.arguments[Stride.fromArgument] ?? newContext.heap.value(at: path)
-            if from == .null {
-                from = .decimal(0)
-            }
-            let to = newContext.heap[strideToVariable] ?? newContext.arguments[Stride.toArgument] ?? .decimal(0)
-            let result = Stride.stride(from: from, to: to, progress: progress)
-            if progress < 1 {
-                newContext.heap[strideFromVariable] = from
-                newContext.heap[strideToVariable] = to
-                newContext.heap.setValue(result, at: path)
-            } else if newContext.heap[strideToVariable] != nil {
-                newContext.heap.setValue(result, at: path)
-                newContext.heap.removeValue(forKey: strideFromVariable)
-                newContext.heap.removeValue(forKey: strideToVariable)
-            }
-        }
+        newContext.heap[variables[0]] = from
+        newContext.heap[variables[1]] = to
+        newContext.stack.append(Stride.stride(from: from, to: to, progress: progress))
         return newContext
     }
 
@@ -95,6 +87,6 @@ struct Stride: Instruction {
     }
 
     func equals(other: Instruction) -> Bool {
-        return other is Stride
+        return index == (other as? Stride)?.index
     }
 }
