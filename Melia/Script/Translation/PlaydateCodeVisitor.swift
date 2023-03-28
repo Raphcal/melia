@@ -223,12 +223,21 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     }
 
     func visitNewSprite(_ node: InstructionNode) -> [String] {
-        // TODO: Trouver la définition ? Gérer l'animation
-        if let animationName = node.arguments.first(where: { $0.name == NewSprite.animationArgument })?.value.accept(visitor: self).joined(separator: "") {
-            return ["MELSubSpriteAlloc(sprite, &self->super.definition, ", animationName, ")"]
-        } else {
-            return ["MELSubSpriteAlloc(sprite, &self->super.definition, AnimationNameStand)"]
+        var definition = "&self->super.definition"
+        if let definitionArgument = node.arguments.first(where: { $0.name == NewSprite.definitionArgument }) {
+            switch (definitionArgument.value as? ConstantNode)?.value {
+            case .integer(let index):
+                definition = "SpriteNameGetDefinition(\(index))"
+            case .string(let name):
+                definition = "&sprite\(name.capitalized)"
+            default:
+                break
+            }
         }
+
+        let animationName = node.arguments.first(where: { $0.name == NewSprite.animationArgument })?.value.accept(visitor: self).joined(separator: "") ?? "AnimationNameStand"
+
+        return ["MELSubSpriteAlloc(sprite, ", definition,", ", animationName,")"]
     }
 
     func visitStride(_ node: InstructionNode) -> [String] {
