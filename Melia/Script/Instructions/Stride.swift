@@ -73,7 +73,7 @@ struct Stride: Instruction, DeclareVariables {
             case .point(let rhs):
                 return .point(MELPoint(
                     x: Stride.stride(from: lhs.x, to: rhs.x, progress: progress),
-                    y: Stride.stride(from: lhs.x, to: rhs.y, progress: progress)))
+                    y: Stride.stride(from: lhs.y, to: rhs.y, progress: progress)))
             default:
                 return to
             }
