@@ -90,3 +90,31 @@ struct Stride: Instruction, DeclareVariables {
         return index == (other as? Stride)?.index
     }
 }
+
+extension TreeNode {
+    var isStrideConstant: Bool {
+        if let this = self as? ConstantNode {
+            return this.isStrideConstant
+        } else if let this = self as? BinaryOperationNode {
+            return this.isStrideConstant
+        } else if let this = self as? VariableNode {
+            return this.isStrideConstant
+        }
+        return false
+    }
+}
+extension ConstantNode {
+    var isStrideConstant: Bool {
+        return true
+    }
+}
+extension BinaryOperationNode {
+    var isStrideConstant: Bool {
+        return lhs.isStrideConstant && rhs.isStrideConstant
+    }
+}
+extension VariableNode {
+    var isStrideConstant: Bool {
+        return name.starts(with: "self.instance.")
+    }
+}

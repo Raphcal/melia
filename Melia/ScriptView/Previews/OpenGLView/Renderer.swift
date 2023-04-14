@@ -13,6 +13,7 @@ struct RendererContext: Equatable {
     var spriteDefinitions: MELSpriteDefinitionList
     var definitionIndex: Int
     var origin: MELPoint = .zero
+    var instance: UnsafeMutablePointer<MELSpriteInstance>?
     var tokens = [FoundToken]()
 
     static func ==(lhs: RendererContext, rhs: RendererContext) -> Bool {
@@ -72,6 +73,7 @@ class Renderer {
         if context.definitionIndex < spriteManager.definitions.count && solid < mutableMap.layers.count {
             let sprite = MELSpriteAlloc(&spriteManager, spriteManager.definitions[context.definitionIndex], UInt32(solid))
             MELSpriteSetFrameOrigin(sprite, context.origin)
+            sprite.pointee.instance = context.instance
             self.sprite = sprite
             definitionIndex = context.definitionIndex
         }

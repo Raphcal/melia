@@ -44,7 +44,7 @@ class SymbolTableBuilder: TreeNodeVisitor {
         case "stride":
             let from = node.arguments.first { $0.name == Stride.fromArgument }?.value ?? ConstantNode(value: .decimal(0))
             let to = node.arguments.first { $0.name == Stride.toArgument }?.value ?? ConstantNode(value: .decimal(0))
-            if !(from is ConstantNode) || !(to is ConstantNode) {
+            if !from.isStrideConstant || !to.isStrideConstant {
                 let fromKind = from.kind(symbolTable: symbolTable)
                 let toKind = to.kind(symbolTable: symbolTable)
 
@@ -58,6 +58,7 @@ class SymbolTableBuilder: TreeNodeVisitor {
                 }
                 let kindCapitalized = String(describing: kind).capitalized
 
+                // FIXME: Pourquoi définir les 2 variables ?
                 symbolTable.variables["stride\(kindCapitalized)From\(strideCount)"] = kind
                 symbolTable.variables["stride\(kindCapitalized)To\(strideCount)"] = kind
                 strideCount += 1

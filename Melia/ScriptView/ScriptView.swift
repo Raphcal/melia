@@ -29,11 +29,12 @@ struct ScriptView: View {
     @State private var mapIndex = 0
     @State private var definitionIndex = 0
     @State private var origin = MELPoint(x: 32, y: 32)
+    @State private var instance: UnsafeMutablePointer<MELSpriteInstance>?
 
     var body: some View {
         HSplitView {
             CodeEditor(scriptName: scriptName, code: $code, tokens: $tokens)
-            Previews(scriptName: scriptName, code: $code, sprites: sprites, maps: maps, tokens: $tokens, mapIndex: $mapIndex, definitionIndex: $definitionIndex, origin: $origin)
+            Previews(scriptName: scriptName, code: $code, sprites: sprites, maps: maps, tokens: $tokens, mapIndex: $mapIndex, definitionIndex: $definitionIndex, origin: $origin, instance: $instance)
         }
         .onAppear(perform: {
             updateMapIndexAndDefinitionIndex(for: scriptName)
@@ -46,7 +47,8 @@ struct ScriptView: View {
     func updateMapIndexAndDefinitionIndex(for scriptName: String) {
         for (mapIndex, map) in maps.enumerated() {
             for layer in map.layers {
-                for sprite in layer.sprites {
+                for index in 0 ..< layer.sprites.count {
+                    let sprite = layer.sprites[index]
                     let definitionIndex = Int(sprite.definitionIndex)
                     let definition = sprites[definitionIndex]
                     if let motionName = definition.motionName,
@@ -54,6 +56,7 @@ struct ScriptView: View {
                        scriptName == spriteScriptName {
                         self.mapIndex = mapIndex
                         self.definitionIndex = definitionIndex
+                        self.instance = layer.sprites.memory!.advanced(by: index)
                         if let firstNonEmptyImage = MELSpriteDefinitionFirstNonEmptyImage(definition) {
                             origin = sprite.topLeft + MELPoint(firstNonEmptyImage.pointee.size) / 2
                         } else {

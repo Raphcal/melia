@@ -18,6 +18,7 @@ struct Previews: View {
     @Binding var mapIndex: Int
     @Binding var definitionIndex: Int
     @Binding var origin: MELPoint
+    @Binding var instance: UnsafeMutablePointer<MELSpriteInstance>?
 
     @State private var selectedFile = GeneratedFile.code
     @State private var sideView = SideView.generatedCode
@@ -29,6 +30,7 @@ struct Previews: View {
                 spriteDefinitions: sprites,
                 definitionIndex: definitionIndex,
                 origin: origin,
+                instance: instance,
                 tokens: tokens))
             .toolbar {
                 ToolbarItemGroup {

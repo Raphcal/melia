@@ -97,10 +97,10 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         code.append("    // \(node.name)\n")
         code.append(contentsOf: strides.map {
             var result = ""
-            if !($0.fromValue is ConstantNode) {
+            if !$0.fromValue.isStrideConstant {
                 result = "    \($0.fromName) = \($0.fromValue.accept(visitor: self).joined());\n"
             }
-            if !($0.toValue is ConstantNode) {
+            if !$0.toValue.isStrideConstant {
                 result += "    \($0.toName) = \($0.toValue.accept(visitor: self).joined());\n"
             }
             return result
@@ -300,8 +300,15 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         let lhsKind = node.lhs.kind(symbolTable: symbolTable)
         let rhsKind = node.rhs.kind(symbolTable: symbolTable)
 
-        let lhs = node.lhs.accept(visitor: self).joined()
-        let rhs = node.rhs.accept(visitor: self).joined()
+        var lhs = node.lhs.accept(visitor: self).joined()
+        var rhs = node.rhs.accept(visitor: self).joined()
+
+        if let lhsNode = node.lhs as? BinaryOperationNode, lhsNode.operator != node.operator {
+            lhs = "(\(lhs))"
+        }
+        if let rhsNode = node.rhs as? BinaryOperationNode, rhsNode.operator != node.operator {
+            rhs = "(\(rhs))"
+        }
 
         switch lhsKind {
         case .integer, .decimal:
@@ -392,6 +399,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             }
         case .boolean:
             if rhsKind == .boolean {
+                
                 switch node.operator {
                 case .and:
                     return [lhs, " && ", rhs]
@@ -401,6 +409,17 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                     return [lhs, " == ", rhs]
                 case .notEquals:
                     return [lhs, " != ", rhs]
+                default:
+                    break
+                }
+            }
+        case .state:
+            if rhsKind == .state || rhsKind == .string {
+                switch node.operator {
+                case .equals:
+                    return [lhs, " == ", rhs]
+                case .notEquals:
+                    return [lhs, " != ", String(rhs[rhs.index(after: rhs.startIndex) ..< rhs.index(before: rhs.endIndex)])]
                 default:
                     break
                 }
@@ -475,6 +494,8 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                     translatedName += "->super.frame.origin"
                 case "frame", "animation", "direction":
                     translatedName += "->super.\(property)"
+                case "instance":
+                    translatedName += "->super.instance->center"
                 default:
                     translatedName += "->\(property)"
                 }

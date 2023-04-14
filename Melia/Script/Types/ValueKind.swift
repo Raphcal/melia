@@ -46,6 +46,8 @@ enum ValueKind: Equatable {
                 return .direction
             case "center":
                 return .point
+            case "instance":
+                return .point
             case "collidesWithWall", "isJumping":
                 return .boolean
             case "animation":

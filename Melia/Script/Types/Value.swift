@@ -64,6 +64,14 @@ enum Value: Equatable {
                 return .animation(AnimationValue(animationRef: sprite.animation))
             case "animations":
                 return .animations(sprite.pointee.definition.animations)
+            case "instance":
+                if let instance = sprite.pointee.instance?.pointee {
+                    if let size = sprite.pointee.animation.pointee.definition?.pointee.images?.pointee.size {
+                        return .point(instance.topLeft + MELPoint(size) / 2)
+                    } else {
+                        return .point(instance.topLeft)
+                    }
+                }
             default:
                 break
             }
@@ -209,9 +217,15 @@ enum Value: Equatable {
         case .state(let lhsValue):
             if case let .state(rhsValue) = rhs {
                 return lhsValue == rhsValue
+            } else if case let .string(rhsValue) = rhs {
+                return lhsValue == rhsValue
             }
         case .null:
-            return rhs == .null
+            if case .null = rhs {
+                return true
+            } else {
+                return false
+            }
         default:
             break
         }

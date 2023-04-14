@@ -12,7 +12,11 @@ struct Variable: Instruction {
 
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         var newContext = context
-        newContext.stack.append(newContext.heap.value(at: path))
+        if path.joined() == "state" {
+            newContext.stack.append(.state(context.state))
+        } else {
+            newContext.stack.append(newContext.heap.value(at: path))
+        }
         return newContext
     }
 

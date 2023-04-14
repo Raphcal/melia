@@ -57,6 +57,8 @@ extension EqualityOperator {
             switch rhs {
             case let .state(rhsValue):
                 return .boolean(apply(lhsValue, rhsValue))
+            case let .string(rhsValue):
+                return .boolean(apply(lhsValue, rhsValue))
             default:
                 return .boolean(false)
             }

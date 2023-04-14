@@ -47,15 +47,143 @@ class TokenTreeReducer: TreeNodeVisitor {
         if let lhs = lhs as? ConstantNode,
            let rhs = rhs as? ConstantNode {
             return ConstantNode(value: node.operator.instruction.apply(lhs.value, rhs.value))
-        } else {
-            return BinaryOperationNode(lhs: lhs, operator: node.operator, rhs: rhs)
+        } else if let lhs = lhs as? ConstantNode,
+                  let rhs = rhs as? VariableNode {
+            if case let .integer(value) = lhs.value, value == 0 {
+                switch node.operator {
+                case .add:
+                    return rhs
+                case .substract:
+                    return UnaryOperationNode(operator: "-", value: rhs)
+                case .multiply, .divide, .modulo:
+                    return ConstantNode(value: .integer(0))
+                default:
+                    break
+                }
+            } else if case let .decimal(value) = lhs.value, value == 0.0 {
+                switch node.operator {
+                case .add:
+                    return rhs
+                case .substract:
+                    return UnaryOperationNode(operator: "-", value: rhs)
+                case .multiply, .divide, .modulo:
+                    return ConstantNode(value: .integer(0))
+                default:
+                    break
+                }
+            } else if case let .integer(value) = lhs.value, value == 1,
+                      node.operator == .multiply {
+                return rhs
+            } else if case let .decimal(value) = lhs.value, value == 1.0,
+                      node.operator == .multiply {
+                return rhs
+            }
+        } else if let lhs = lhs as? VariableNode,
+                  let rhs = rhs as? ConstantNode {
+            if case let .integer(value) = rhs.value, value == 0 {
+                switch node.operator {
+                case .add, .substract:
+                    return lhs
+                case .multiply:
+                    return ConstantNode(value: .integer(0))
+                case .divide:
+                    return ConstantNode(value: .null)
+                default:
+                    break
+                }
+            } else if case let .decimal(value) = rhs.value, value == 0.0 {
+                switch node.operator {
+                case .add, .substract:
+                    return lhs
+                case .multiply:
+                    return ConstantNode(value: .integer(0))
+                case .divide:
+                    return ConstantNode(value: .null)
+                default:
+                    break
+                }
+            } else if case let .integer(value) = rhs.value, value == 1,
+                      node.operator == .multiply || node.operator == .divide {
+                return lhs
+            } else if case let .decimal(value) = rhs.value, value == 1.0,
+                      node.operator == .multiply || node.operator == .divide {
+                return lhs
+            }
+        } else if let lhs = lhs as? VariableNode,
+                  let rhs = rhs as? VariableNode,
+                  lhs.name == rhs.name && node.operator == .substract {
+            return ConstantNode(value: .integer(0))
         }
+        /// Simplification de `(2 + (2 + x))` en `(4 + x)`.
+        else if let lhs = lhs as? ConstantNode,
+                  let rhs = rhs as? BinaryOperationNode,
+                  let rhsLhs = rhs.lhs as? ConstantNode,
+                  node.operator == rhs.operator {
+            return BinaryOperationNode(lhs: ConstantNode(value: node.operator.instruction.apply(lhs.value, rhsLhs.value)), operator: node.operator, rhs: rhs.rhs)
+        }
+        /// Simplification de `(2 + (x + 2))` en `(4 + x)`.
+        else if let lhs = lhs as? ConstantNode,
+                  let rhs = rhs as? BinaryOperationNode,
+                  let rhsRhs = rhs.rhs as? ConstantNode,
+                  node.operator == rhs.operator {
+            return BinaryOperationNode(lhs: ConstantNode(value: node.operator.instruction.apply(lhs.value, rhsRhs.value)), operator: node.operator, rhs: rhs.lhs)
+        }
+        /// Simplification de `((2 + x) + 2)` en `(4 + x)`.
+        else if let lhs = lhs as? BinaryOperationNode,
+                  let rhs = rhs as? ConstantNode,
+                  let lhsLhs = lhs.lhs as? ConstantNode,
+                  node.operator == lhs.operator {
+            return BinaryOperationNode(lhs: ConstantNode(value: node.operator.instruction.apply(rhs.value, lhsLhs.value)), operator: node.operator, rhs: lhs.rhs)
+        }
+        /// Simplification de `((x + 2) + 2)` en `(x + 4)`.
+        else if let lhs = lhs as? BinaryOperationNode,
+                  let rhs = rhs as? ConstantNode,
+                  let lhsRhs = lhs.rhs as? ConstantNode,
+                  node.operator == lhs.operator {
+            return BinaryOperationNode(lhs: lhs.rhs, operator: node.operator, rhs: ConstantNode(value: node.operator.instruction.apply(rhs.value, lhsRhs.value)))
+        }
+        /// Simplification de `(x - (x + 2))` en `(-2)`.
+        else if let lhs = lhs as? VariableNode,
+                  let rhs = rhs as? BinaryOperationNode,
+                  let rhsLhs = rhs.lhs as? VariableNode,
+                node.operator == .substract,
+                lhs.name == rhsLhs.name,
+                rhs.operator == .add || rhs.operator == .substract {
+            return UnaryOperationNode(operator: "-", value: rhs.rhs).accept(visitor: self)
+        }
+        /// Simplification de `(x - (2 + x))` en `(-2)`.
+        else if let lhs = lhs as? VariableNode,
+                  let rhs = rhs as? BinaryOperationNode,
+                  let rhsRhs = rhs.rhs as? VariableNode,
+                node.operator == .substract,
+                lhs.name == rhsRhs.name,
+                rhs.operator == .add {
+            return UnaryOperationNode(operator: "-", value: rhs.lhs).accept(visitor: self)
+        }
+        /// Simplification de `((x + 2) - x)` en `(2)`.
+        else if let lhs = lhs as? BinaryOperationNode,
+                  let rhs = rhs as? VariableNode,
+                  let lhsLhs = lhs.lhs as? VariableNode,
+                node.operator == .substract,
+                rhs.name == lhsLhs.name,
+                lhs.operator == .add || lhs.operator == .substract {
+            return lhs.rhs
+        }
+        /// Simplification de `((2 + x) - x)` en `(2)`.
+        else if let lhs = lhs as? BinaryOperationNode,
+                  let rhs = rhs as? VariableNode,
+                  let lhsRhs = lhs.rhs as? VariableNode,
+                node.operator == .substract,
+                rhs.name == lhsRhs.name,
+                lhs.operator == .add {
+            return lhs.lhs
+        }
+        return BinaryOperationNode(lhs: lhs, operator: node.operator, rhs: rhs)
     }
 
     func visit(from node: UnaryOperationNode) -> TreeNode {
         let value = node.value.accept(visitor: self)
-        if let value = value as? ConstantNode {
-            // TODO: Penser à gérer les autres opérateurs unaires.
+        if let value = value as? ConstantNode, node.operator == "-" || node.operator == "!" {
             return ConstantNode(value: Negative.negative(of: value.value))
         } else {
             return UnaryOperationNode(operator: node.operator, value: value)
