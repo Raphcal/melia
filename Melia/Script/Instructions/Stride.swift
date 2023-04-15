@@ -115,6 +115,6 @@ extension BinaryOperationNode {
 }
 extension VariableNode {
     var isStrideConstant: Bool {
-        return name.starts(with: "self.instance.")
+        return name.starts(with: "self.instance")
     }
 }

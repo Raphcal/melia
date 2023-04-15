@@ -303,10 +303,10 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         var lhs = node.lhs.accept(visitor: self).joined()
         var rhs = node.rhs.accept(visitor: self).joined()
 
-        if let lhsNode = node.lhs as? BinaryOperationNode, lhsNode.operator != node.operator {
+        if let lhsNode = node.lhs as? BinaryOperationNode, node.operator != .add && lhsNode.operator.priority <= node.operator.priority {
             lhs = "(\(lhs))"
         }
-        if let rhsNode = node.rhs as? BinaryOperationNode, rhsNode.operator != node.operator {
+        if let rhsNode = node.rhs as? BinaryOperationNode, node.operator != .add && rhsNode.operator.priority <= node.operator.priority {
             rhs = "(\(rhs))"
         }
 
