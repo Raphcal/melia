@@ -229,7 +229,7 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             case .integer(let index):
                 definition = "SpriteNameGetDefinition(\(index))"
             case .string(let name):
-                definition = "&sprite\(name.capitalized)"
+                definition = "&sprite\(name.capitalized.replacingOccurrences(of: " ", with: ""))"
             default:
                 break
             }
