@@ -11,38 +11,21 @@ import MeliceFramework
 struct Shoot: Instruction {
     static let styleArgument = "style"
     static let fromArgument = "from"
-    static let bulletArgument = "bullet"
-    static let bulletAnimationNameArgument = "bulletAnimationName"
-    static let bulletAmountArgument = "bulletAmount"
-    static let bulletAmountVariationArgument = "bulletAmount"
-    static let bulletSpeedArgument = "bulletSpeed"
-    static let shootIntervalArgument = "shootInterval"
 
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         guard let spriteManager = context.spriteManager,
-            let player = spriteManager.pointee.sprites[0]
+            let player = spriteManager.pointee.sprites[0],
+            let shootingStyle = context.arguments.shootingStyle(for: Shoot.styleArgument)
         else { return context }
-        var newContext = context
 
-        var definition = player.definition
-        if let definitionName = context.arguments.string(for: Shoot.bulletArgument),
-           let aDefinition = spriteManager.pointee.definitions.first(where: { $0.nameAsString == definitionName }) {
-            definition = aDefinition
-        } else if let definitionIndex = context.arguments.integer(for: Shoot.bulletArgument) {
-            definition = context.spriteManager!.pointee.definitions[Int(definitionIndex)]
+        var sprite: MELSpriteRef = player
+        if let from = context.arguments.sprite(for: Shoot.fromArgument) {
+            sprite = from
         }
 
-        let sprite = MELSpriteAlloc(spriteManager, definition, player.pointee.layer)
+        shootingStyle.style.pointee.class.pointee.update(shootingStyle.style, sprite, MEL_PI, 1 / 60)
 
-        if let animationName = context.arguments.animationName(for: "animation"),
-           let animationIndex = sprite.definition.animations.firstIndex(where: { $0.nameAsString == animationName }) {
-            MELSpriteSetAnimation(sprite, MELAnimationAlloc(sprite.definition.animations.memory!.advanced(by: animationIndex)))
-            let frameIndex = Int(sprite.pointee.animation.pointee.frame.atlasIndex)
-            let frameRectangle = spriteManager.pointee.atlas.sources![frameIndex]
-            sprite.pointee.frame.size = MELSize(frameRectangle.size)
-        }
-        newContext.stack.append(.sprite(sprite))
-        return newContext
+        return context
     }
 
     func equals(other: Instruction) -> Bool {

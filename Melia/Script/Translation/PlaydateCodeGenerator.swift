@@ -499,6 +499,8 @@ fileprivate extension ValueKind {
             return "MELMap"
         case .state:
             return "enum xxx_state"
+        case .shootingStyle:
+            return "MELShootingStyle"
         case .null:
             return "void"
         }

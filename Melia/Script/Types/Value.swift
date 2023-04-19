@@ -14,12 +14,13 @@ enum Value: Equatable {
     case boolean(_ value: Bool)
     case string(_ value: String)
     case direction(_ value: MELDirection)
+    case state(_ name: String)
     case sprite(_ value: MELSpriteRef)
     case animationName(_ value: String)
     case animation(_ value: AnimationValue)
     case animations(_ value: MELAnimationDefinitionList)
     case map(_ value: MELMap)
-    case state(_ name: String)
+    case shootingStyle(_ value: ShootingStyleAndDefinition)
     case null
 
     func value(for property: String) -> Value {
@@ -285,17 +286,23 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
     }
 
     func integer(for name: String) -> Int32? {
-        if case let .integer(value) = self[name] {
+        switch self[name] {
+        case let .integer(value):
             return value
-        } else {
+        case let .decimal(value):
+            return Int32(value)
+        default:
             return nil
         }
     }
 
     func decimal(for name: String) -> Float? {
-        if case let .decimal(value) = self[name] {
+        switch self[name] {
+        case let .decimal(value):
             return value
-        } else {
+        case let .integer(value):
+            return Float(value)
+        default:
             return nil
         }
     }
@@ -334,6 +341,14 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
 
     func sprite(for name: String) -> MELSpriteRef? {
         if case let .sprite(value) = self[name] {
+            return value
+        } else {
+            return nil
+        }
+    }
+
+    func shootingStyle(for name: String) -> ShootingStyleAndDefinition? {
+        if case let .shootingStyle(value) = self[name] {
             return value
         } else {
             return nil

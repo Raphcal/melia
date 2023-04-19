@@ -86,6 +86,10 @@ class ScriptBuilder: TreeNodeVisitor {
             script.instructions.append(Move())
         case "new":
             script.instructions.append(NewSprite())
+        case "shoot":
+            script.instructions.append(Shoot())
+        case "shootingStyle":
+            script.instructions.append(ShootingStyle())
         case "stride":
             script.instructions.append(Stride(index: strideCount))
             strideCount += 1

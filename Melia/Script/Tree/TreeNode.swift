@@ -60,6 +60,8 @@ struct InstructionNode: TreeNode {
         switch name {
         case "new":
             return .sprite
+        case "shootingStyle":
+            return .shootingStyle
         case "stride":
             let fromKind = arguments.first { $0.name == Stride.fromArgument }?.value.kind(symbolTable: symbolTable) ?? .null
             let toKind = arguments.first { $0.name == Stride.toArgument }?.value.kind(symbolTable: symbolTable) ?? .null

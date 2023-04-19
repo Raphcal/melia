@@ -11,6 +11,7 @@
 		64120D5629D21D1600C30A50 /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64120D5529D21D1600C30A50 /* Random.swift */; };
 		64120D5B29D21E2500C30A50 /* IntegerOperators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64120D5A29D21E2500C30A50 /* IntegerOperators.swift */; };
 		64120D5D29D22A0F00C30A50 /* Stride.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64120D5C29D22A0F00C30A50 /* Stride.swift */; };
+		641793ED29EF0D4800D9D0A1 /* ShootingStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641793EC29EF0D4800D9D0A1 /* ShootingStyle.swift */; };
 		641BA13228109A450045A1F9 /* ScriptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641BA13128109A450045A1F9 /* ScriptView.swift */; };
 		64262C4A27FC6CDD004E16D7 /* NSOpenGLView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64262C4927FC6CDD004E16D7 /* NSOpenGLView.swift */; };
 		64262C4D27FC6CED004E16D7 /* GestureListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64262C4B27FC6CED004E16D7 /* GestureListener.swift */; };
@@ -142,6 +143,7 @@
 		64120D5529D21D1600C30A50 /* Random.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
 		64120D5A29D21E2500C30A50 /* IntegerOperators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegerOperators.swift; sourceTree = "<group>"; };
 		64120D5C29D22A0F00C30A50 /* Stride.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stride.swift; sourceTree = "<group>"; };
+		641793EC29EF0D4800D9D0A1 /* ShootingStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShootingStyle.swift; sourceTree = "<group>"; };
 		641BA13128109A450045A1F9 /* ScriptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptView.swift; sourceTree = "<group>"; };
 		64262C4927FC6CDD004E16D7 /* NSOpenGLView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSOpenGLView.swift; sourceTree = "<group>"; };
 		64262C4B27FC6CED004E16D7 /* GestureListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GestureListener.swift; sourceTree = "<group>"; };
@@ -279,6 +281,7 @@
 				648ABC902923684F00A74423 /* Sinus.swift */,
 				64A1CE39280764140086D752 /* SetValue.swift */,
 				6454DABB27FA1FB600D5E92B /* Shoot.swift */,
+				641793EC29EF0D4800D9D0A1 /* ShootingStyle.swift */,
 				648ABC922923685B00A74423 /* SquareRoot.swift */,
 				64120D5C29D22A0F00C30A50 /* Stride.swift */,
 				64A1CE2C2807266B0086D752 /* Variable.swift */,
@@ -653,6 +656,7 @@
 				64C242D827F8E10E0018BE2B /* ContentView.swift in Sources */,
 				64A1CE40280768E20086D752 /* Pattern.swift in Sources */,
 				64B49804281F122600A474A2 /* ValueKind.swift in Sources */,
+				641793ED29EF0D4800D9D0A1 /* ShootingStyle.swift in Sources */,
 				64C6C1A9282BD84500BA7B26 /* Grammar.swift in Sources */,
 				64B497FF281DBC9200A474A2 /* TokenTreeReducer.swift in Sources */,
 				64C6C1AD282C2B4300BA7B26 /* CGrammar.swift in Sources */,

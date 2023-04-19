@@ -14,12 +14,13 @@ enum ValueKind: Equatable {
     case boolean
     case string
     case direction
+    case state
     case sprite
     case animationName
     case animation
     case animations
     case map
-    case state
+    case shootingStyle
     case null
 
     func kind(for property: String) -> ValueKind {
@@ -97,6 +98,8 @@ extension Value {
             return .map
         case .state(_):
             return .state
+        case .shootingStyle(_):
+            return .shootingStyle
         case .null:
             return .null
         }

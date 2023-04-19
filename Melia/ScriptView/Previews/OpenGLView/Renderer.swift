@@ -105,6 +105,8 @@ class Renderer {
         self.definitionIndex = -1
     }
     func renderFrame(size frameSize: MELSize) {
+        MELCameraSetCurrent(&camera)
+        MELCameraSetSize(frameSize)
         if let sprite = sprite {
             let halfFrameSize = frameSize / MELSize(width: 2, height: 2)
             let mapSize = MELSize(mutableMap.size * mutableMap.palette.pointee.tileSize)
