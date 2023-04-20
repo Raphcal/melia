@@ -20,7 +20,7 @@ struct FoundToken: Equatable {
             )
         case .valueDecimal:
             return .decimal(
-                Float(matches[1]) ?? 0
+                Float(matches[1]) ?? (matches[1] == "π" ? .pi : 0)
             )
         case .valueDuration:
             do {

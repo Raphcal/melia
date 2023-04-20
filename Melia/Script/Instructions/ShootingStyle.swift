@@ -30,51 +30,42 @@ struct ShootingStyle: Instruction {
         }
         var newContext = context
 
-        var definition: UnsafeMutablePointer<MELShootingStyleDefinition>
-        switch type {
-        case "aimed":
-            definition = MELAimedShootingStyleCast(MELAimedShootingStyleDefinitionAlloc())
-        case "circular":
-            definition = MELCircularShootingStyleCast(MELCircularShootingStyleDefinitionAlloc())
-        default:
-            definition = MELStraightShootingStyleCast(MELStraightShootingStyleDefinitionAlloc())
-        }
-
+        var definition = MELShootingStyleDefinition()
         if let origin = context.arguments.string(for: ShootingStyle.originArgument) {
-            definition.pointee.origin = origin == "front" ? MELShotOriginFront : MELShotOriginCenter
+            definition.origin = origin == "front" ? MELShotOriginFront : MELShotOriginCenter
         }
         if let damage = context.arguments.integer(for: ShootingStyle.damageArgument) {
-            definition.pointee.damage = damage
+            definition.damage = damage
         }
         if let bulletAmount = context.arguments.integer(for: ShootingStyle.bulletAmountArgument) {
-            definition.pointee.bulletAmount = bulletAmount
+            definition.bulletAmount = bulletAmount
         }
         if let bulletAmount = context.arguments.integer(for: ShootingStyle.bulletAmountArgument) {
-            definition.pointee.bulletAmount = bulletAmount
+            definition.bulletAmount = bulletAmount
         }
         if let bulletAmountVariation = context.arguments.integer(for: ShootingStyle.bulletAmountVariationArgument) {
-            definition.pointee.bulletAmountVariation = bulletAmountVariation
+            definition.bulletAmountVariation = bulletAmountVariation
         }
         if let bulletSpeed = context.arguments.decimal(for: ShootingStyle.bulletSpeedArgument) {
-            definition.pointee.bulletSpeed = bulletSpeed
+            definition.bulletSpeed = bulletSpeed
         }
         if let shootInterval = context.arguments.decimal(for: ShootingStyle.shootIntervalArgument) {
-            definition.pointee.shootInterval = shootInterval
+            definition.shootInterval = shootInterval
         }
         if let inversions = context.arguments.integer(for: ShootingStyle.inversionsArgument) {
-            definition.pointee.inversions = inversions
+            definition.inversions = inversions
         }
         if let inversionInterval = context.arguments.integer(for: ShootingStyle.inversionIntervalArgument) {
-            definition.pointee.inversionInterval = inversionInterval
+            definition.inversionInterval = inversionInterval
         }
         if let bulletDefinition = context.arguments.integer(for: ShootingStyle.bulletDefinitionArgument) {
-            definition.pointee.bulletDefinition = bulletDefinition
+            definition.bulletDefinition = bulletDefinition
         } else if let bulletDefinition = context.arguments.string(for: ShootingStyle.bulletDefinitionArgument),
                   let bulletDefinitionIndex = spriteManager.pointee.definitions.firstIndex(where: { $0.nameAsString == bulletDefinition }) {
-            definition.pointee.bulletDefinition = Int32(bulletDefinitionIndex)
+            definition.bulletDefinition = Int32(bulletDefinitionIndex)
         }
 
-        newContext.stack.append(.shootingStyle(ShootingStyleAndDefinition(definition: definition, spriteManager: spriteManager)))
+        newContext.stack.append(.shootingStyle(ShootingStyleAndDefinition(type: type, definition: definition, spriteManager: spriteManager)))
 
         return newContext
     }
@@ -86,16 +77,23 @@ struct ShootingStyle: Instruction {
 
 
 class ShootingStyleAndDefinition {
-    var definition: UnsafeMutablePointer<MELShootingStyleDefinition>
+    var definition: MELShootingStyleDefinition
     var style: UnsafeMutablePointer<MELShootingStyle>
 
-    init(definition: UnsafeMutablePointer<MELShootingStyleDefinition>, spriteManager: UnsafeMutablePointer<MELSpriteManager>) {
+    init(type: String, definition: MELShootingStyleDefinition, spriteManager: UnsafeMutablePointer<MELSpriteManager>) {
         self.definition = definition
-        self.style = definition.pointee.shootingStyleAlloc(definition, spriteManager)
+
+        switch type {
+        case "aimed":
+            self.style = MELAimedShootingStyleAlloc(&self.definition, spriteManager)
+        case "circular":
+            self.style = MELCircularShootingStyleAlloc(&self.definition, spriteManager)
+        default:
+            self.style = MELStraightShootingStyleAlloc(&self.definition, spriteManager)
+        }
     }
 
     deinit {
-        free(definition)
         free(style)
     }
 }

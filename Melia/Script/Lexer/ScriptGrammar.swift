@@ -85,7 +85,7 @@ struct ScriptGrammar: Grammar {
         case .valueInt:
             return "([0-9][0-9_]*) *"
         case .valueDecimal:
-            return "([0-9][0-9_]*\\.[0-9][0-9_]*) *"
+            return "(π|[0-9][0-9_]*\\.[0-9][0-9_]*) *"
         case .valueDuration:
             return "([0-9][0-9._]*)(ms|s|min) *"
         case .valueDirection:
