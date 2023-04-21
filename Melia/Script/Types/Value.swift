@@ -332,9 +332,12 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
     }
 
     func animationName(for name: String) -> String? {
-        if case let .animationName(value) = self[name] {
+        switch self[name] {
+        case let .animationName(value):
             return value
-        } else {
+        case let .string(value):
+            return value
+        default:
             return nil
         }
     }

@@ -11,6 +11,7 @@ import MeliceFramework
 struct Shoot: Instruction {
     static let styleArgument = "style"
     static let fromArgument = "from"
+    static let angleArgument = "angle"
 
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         guard let spriteManager = context.spriteManager,
@@ -23,7 +24,9 @@ struct Shoot: Instruction {
             sprite = from
         }
 
-        shootingStyle.style.pointee.class.pointee.update(shootingStyle.style, sprite, MEL_PI, 1 / 60)
+        let angle = context.arguments.decimal(for: Shoot.angleArgument) ?? MEL_PI
+
+        shootingStyle.style.pointee.class.pointee.update(shootingStyle.style, sprite, angle, 1 / 60)
 
         return context
     }

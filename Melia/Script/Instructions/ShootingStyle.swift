@@ -19,11 +19,14 @@ struct ShootingStyle: Instruction {
     static let inversionsArgument = "inversions"
     static let inversionIntervalArgument = "inversionInterval"
     static let bulletDefinitionArgument = "bulletDefinition"
+    static let bulletAnimationArgument = "bulletAnimation"
+    static let animationAngleArgument = "animationAngle"
+    static let translationArgument = "translation"
 
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         guard let type = context.arguments.string(for: ShootingStyle.typeArgument),
               let spriteManager = context.spriteManager,
-              ["aimed", "circular", "straight"].contains(type)
+              ["aimed", "burst", "circular", "straight"].contains(type)
         else {
             print("No sprite manager or bad shooting style type: \(context.arguments.string(for: ShootingStyle.typeArgument) ?? "nil")")
             return context
@@ -31,6 +34,8 @@ struct ShootingStyle: Instruction {
         var newContext = context
 
         var definition = MELShootingStyleDefinition()
+        definition.animationAngle = MEL_PI_2
+
         if let origin = context.arguments.string(for: ShootingStyle.originArgument) {
             definition.origin = origin == "front" ? MELShotOriginFront : MELShotOriginCenter
         }
@@ -64,6 +69,19 @@ struct ShootingStyle: Instruction {
                   let bulletDefinitionIndex = spriteManager.pointee.definitions.firstIndex(where: { $0.nameAsString == bulletDefinition }) {
             definition.bulletDefinition = Int32(bulletDefinitionIndex)
         }
+        if let animationName = context.arguments.animationName(for: ShootingStyle.bulletAnimationArgument),
+           let sprite = spriteManager.pointee.sprites[0],
+           let animationIndex = sprite.definition.animations.firstIndex(where: { $0.nameAsString == animationName }) {
+            definition.animation = Int32(animationIndex)
+        } else if let animationIndex = context.arguments.integer(for: ShootingStyle.bulletAnimationArgument) {
+           definition.animation = animationIndex
+        }
+        if let animationAngle = context.arguments.decimal(for: ShootingStyle.animationAngleArgument) {
+            definition.animationAngle = animationAngle
+        }
+        if let translation = context.arguments.point(for: ShootingStyle.translationArgument) {
+            definition.translation = translation
+        }
 
         newContext.stack.append(.shootingStyle(ShootingStyleAndDefinition(type: type, definition: definition, spriteManager: spriteManager)))
 
@@ -86,6 +104,8 @@ class ShootingStyleAndDefinition {
         switch type {
         case "aimed":
             self.style = MELAimedShootingStyleAlloc(&self.definition, spriteManager)
+        case "burst":
+            self.style = MELBurstShootingStyleAlloc(&self.definition, spriteManager)
         case "circular":
             self.style = MELCircularShootingStyleAlloc(&self.definition, spriteManager)
         default:
