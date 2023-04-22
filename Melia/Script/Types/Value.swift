@@ -277,84 +277,99 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
         self[path[0]] = lastValue
     }
 
-    func string(for name: String) -> String? {
-        if case let .string(value) = self[name] {
-            return value
-        } else {
-            return nil
+    func string(for names: String...) -> String? {
+        for name in names {
+            if case let .string(value) = self[name] {
+                return value
+            }
         }
+        return nil
     }
 
-    func integer(for name: String) -> Int32? {
-        switch self[name] {
-        case let .integer(value):
-            return value
-        case let .decimal(value):
-            return Int32(value)
-        default:
-            return nil
+    func integer(for names: String...) -> Int32? {
+        for name in names {
+            switch self[name] {
+            case let .integer(value):
+                return value
+            case let .decimal(value):
+                return Int32(value)
+            default:
+                break
+            }
         }
+        return nil
     }
 
-    func decimal(for name: String) -> Float? {
-        switch self[name] {
-        case let .decimal(value):
-            return value
-        case let .integer(value):
-            return Float(value)
-        default:
-            return nil
+    func decimal(for names: String...) -> Float? {
+        for name in names {
+            switch self[name] {
+            case let .decimal(value):
+                return value
+            case let .integer(value):
+                return Float(value)
+            default:
+                break
+            }
         }
+        return nil
     }
 
-    func point(for name: String) -> MELPoint? {
-        if case let .point(value) = self[name] {
-            return value
-        } else {
-            return nil
+    func point(for names: String...) -> MELPoint? {
+        for name in names {
+            if case let .point(value) = self[name] {
+                return value
+            }
         }
+        return nil
     }
 
-    func boolean(for name: String) -> Bool? {
-        if case let .boolean(value) = self[name] {
-            return value
-        } else {
-            return nil
+    func boolean(for names: String...) -> Bool? {
+        for name in names {
+            if case let .boolean(value) = self[name] {
+                return value
+            }
         }
+        return nil
     }
 
-    func direction(for name: String) -> MELDirection? {
-        if case let .direction(value) = self[name] {
-            return value
-        } else {
-            return nil
+    func direction(for names: String...) -> MELDirection? {
+        for name in names {
+            if case let .direction(value) = self[name] {
+                return value
+            }
         }
+        return nil
     }
 
-    func animationName(for name: String) -> String? {
-        switch self[name] {
-        case let .animationName(value):
-            return value
-        case let .string(value):
-            return value
-        default:
-            return nil
+    func animationName(for names: String...) -> String? {
+        for name in names {
+            switch self[name] {
+            case let .animationName(value):
+                return value
+            case let .string(value):
+                return value
+            default:
+                break
+            }
         }
+        return nil
     }
 
-    func sprite(for name: String) -> MELSpriteRef? {
-        if case let .sprite(value) = self[name] {
-            return value
-        } else {
-            return nil
+    func sprite(for names: String...) -> MELSpriteRef? {
+        for name in names {
+            if case let .sprite(value) = self[name] {
+                return value
+            }
         }
+        return nil
     }
 
-    func shootingStyle(for name: String) -> ShootingStyleAndDefinition? {
-        if case let .shootingStyle(value) = self[name] {
-            return value
-        } else {
-            return nil
+    func shootingStyle(for names: String...) -> ShootingStyleAndDefinition? {
+        for name in names {
+            if case let .shootingStyle(value) = self[name] {
+                return value
+            }
         }
+        return nil
     }
 }

@@ -241,6 +241,10 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
     }
 
     func visitStride(_ node: InstructionNode) -> [String] {
+        guard strideCount < strides.count
+        else {
+            return []
+        }
         let stride = strides[strideCount]
         strideCount += 1
 
