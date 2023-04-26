@@ -61,6 +61,7 @@ class ScriptBuilder: TreeNodeVisitor {
             print("Group \(node.name) is not supported yet.")
             return
         }
+        // Ajoute les instructions du contenu du groupe.
         node.children.accept(visitor: self)
         switch node.name {
         case "during", "jump", "while":
@@ -93,6 +94,12 @@ class ScriptBuilder: TreeNodeVisitor {
         case "stride":
             script.instructions.append(Stride(index: strideCount))
             strideCount += 1
+        case "angleBetween":
+            script.instructions.append(AngleBetween())
+        case "distanceBetween":
+            script.instructions.append(DistanceBetween())
+        case "debug":
+            script.instructions.append(Debug())
         default:
             print("Instruction \(node.name) is not supported yet.")
         }

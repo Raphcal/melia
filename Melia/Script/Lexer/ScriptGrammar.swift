@@ -38,19 +38,19 @@ struct ScriptGrammar: Grammar {
         case .valueDirection:
             return [.instructionArgument, .newLine, .groupEnd]
         case .valueString:
-            return [.instructionArgument, .newLine, .groupEnd]
+            return [.addOrSubstract, .braceClose, .instructionArgument, .newLine, .groupEnd]
         case .valueAnimation:
             return [.instructionArgument, .newLine, .groupEnd]
         case .valueVariable:
             return Token.anyBinaryOperator + [.braceClose, .instructionArgument, .groupEnd, .newLine]
         case .addOrSubstract, .multiplyOrDivide, .unaryOperator, .bitshiftOperator :
-            return Token.anyNumericValue
+            return Token.anyNumericValue + [.valueString]
         case .andOrOr:
             return [.valueBoolean, .valueVariable]
         case .equalityOrComparison:
             return Token.anyValue
         case .braceOpen:
-            return Token.anyNumericValue
+            return Token.anyNumericValue + [.valueString]
         case .braceClose:
             return Token.anyBinaryOperator + [.braceClose, .instructionArgument, .groupEnd, .newLine]
         case .comment:
@@ -75,7 +75,7 @@ struct ScriptGrammar: Grammar {
         case .groupEnd:
             return ": *"
         case .instructionStart:
-            return "(move|new|shootingStyle|shoot|stride|wait) *"
+            return "(angleBetween|debug|distanceBetween|move|new|shootingStyle|shoot|stride|wait) *"
         case .instructionArgument:
             return ", *([a-z][a-zA-Z]*) *: *"
         case .setStart:

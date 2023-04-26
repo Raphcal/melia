@@ -452,6 +452,10 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             return node.value is BracesNode
                 ? ["sqrtf", node.value.accept(visitor: self).joined()]
                 : ["sqrtf(", node.value.accept(visitor: self).joined(), ")"]
+        case "random":
+            return node.value is BracesNode
+                ? ["MELRandomFloat", node.value.accept(visitor: self).joined()]
+                : ["MELRandomFloat(", node.value.accept(visitor: self).joined(), ")"]
         default:
             return [node.operator, node.value.accept(visitor: self).joined()]
         }

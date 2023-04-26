@@ -320,7 +320,7 @@ struct PlaydateCodeGenerator {
         if spriteType == MELSpriteTypePlatform {
             return """
                 static void draw(struct \(scriptName) * _Nonnull self, LCDSprite * _Nonnull sprite) {
-                \(code)    self->super.animation->class->update(self->super.animation, DELTA);
+                \(code)    MELAnimationUpdate(self->super.animation, DELTA);
 
                     const MELRectangle frame = self->super.frame;
                     playdate->sprite->moveTo(sprite, frame.origin.x - camera.frame.origin.x, frame.origin.y - camera.frame.origin.y);
@@ -345,7 +345,7 @@ struct PlaydateCodeGenerator {
         } else {
             return """
                 static void draw(struct \(scriptName) * _Nonnull self, LCDSprite * _Nonnull sprite) {
-                \(code)    self->super.animation->class->update(self->super.animation, DELTA);
+                \(code)    MELAnimationUpdate(self->super.animation, DELTA);
 
                     const MELPoint origin = self->super.frame.origin;
                     playdate->sprite->moveTo(sprite, origin.x - camera.frame.origin.x, origin.y - camera.frame.origin.y);
