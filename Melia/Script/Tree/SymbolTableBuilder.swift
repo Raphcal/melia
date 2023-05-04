@@ -156,6 +156,8 @@ extension BinaryOperationNode {
                 return .decimal
             case .point:
                 return .point
+            case .string:
+                return .string
             default:
                 break
             }
@@ -165,19 +167,37 @@ extension BinaryOperationNode {
                 return .decimal
             case .point:
                 return .point
+            case .string:
+                return .string
             default:
                 break
             }
         case .point:
             switch rhsKind {
-            case .integer, .decimal, .point:
+            case .integer, .decimal, .point, .direction:
                 return .point
+            case .string:
+                return .string
             default:
                 break
             }
         case .boolean:
-            if rhsKind == .boolean {
+            switch rhsKind {
+            case .boolean:
                 return .boolean
+            case .string:
+                return .string
+            default:
+                break
+            }
+        case .direction:
+            switch rhsKind {
+            case .boolean:
+                return .boolean
+            case .string:
+                return .string
+            default:
+                break
             }
         case .string:
             return .string

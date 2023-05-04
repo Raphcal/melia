@@ -398,6 +398,20 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                 default:
                     break
                 }
+            case .direction:
+                switch node.operator {
+                case .add:
+                    return ["MELPointAddDirection(", lhs, ", ", rhs, ")"]
+                case .substract:
+                    return ["MELPointSubstractDirection(", lhs, ", ", rhs, ")"]
+                case .multiply:
+                    return ["MELPointMultiplyByDirection(", lhs, ", ", rhs, ")"]
+                case .divide:
+                    return ["MELPointDivideByDirection(", lhs, ", ", rhs, ")"]
+                default:
+                    break
+                }
+                break
             default:
                 break
             }

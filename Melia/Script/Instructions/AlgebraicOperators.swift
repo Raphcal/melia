@@ -62,6 +62,8 @@ extension AlgebraicOperator {
                 return .point(MELPoint(x: apply(lhsValue.x, rhsValue), y: apply(lhsValue.y, rhsValue)))
             case let .point(rhsValue):
                 return .point(MELPoint(x: apply(lhsValue.x, rhsValue.x), y: apply(lhsValue.y, rhsValue.y)))
+            case let .direction(rhsValue):
+                return .point(MELPoint(x: apply(lhsValue.x, rhsValue == MELDirectionLeft ? -1.0 : 1.0), y: apply(lhsValue.y, rhsValue == MELDirectionUp ? -1.0 : 1.0)))
             case let .string(rhsValue):
                 if let result = apply("(x: \(lhsValue.x), y: \(lhsValue.y)", rhsValue) {
                     return .string(result)
@@ -78,6 +80,17 @@ extension AlgebraicOperator {
             default:
                 break
             }
+        case let .direction(lhsValue):
+            switch rhs {
+            case let .point(rhsValue):
+                return .point(MELPoint(x: apply(lhsValue == MELDirectionLeft ? -1.0 : 1.0, rhsValue.x), y: apply(lhsValue == MELDirectionUp ? -1.0 : 1.0, rhsValue.y)))
+            case let .string(rhsValue):
+                if let result = apply(lhsValue.name, rhsValue) {
+                    return .string(result)
+                }
+            default:
+                break
+            }
         case let .string(lhsValue):
             let result: String?
             switch rhs {
@@ -89,6 +102,8 @@ extension AlgebraicOperator {
                 result = apply(lhsValue, "(x: \(rhsValue.x), y: \(rhsValue.y)")
             case let .boolean(rhsValue):
                 result = apply(lhsValue, String(rhsValue))
+            case let .direction(rhsValue):
+                result = apply(lhsValue, rhsValue.name)
             case let .state(rhsValue):
                 result = apply(lhsValue, "state \(rhsValue)")
             case let .string(rhsValue):
