@@ -277,7 +277,11 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
         self[path[0]] = lastValue
     }
 
-    func string(for names: String...) -> String? {
+    func string(for name: String) -> String? {
+        return string(for: [name])
+    }
+
+    func string(for names: [String]) -> String? {
         for name in names {
             if case let .string(value) = self[name] {
                 return value
@@ -286,7 +290,11 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
         return nil
     }
 
-    func integer(for names: String...) -> Int32? {
+    func integer(for name: String) -> Int32? {
+        return integer(for: [name])
+    }
+
+    func integer(for names: [String]) -> Int32? {
         for name in names {
             switch self[name] {
             case let .integer(value):
@@ -300,7 +308,11 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
         return nil
     }
 
-    func decimal(for names: String...) -> Float? {
+    func decimal(for name: String) -> Float? {
+        return decimal(for: [name])
+    }
+
+    func decimal(for names: [String]) -> Float? {
         for name in names {
             switch self[name] {
             case let .decimal(value):
@@ -314,7 +326,11 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
         return nil
     }
 
-    func point(for names: String...) -> MELPoint? {
+    func point(for name: String) -> MELPoint? {
+        return point(for: [name])
+    }
+
+    func point(for names: [String]) -> MELPoint? {
         for name in names {
             if case let .point(value) = self[name] {
                 return value
@@ -323,7 +339,11 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
         return nil
     }
 
-    func boolean(for names: String...) -> Bool? {
+    func boolean(for name: String) -> Bool? {
+        return boolean(for: [name])
+    }
+
+    func boolean(for names: [String]) -> Bool? {
         for name in names {
             if case let .boolean(value) = self[name] {
                 return value
@@ -332,7 +352,11 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
         return nil
     }
 
-    func direction(for names: String...) -> MELDirection? {
+    func direction(for name: String) -> MELDirection? {
+        return direction(for: [name])
+    }
+
+    func direction(for names: [String]) -> MELDirection? {
         for name in names {
             if case let .direction(value) = self[name] {
                 return value
@@ -341,7 +365,11 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
         return nil
     }
 
-    func animationName(for names: String...) -> String? {
+    func animationName(for name: String) -> String? {
+        return animationName(for: [name])
+    }
+
+    func animationName(for names: [String]) -> String? {
         for name in names {
             switch self[name] {
             case let .animationName(value):
@@ -355,7 +383,11 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
         return nil
     }
 
-    func sprite(for names: String...) -> MELSpriteRef? {
+    func sprite(for name: String) -> MELSpriteRef? {
+        return sprite(for: [name])
+    }
+
+    func sprite(for names: [String]) -> MELSpriteRef? {
         for name in names {
             if case let .sprite(value) = self[name] {
                 return value
@@ -364,7 +396,11 @@ extension Dictionary where Dictionary.Key == String, Dictionary.Value == Melia.V
         return nil
     }
 
-    func shootingStyle(for names: String...) -> ShootingStyleAndDefinition? {
+    func shootingStyle(for name: String) -> ShootingStyleAndDefinition? {
+        return shootingStyle(for: [name])
+    }
+
+    func shootingStyle(for names: [String]) -> ShootingStyleAndDefinition? {
         for name in names {
             if case let .shootingStyle(value) = self[name] {
                 return value

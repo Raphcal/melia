@@ -12,17 +12,20 @@ struct ShootingStyle: Instruction {
     static let typeArgument = "type"
     static let originArgument = "origin"
     static let damageArgument = "damage"
-    static let bulletAmountArgument = "bulletAmount"
-    static let bulletAmountVariationArgument = "bulletAmountVariation"
-    static let bulletSpeedArgument = "bulletSpeed"
-    static let shootIntervalArgument = "shootInterval"
+    static let bulletAmountArgument = ["bulletAmount", "amount", "count"]
+    static let bulletAmountVariationArgument = ["bulletAmountVariation", "amountVariation", "countVariation"]
+    static let bulletSpeedArgument = ["bulletSpeed", "speed"]
+    static let shootIntervalArgument = ["shootInterval", "interval"]
     static let inversionsArgument = "inversions"
     static let inversionIntervalArgument = "inversionInterval"
-    static let bulletDefinitionArgument = "bulletDefinition"
-    static let bulletAnimationArgument = "bulletAnimation"
+    static let bulletDefinitionArgument = ["bulletDefinition", "definition"]
+    static let bulletAnimationArgument = ["bulletAnimation", "animation"]
     static let animationAngleArgument = "animationAngle"
     static let translationArgument = "translation"
     static let spaceArgument = "space"
+    static let baseAngleArgument = "baseAngle"
+    static let baseAngleVariationArgument = "baseAngleVariation"
+    static let angleIncrementArgument = "angleIncrement"
 
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         guard let type = context.arguments.string(for: ShootingStyle.typeArgument),
@@ -50,16 +53,16 @@ struct ShootingStyle: Instruction {
         if let damage = context.arguments.integer(for: ShootingStyle.damageArgument) {
             definition.damage = damage
         }
-        if let bulletAmount = context.arguments.integer(for: ShootingStyle.bulletAmountArgument, "amount", "count") {
+        if let bulletAmount = context.arguments.integer(for: ShootingStyle.bulletAmountArgument) {
             definition.bulletAmount = bulletAmount
         }
-        if let bulletAmountVariation = context.arguments.integer(for: ShootingStyle.bulletAmountVariationArgument, "amountVariation", "countVariation") {
+        if let bulletAmountVariation = context.arguments.integer(for: ShootingStyle.bulletAmountVariationArgument) {
             definition.bulletAmountVariation = bulletAmountVariation
         }
-        if let bulletSpeed = context.arguments.decimal(for: ShootingStyle.bulletSpeedArgument, "speed") {
+        if let bulletSpeed = context.arguments.decimal(for: ShootingStyle.bulletSpeedArgument) {
             definition.bulletSpeed = bulletSpeed
         }
-        if let shootInterval = context.arguments.decimal(for: ShootingStyle.shootIntervalArgument, "interval") {
+        if let shootInterval = context.arguments.decimal(for: ShootingStyle.shootIntervalArgument) {
             definition.shootInterval = shootInterval
         }
         if let inversions = context.arguments.integer(for: ShootingStyle.inversionsArgument) {
@@ -68,9 +71,9 @@ struct ShootingStyle: Instruction {
         if let inversionInterval = context.arguments.integer(for: ShootingStyle.inversionIntervalArgument) {
             definition.inversionInterval = inversionInterval
         }
-        if let bulletDefinition = context.arguments.integer(for: ShootingStyle.bulletDefinitionArgument, "definition") {
+        if let bulletDefinition = context.arguments.integer(for: ShootingStyle.bulletDefinitionArgument) {
             definition.bulletDefinition = bulletDefinition
-        } else if let bulletDefinition = context.arguments.string(for: ShootingStyle.bulletDefinitionArgument, "definition"),
+        } else if let bulletDefinition = context.arguments.string(for: ShootingStyle.bulletDefinitionArgument),
                   let bulletDefinitionIndex = spriteManager.pointee.definitions.firstIndex(where: { $0.nameAsString == bulletDefinition }) {
             definition.bulletDefinition = Int32(bulletDefinitionIndex)
         }
@@ -89,6 +92,15 @@ struct ShootingStyle: Instruction {
         }
         if let space = context.arguments.decimal(for: ShootingStyle.spaceArgument) {
             definition.space = space
+        }
+        if let baseAngle = context.arguments.decimal(for: ShootingStyle.baseAngleArgument) {
+            definition.baseAngle = baseAngle
+        }
+        if let baseAngleVariation = context.arguments.decimal(for: ShootingStyle.baseAngleVariationArgument) {
+            definition.baseAngleVariation = baseAngleVariation
+        }
+        if let angleIncrement = context.arguments.decimal(for: ShootingStyle.angleIncrementArgument) {
+            definition.angleIncrement = angleIncrement
         }
 
         newContext.stack.append(.shootingStyle(ShootingStyleAndDefinition(type: type, definition: definition, spriteManager: spriteManager)))
