@@ -101,7 +101,7 @@ struct ScriptGrammar: Grammar {
         case .addOrSubstract:
             return "([+-]) *"
         case .multiplyOrDivide:
-            return "([*/%]) *"
+            return "([*/%^]) *"
         case .unaryOperator:
             return "(-|!|abs|cos|sin|sqrt|random) *"
         case .bitshiftOperator:

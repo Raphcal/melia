@@ -6,20 +6,31 @@
 //
 
 import MeliceFramework
+import Foundation
 
 protocol AlgebraicOperator: Operator {
     func apply<T: AlgebraicOperand>(_ lhs: T, _ rhs: T) -> T
     func apply(_ lhs: String, _ rhs: String) -> String?
 }
 
+infix operator ^^ : MultiplicationPrecedence
 protocol AlgebraicOperand {
     static func + (lhs: Self, rhs: Self) -> Self
     static func - (lhs: Self, rhs: Self) -> Self
     static func * (lhs: Self, rhs: Self) -> Self
     static func / (lhs: Self, rhs: Self) -> Self
+    static func ^^ (lhs: Self, rhs: Self) -> Self
 }
-extension Int32: AlgebraicOperand {}
-extension Float: AlgebraicOperand {}
+extension Int32: AlgebraicOperand {
+    static func ^^ (radix: Int32, power: Int32) -> Int32 {
+        return Int32(pow(Double(radix), Double(power)))
+    }
+}
+extension Float: AlgebraicOperand {
+    static func ^^ (radix: Float, power: Float) -> Float {
+        return Float(pow(Double(radix), Double(power)))
+    }
+}
 
 extension AlgebraicOperator {
     func apply(_ lhs: Value, _ rhs: Value) -> Value {
@@ -158,5 +169,13 @@ struct Divide: AlgebraicOperator {
     }
     func equals(other: Instruction) -> Bool {
         return other is Divide
+    }
+}
+struct Pow: AlgebraicOperator {
+    func apply<T: AlgebraicOperand>(_ lhs: T, _ rhs: T) -> T {
+        return lhs ^^ rhs
+    }
+    func equals(other: Instruction) -> Bool {
+        return other is Pow
     }
 }

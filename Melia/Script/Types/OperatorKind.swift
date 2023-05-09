@@ -10,6 +10,7 @@ import Foundation
 enum OperatorKind {
     case add, substract
     case multiply, divide
+    case pow
     case and, or
     case lessThan, lessThanOrEquals, greaterThan, greaterThanOrEquals, equals, notEquals
     case modulo, bitshiftLeft, bitshiftRight
@@ -33,6 +34,8 @@ enum OperatorKind {
             return .multiply
         case "/":
             return .divide
+        case "^":
+            return .pow
         case "&&", "and":
             return .add
         case "||", "or":
@@ -81,6 +84,8 @@ enum OperatorKind {
             return Multiply()
         case .divide:
             return Divide()
+        case .pow:
+            return Pow()
         case .and:
             return And()
         case .or:

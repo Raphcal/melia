@@ -125,12 +125,6 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                     const float newTime = MELFloatMin(self->time + DELTA, duration);\n
             """)
 
-        var easeInOut = false
-        if let easeArgument = node.arguments.first(where: { $0.name == During.easeArgument })?.value as? ConstantNode,
-           case let .boolean(value) = easeArgument.value {
-            easeInOut = value
-        }
-
         symbolTable.localVariables["progress"] = .decimal
         let innerCode = node.children.accept(visitor: self)
             .joined()
@@ -140,7 +134,27 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
 
         // TODO: Un peu basique, vérifier mieux la présence de "progress".
         if (innerCode.contains("progress")) {
-            code.append("        const float progress = \(easeInOut ? "MELEaseInOut(0, duration, newTime)" : "newTime / duration");\n")
+            var easeInOut = false
+            if let easeArgument = node.arguments.first(where: { $0.name == During.easeArgument })?.value as? ConstantNode,
+               case let .boolean(value) = easeArgument.value {
+                easeInOut = value
+            }
+            var function: TokenTree?
+            if let functionArgument = node.arguments.first(where: { $0.name == During.functionArgument })?.value as? ConstantNode,
+               case let .string(value) = functionArgument.value {
+                function = TokenTree(code: "result = \(value)\n")
+            }
+
+            if let function = (function?.children[0] as? SetNode)?.value, easeInOut {
+                symbolTable.localVariables["x"] = .decimal
+                code.append("        const float x = MELFloatMin(newTime, duration) / duration;\n")
+                code.append("        const float progress = \(function.accept(visitor: self).joined());\n")
+                symbolTable.localVariables.removeValue(forKey: "x")
+            } else if easeInOut {
+                code.append("        const float progress = MELEaseInOut(0, duration, newTime);\n")
+            } else {
+                code.append("        const float progress = newTime / duration;\n")
+            }
         }
         code.append("        self->time = newTime;\n\n    ")
         code.append(innerCode)
@@ -327,6 +341,8 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                     return [lhs, " * ", rhs]
                 case .divide:
                     return [lhs, " / ", rhs]
+                case .pow:
+                    return ["powf(", lhs, ", ", rhs, ")"]
                 case .and:
                     return [lhs, " && ", rhs]
                 case .or:

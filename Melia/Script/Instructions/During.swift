@@ -10,6 +10,7 @@ import MeliceFramework
 struct During: GroupStart, DeclareVariables {
     static let durationArgument = "duration"
     static let easeArgument = "ease"
+    static let functionArgument = "function"
     static let progressVariable = "progress"
     static let timeVariable = "time"
 
@@ -22,6 +23,8 @@ struct During: GroupStart, DeclareVariables {
 
         let ease = newContext.arguments.boolean(for: During.easeArgument) ?? false
         let duration = newContext.arguments.decimal(for: During.durationArgument) ?? 0
+        let function = newContext.arguments.string(for: During.functionArgument) ?? "sin(π / 2 * x) ^ 2"
+        let functionScript = TokenTree(code: "result = \(function)\n").script
 
         guard case let .decimal(delta) = newContext.heap["delta"] else {
             return newContext
@@ -33,7 +36,9 @@ struct During: GroupStart, DeclareVariables {
             newContext.instructionPointer = whenDoneSetInstructionPointerTo
         } else {
             let newTime = MELFloatMin(time + delta, duration)
-            newContext.heap[During.progressVariable] = .decimal(ease ? MELEaseInOut(0, duration, newTime) : newTime / duration)
+            newContext.heap[During.progressVariable] = .decimal(ease ? functionScript.calculate(heap: [
+                "x": .decimal(min(newTime, duration) / duration),
+            ]) : newTime / duration)
             newContext.heap[During.timeVariable] = .decimal(newTime)
         }
         return newContext

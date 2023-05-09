@@ -43,6 +43,27 @@ struct Script: Equatable {
         return context
     }
 
+    func calculate(heap: [String : Value]) -> GLfloat {
+        var context = executionContext
+        context.heap = heap
+        while !context.yield && context.instructionPointer < instructions.count {
+            let oldInstructionPointer = context.instructionPointer
+            context = instructions[context.instructionPointer].update(context: context)
+            if context.instructionPointer == oldInstructionPointer {
+                context.instructionPointer = oldInstructionPointer + 1
+            }
+        }
+        switch context.heap["result"] {
+        case .integer(let value):
+            return GLfloat(value)
+        case .decimal(let value):
+            return value
+        default:
+            break
+        }
+        return 0
+    }
+
     private func runInstructions(context contextToUse: ExecutionContext) -> ExecutionContext {
         var context = contextToUse
         while !context.yield && context.instructionPointer < instructions.count {

@@ -23,20 +23,9 @@ extension Operator {
 }
 
 func operatorNamed(_ name: String) throws -> Operator {
-    switch name {
-    case "+":
-        return Add()
-    case "-":
-        return Substract()
-    case "*":
-        return Multiply()
-    case "/":
-        return Divide()
-    case "&&", "and":
-        return And()
-    case "||", "or":
-        return Or()
-    default:
+    guard let instruction = OperatorKind.named(name)?.instruction
+    else {
         throw LookUpError.badName(name)
     }
+    return instruction
 }
