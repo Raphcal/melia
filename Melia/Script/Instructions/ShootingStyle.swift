@@ -9,16 +9,16 @@ import Foundation
 import MeliceFramework
 
 struct ShootingStyle: Instruction {
-    static let typeArgument = "type"
-    static let originArgument = "origin"
+    static let typeArgument = ["style", "type"]
+    static let originArgument = ["origin", "from"]
     static let damageArgument = "damage"
     static let bulletAmountArgument = ["bulletAmount", "amount", "count"]
     static let bulletAmountVariationArgument = ["bulletAmountVariation", "amountVariation", "countVariation"]
     static let bulletSpeedArgument = ["bulletSpeed", "speed"]
-    static let shootIntervalArgument = ["shootInterval", "interval"]
+    static let shootIntervalArgument = ["shootInterval", "interval", "each"]
     static let inversionsArgument = "inversions"
     static let inversionIntervalArgument = "inversionInterval"
-    static let bulletDefinitionArgument = ["bulletDefinition", "definition"]
+    static let bulletDefinitionArgument = ["bulletDefinition", "bullet", "definition"]
     static let bulletAnimationArgument = ["bulletAnimation", "animation"]
     static let animationAngleArgument = "animationAngle"
     static let translationArgument = "translation"
