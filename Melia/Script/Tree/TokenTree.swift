@@ -148,7 +148,8 @@ final class StateBuilder: BlockNodeBuilder {
         guard [Token.state, .specialState].contains(found.token) else {
             return nil
         }
-        name = found.matches[1]
+        let match = found.matches[1]
+        name = match == StateNode.alwaysName ? StateNode.drawName : match
     }
 
     func builderDidProduce(result: TreeNode) {

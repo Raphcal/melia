@@ -69,7 +69,7 @@ struct ScriptGrammar: Grammar {
         case .state:
             return "state +([a-zA-Z0-9]+) *: *"
         case .specialState:
-            return "(constructor|draw): *"
+            return "(always|constructor|draw): *"
         case .groupStart:
             return "(during|while|jump|if|else if|else) *"
         case .groupEnd:

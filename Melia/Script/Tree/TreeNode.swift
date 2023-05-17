@@ -23,6 +23,7 @@ extension TreeNode {
 }
 
 struct StateNode: TreeNode {
+    static let alwaysName = "always"
     static let constructorName = "constructor"
     static let drawName = "draw"
 
