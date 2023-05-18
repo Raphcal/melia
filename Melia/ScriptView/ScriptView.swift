@@ -85,7 +85,7 @@ state main:
 
     static func createSprites() -> MELSpriteDefinitionList {
         var definitions = MELSpriteDefinitionListMakeWithInitialCapacity(1)
-        let definition = MELSpriteDefinition(name: MELStringCopy("kyukyu"), type: MELSpriteTypeDecor, palette: nil, animations: .empty, motionName: MELStringCopy("kyukyu.lua"), loadScript: nil)
+        let definition = MELSpriteDefinition(name: MELStringCopy("kyukyu"), size: MELIntSize(width: 32, height: 32), type: MELSpriteTypeDecor, palette: nil, animations: .empty, motionName: MELStringCopy("kyukyu.lua"), loadScript: nil)
         definitions[0] = definition
         return definitions
     }

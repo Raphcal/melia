@@ -170,7 +170,7 @@ enum Value: Equatable {
         case .point(_):
             return ["x", "y", "width", "height"].contains(property)
         case .sprite(_):
-            return property == "animations"
+            return ["animations", "size"].contains(property)
         case .animations(_):
             return true
         case .animation(_):

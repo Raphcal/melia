@@ -61,7 +61,7 @@ state main:
 
     static func createSpriteDefinitionList() -> MELSpriteDefinitionList {
         var list = MELSpriteDefinitionListMakeWithInitialCapacity(1)
-        let definition = MELSpriteDefinition(name: nil, type: MELSpriteTypeDecor, palette: nil, animations: .empty, motionName: nil, loadScript: nil)
+        let definition = MELSpriteDefinition(name: nil, size: .zero, type: MELSpriteTypeDecor, palette: nil, animations: .empty, motionName: nil, loadScript: nil)
         MELSpriteDefinitionListPush(&list, definition)
         return list
     }

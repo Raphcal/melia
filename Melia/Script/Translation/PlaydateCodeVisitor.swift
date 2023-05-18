@@ -231,6 +231,8 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             return visitNewSprite(node)
         case "stride":
             return visitStride(node)
+        case "destroy":
+            return ["    MELSpriteDealloc(sprite);\n    return;\n"]
         default:
             return ["    // \(node.name)\n"]
         }

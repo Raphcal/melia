@@ -23,6 +23,7 @@
 		6454DAB127FA1F0600D5E92B /* Move.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6454DAB027FA1F0600D5E92B /* Move.swift */; };
 		6454DAB627FA1FAC00D5E92B /* If.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6454DAB527FA1FAC00D5E92B /* If.swift */; };
 		6454DABC27FA1FB600D5E92B /* Shoot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6454DABB27FA1FB600D5E92B /* Shoot.swift */; };
+		645CD5312A16B11D0080869A /* Destroy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645CD5302A16B11D0080869A /* Destroy.swift */; };
 		647D5E2B28172D550073F1BB /* TokenTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647D5E2A28172D550073F1BB /* TokenTree.swift */; };
 		647D5E2D281876E50073F1BB /* TreeNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647D5E2C281876E50073F1BB /* TreeNode.swift */; };
 		647D5E362819CE1F0073F1BB /* OperatorKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647D5E352819CE1F0073F1BB /* OperatorKind.swift */; };
@@ -159,6 +160,7 @@
 		6454DAB027FA1F0600D5E92B /* Move.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Move.swift; sourceTree = "<group>"; };
 		6454DAB527FA1FAC00D5E92B /* If.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = If.swift; sourceTree = "<group>"; };
 		6454DABB27FA1FB600D5E92B /* Shoot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Shoot.swift; sourceTree = "<group>"; };
+		645CD5302A16B11D0080869A /* Destroy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Destroy.swift; sourceTree = "<group>"; };
 		647D5E2A28172D550073F1BB /* TokenTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenTree.swift; sourceTree = "<group>"; };
 		647D5E2C281876E50073F1BB /* TreeNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeNode.swift; sourceTree = "<group>"; };
 		647D5E352819CE1F0073F1BB /* OperatorKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperatorKind.swift; sourceTree = "<group>"; };
@@ -272,6 +274,7 @@
 				648ABC8E2923684300A74423 /* Cosinus.swift */,
 				6491B16729F5C6AC008EF82D /* Debug.swift */,
 				648D8869282EE2D800739770 /* DeclareVariables.swift */,
+				645CD5302A16B11D0080869A /* Destroy.swift */,
 				64A005C229F472EB0038C266 /* DistanceBetween.swift */,
 				6454DAAA27FA1E6B00D5E92B /* During.swift */,
 				64F35E392809FFC200A5A620 /* GroupStart.swift */,
@@ -631,6 +634,7 @@
 				648ABC8D2922452800A74423 /* NewSprite.swift in Sources */,
 				6454DAB127FA1F0600D5E92B /* Move.swift in Sources */,
 				64C380E9295E40B2007CF6D1 /* AnimationValue.swift in Sources */,
+				645CD5312A16B11D0080869A /* Destroy.swift in Sources */,
 				64A1CE2F280726760086D752 /* Constant.swift in Sources */,
 				64A1CE5C28099AFE0086D752 /* Negative.swift in Sources */,
 				64A5AF3D2822A0F300ED792A /* GeneratedCodeView.swift in Sources */,
@@ -846,6 +850,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Melia/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -879,6 +884,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Melia/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

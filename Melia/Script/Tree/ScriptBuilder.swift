@@ -100,6 +100,8 @@ class ScriptBuilder: TreeNodeVisitor {
             script.instructions.append(DistanceBetween())
         case "debug":
             script.instructions.append(Debug())
+        case "destroy":
+            script.instructions.append(Destroy())
         default:
             print("Instruction \(node.name) is not supported yet.")
         }

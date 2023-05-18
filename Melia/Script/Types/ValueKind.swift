@@ -27,7 +27,7 @@ enum ValueKind: Equatable {
         switch self {
         case .point:
             switch property {
-            case "x", "y":
+            case "x", "y", "width", "height":
                 return .decimal
             default:
                 break
@@ -46,6 +46,8 @@ enum ValueKind: Equatable {
             case "direction":
                 return .direction
             case "center":
+                return .point
+            case "size":
                 return .point
             case "instance":
                 return .point

@@ -34,7 +34,16 @@ class TokenTreeReducer: TreeNodeVisitor {
     }
 
     func visit(from node: InstructionNode) -> TreeNode {
-        return node
+        var newNode = node
+        if newNode.name == "stride" {
+            if let fromIndex = node.arguments.firstIndex(where: { $0.name == Stride.fromArgument }) {
+                newNode.arguments[fromIndex].value = node.arguments[fromIndex].value.accept(visitor: self)
+            }
+            if let toIndex = node.arguments.firstIndex(where: { $0.name == Stride.toArgument }) {
+                newNode.arguments[toIndex].value = node.arguments[toIndex].value.accept(visitor: self)
+            }
+        }
+        return newNode
     }
 
     func visit(from node: SetNode) -> TreeNode {
