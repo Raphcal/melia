@@ -419,6 +419,7 @@ struct PlaydateCodeGenerator {
         let def = definition ?? MELSpriteDefinition(name: nil, size: .zero, type: MELSpriteTypeDecor, palette: nil, animations: .empty, motionName: nil, loadScript: nil)
         let sprite = MELSpriteAllocStandalone(def)
 
+        // TODO: Construire la table des symboles ici et inliner les constantes ?
         let reducedTree = definition != nil ? tree.reduceByInliningValues(from: sprite) : tree
 
         let spriteName = def.nameAsString.lowercased().replacingOccurrences(of: " ", with: "")

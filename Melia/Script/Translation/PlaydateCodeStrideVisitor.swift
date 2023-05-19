@@ -28,11 +28,12 @@ class PlaydateCodeStrideVisitor: TreeNodeVisitor {
         if node.name == "stride" {
             let from = node.arguments.first { $0.name == Stride.fromArgument }?.value ?? ConstantNode(value: .decimal(0))
             let to = node.arguments.first { $0.name == Stride.toArgument }?.value ?? ConstantNode(value: .decimal(0))
+            let progress: TreeNode = node.arguments.first { $0.name == Stride.progressArgument }?.value ?? VariableNode(name: "progress")
             let kind = node.kind(symbolTable: symbolTable)
             let kindCapitalized = String(describing: kind).capitalized
             let fromOperand = from.isStrideConstant ? from : VariableNode(name: "stride\(kindCapitalized)From\(strideCount)")
             let toOperand = to.isStrideConstant ? to : VariableNode(name: "stride\(kindCapitalized)To\(strideCount)")
-            var operation: TreeNode = BinaryOperationNode(lhs: fromOperand, operator: .add, rhs: BinaryOperationNode(lhs: BracesNode(child: BinaryOperationNode(lhs: toOperand, operator: .substract, rhs: fromOperand)), operator: .multiply, rhs: VariableNode(name: "progress")))
+            var operation: TreeNode = BinaryOperationNode(lhs: fromOperand, operator: .add, rhs: BinaryOperationNode(lhs: BracesNode(child: BinaryOperationNode(lhs: toOperand, operator: .substract, rhs: fromOperand)), operator: .multiply, rhs: progress))
             operation = operation.accept(visitor: TokenTreeReducer(heap: [:]))
             let stride = PlaydateCodeStride(fromName: "self->stride\(kindCapitalized)From\(strideCount)", fromValue: from, toName: "self->stride\(kindCapitalized)To\(strideCount)", toValue: to, isConstant: from.isStrideConstant && to.isStrideConstant, operation: operation)
             strideCount += 1

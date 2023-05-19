@@ -11,6 +11,7 @@ import MeliceFramework
 struct Stride: Instruction, DeclareVariables {
     static let fromArgument = "from"
     static let toArgument = "to"
+    static let progressArgument = "progress"
 
     var index: Int
     var variables: [String]
@@ -22,7 +23,7 @@ struct Stride: Instruction, DeclareVariables {
 
     func update(context: Script.ExecutionContext) -> Script.ExecutionContext {
         var newContext = context
-        let progress = newContext.heap.decimal(for: "progress") ?? 0
+        let progress = newContext.arguments.decimal(for: Stride.progressArgument) ?? newContext.heap.decimal(for: "progress") ?? 0
         let from = newContext.heap[variables[0]] ?? newContext.arguments[Stride.fromArgument] ?? .decimal(0)
         let to = newContext.heap[variables[1]] ?? newContext.arguments[Stride.toArgument] ?? .decimal(0)
 

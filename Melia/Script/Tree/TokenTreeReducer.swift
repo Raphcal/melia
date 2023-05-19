@@ -42,6 +42,9 @@ class TokenTreeReducer: TreeNodeVisitor {
             if let toIndex = node.arguments.firstIndex(where: { $0.name == Stride.toArgument }) {
                 newNode.arguments[toIndex].value = node.arguments[toIndex].value.accept(visitor: self)
             }
+            if let progressIndex = node.arguments.firstIndex(where: { $0.name == Stride.progressArgument }) {
+                newNode.arguments[progressIndex].value = node.arguments[progressIndex].value.accept(visitor: self)
+            }
         }
         return newNode
     }
@@ -186,6 +189,62 @@ class TokenTreeReducer: TreeNodeVisitor {
                 rhs.name == lhsRhs.name,
                 lhs.operator == .add {
             return lhs.lhs
+        }
+        /// Simplification de `((x +- 5) - (x +- 3))` en `(2)`
+        else if let lhs = lhs as? BinaryOperationNode,
+                let rhs = rhs as? BinaryOperationNode,
+                let lhsLhs = lhs.lhs as? VariableNode,
+                let rhsLhs = rhs.lhs as? VariableNode,
+                node.operator == .substract,
+                lhs.operator == .add || lhs.operator == .substract,
+                rhs.operator == .add || rhs.operator == .substract,
+                lhsLhs.name == rhsLhs.name {
+            return BinaryOperationNode(lhs: BinaryOperationNode(lhs: ConstantNode(value: .integer(0)), operator: lhs.operator, rhs: lhs.rhs), operator: node.operator, rhs: BinaryOperationNode(lhs: ConstantNode(value: .integer(0)), operator: rhs.operator, rhs: rhs.rhs)).accept(visitor: self)
+        }
+        /// Simplification de `((5 + x) - (x +- 3))` en `(2)`
+        else if let lhs = lhs as? BinaryOperationNode,
+                let rhs = rhs as? BinaryOperationNode,
+                let lhsRhs = lhs.rhs as? VariableNode,
+                let rhsLhs = rhs.lhs as? VariableNode,
+                node.operator == .substract,
+                lhs.operator == .add,
+                rhs.operator == .add || rhs.operator == .substract,
+                lhsRhs.name == rhsLhs.name {
+            return BinaryOperationNode(lhs: lhs.lhs, operator: node.operator, rhs: BinaryOperationNode(lhs: ConstantNode(value: .integer(0)), operator: rhs.operator, rhs: rhs.rhs)).accept(visitor: self)
+        }
+        /// Simplification de `((5 + x) - (3 + x))` en `(2)`
+        /// Simplification de `((5 - x) - (3 - x))` en `(2)`
+        else if let lhs = lhs as? BinaryOperationNode,
+                let rhs = rhs as? BinaryOperationNode,
+                let lhsRhs = lhs.rhs as? VariableNode,
+                let rhsRhs = rhs.rhs as? VariableNode,
+                node.operator == .substract,
+                lhs.operator == .add || lhs.operator == .substract,
+                lhs.operator == rhs.operator,
+                lhsRhs.name == rhsRhs.name {
+            return BinaryOperationNode(lhs: lhs.lhs, operator: node.operator, rhs: rhs.lhs).accept(visitor: self)
+        }
+        /// Simplification de `((x +- 5) + (3 - x))` en `(8)`
+        else if let lhs = lhs as? BinaryOperationNode,
+                let rhs = rhs as? BinaryOperationNode,
+                let lhsLhs = lhs.lhs as? VariableNode,
+                let rhsRhs = rhs.rhs as? VariableNode,
+                node.operator == .add,
+                lhs.operator == .add || lhs.operator == .substract,
+                rhs.operator == .substract,
+                lhsLhs.name == rhsRhs.name {
+            return BinaryOperationNode(lhs: BinaryOperationNode(lhs: ConstantNode(value: .integer(0)), operator: lhs.operator, rhs: lhs.rhs), operator: node.operator, rhs: rhs.lhs).accept(visitor: self)
+        }
+        /// Simplification de `((5 + x) + (3 - x))` en `(8)`
+        /// Simplification de `((5 - x) + (3 + x))` en `(8)`
+        else if let lhs = lhs as? BinaryOperationNode,
+                let rhs = rhs as? BinaryOperationNode,
+                let lhsRhs = lhs.rhs as? VariableNode,
+                let rhsRhs = rhs.rhs as? VariableNode,
+                node.operator == .add,
+                (lhs.operator == .add && rhs.operator == .substract) || (lhs.operator == .substract && rhs.operator == .add),
+                lhsRhs.name == rhsRhs.name {
+            return BinaryOperationNode(lhs: lhs.lhs, operator: node.operator, rhs: rhs.lhs).accept(visitor: self)
         }
         return BinaryOperationNode(lhs: lhs, operator: node.operator, rhs: rhs)
     }
