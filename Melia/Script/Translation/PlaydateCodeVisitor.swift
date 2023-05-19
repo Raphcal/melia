@@ -208,19 +208,27 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         code.append("    // \(node.name)\n")
 
         let test = node.arguments.first { $0.name == While.testArgument }?.value ?? ConstantNode(value: .boolean(false))
-        code.append(test is BracesNode
-                    ? "    if " + test.accept(visitor: self).joined() + " {\n    "
-                    : "    if (" + test.accept(visitor: self).joined() + ") {\n    ")
-        code.append(node.children.accept(visitor: self)
-            .joined()
-            .replacingOccurrences(of: "\n", with: "\n    ")
-            .dropLastFourSpaces())
-        code.append("""
-                    draw(self, sprite);
-                    return;
-                }
+        if let test = test as? ConstantNode,
+           case let .boolean(value) = test.value,
+           value {
+            code.append(node.children.accept(visitor: self).joined())
+            code.append("    draw(self, sprite);\n    return;\n")
+        }
+        else if !(test is ConstantNode) {
+            code.append(test is BracesNode
+                        ? "    if " + test.accept(visitor: self).joined() + " {\n    "
+                        : "    if (" + test.accept(visitor: self).joined() + ") {\n    ")
+            code.append(node.children.accept(visitor: self)
+                .joined()
+                .replacingOccurrences(of: "\n", with: "\n    ")
+                .dropLastFourSpaces())
+            code.append("""
+                        draw(self, sprite);
+                        return;
+                    }
 
-            """)
+                """)
+        }
 
         return code
     }
