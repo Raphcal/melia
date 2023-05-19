@@ -37,6 +37,7 @@ class Renderer {
     var spriteManager = MELSpriteManagerEmpty
     var melMapRenderer = MELMapRendererEmpty
     var renderer = MELRendererZero
+    var background = MELSurfaceArray()
 
     var oldTime: MELTimeInterval = 0
 
@@ -48,6 +49,7 @@ class Renderer {
 
         // TODO: Vérifier que tout est bien libéré
         unload()
+        MELSurfaceArrayDeinit(&background)
     }
 
     func load(context: RendererContext) {
@@ -107,9 +109,9 @@ class Renderer {
     func renderFrame(size frameSize: MELSize) {
         MELCameraSetCurrent(&camera)
         MELCameraSetSize(frameSize)
+        let mapSize = MELSize(mutableMap.size * mutableMap.palette.pointee.tileSize)
         if let sprite = sprite {
             let halfFrameSize = frameSize / MELSize(width: 2, height: 2)
-            let mapSize = MELSize(mutableMap.size * mutableMap.palette.pointee.tileSize)
             let origin = sprite.pointee.frame.origin
             camera = MELPoint(
                 x: max(0, min(origin.x - halfFrameSize.width, mapSize.width - frameSize.width)),
@@ -117,8 +119,13 @@ class Renderer {
         } else {
             camera = .zero
         }
+        MELSurfaceArrayClear(&background)
+        MELSurfaceArrayAppendColoredQuad(&background, MELRectangle(origin: .zero, size: mapSize + MELSize(width: 1, height: 1)), MELColorToMELUInt8Color(MELColorMakeWithHex(0xBDB8B5)))
+        MELSurfaceArrayAppendColoredQuad(&background, MELRectangle(origin: .zero, size: mapSize), MELColorToMELUInt8Color(mutableMap.backgroundColor))
+
         MELRendererRefApplyFlatOrthographicProjection(&renderer, frameSize)
-        MELRendererClearWithColor(mutableMap.backgroundColor)
+        MELRendererClearWithColor(MELColorMakeWithHex(0xECECEC))
+        MELRendererRefDrawWithSurfaceArray(melMapRenderer.renderer, background, .color)
         MELMapRendererDrawTranslated(melMapRenderer, camera)
     }
     func update(elasped time: TimeInterval) {
