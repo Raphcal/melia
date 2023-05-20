@@ -15,8 +15,13 @@ class TokenTreeReducer: TreeNodeVisitor {
         self.heap = heap
     }
 
-    init(sprite: MELSpriteRef) {
-        self.heap = ["self": .sprite(sprite)]
+    convenience init(sprite: MELSpriteRef, symbolTable: SymbolTable) {
+        var heap: [String: Value] = ["self": .sprite(sprite)]
+        heap.reserveCapacity(symbolTable.constants.count + 1)
+        for (key, constant) in symbolTable.constants {
+            heap[key] = constant.value
+        }
+        self.init(heap: heap)
     }
 
     func visit(from node: StateNode) -> TreeNode {
@@ -283,8 +288,8 @@ class TokenTreeReducer: TreeNodeVisitor {
 
 
 extension TokenTree {
-    func reduceByInliningValues(from sprite: MELSpriteRef) -> TokenTree {
-        return TokenTree(children: children.accept(visitor: TokenTreeReducer(sprite: sprite)))
+    func reduceByInliningValues(from sprite: MELSpriteRef, symbolTable: SymbolTable) -> TokenTree {
+        return TokenTree(children: children.accept(visitor: TokenTreeReducer(sprite: sprite, symbolTable: symbolTable)))
     }
 
     func reduceByInliningValues(from heap: [String: Value]) -> TokenTree {

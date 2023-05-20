@@ -419,8 +419,7 @@ struct PlaydateCodeGenerator {
         let def = definition ?? MELSpriteDefinition(name: nil, size: .zero, type: MELSpriteTypeDecor, palette: nil, animations: .empty, motionName: nil, loadScript: nil)
         let sprite = MELSpriteAllocStandalone(def)
 
-        // TODO: Construire la table des symboles ici et inliner les constantes ?
-        let reducedTree = definition != nil ? tree.reduceByInliningValues(from: sprite) : tree
+        let reducedTree = definition != nil ? tree.reduceByInliningValues(from: sprite, symbolTable: tree.symbolTable) : tree
 
         let spriteName = def.nameAsString.lowercased().replacingOccurrences(of: " ", with: "")
         var scriptName = spriteName
@@ -434,6 +433,7 @@ struct PlaydateCodeGenerator {
         self.pascalCasedScriptName = PlaydateCodeGenerator.toPascalCase(scriptName)
         self.spriteType = def.type
         self.tree = reducedTree
+        // TODO: Mettre à jour le code des états plutôt que tout reparcourir
         self.symbolTable = reducedTree.symbolTable
         self.states = symbolTable.states.filter {
             $0.name != StateNode.constructorName && $0.name != StateNode.drawName
