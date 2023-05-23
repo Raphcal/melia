@@ -61,6 +61,8 @@ struct InstructionNode: TreeNode {
         switch name {
         case "new":
             return .sprite
+        case "point":
+            return .point
         case "shootingStyle":
             return .shootingStyle
         case "stride":
