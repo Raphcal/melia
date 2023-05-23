@@ -102,6 +102,8 @@ class ScriptBuilder: TreeNodeVisitor {
             script.instructions.append(Debug())
         case "destroy":
             script.instructions.append(Destroy())
+        case "point":
+            script.instructions.append(NewPoint())
         default:
             print("Instruction \(node.name) is not supported yet.")
         }

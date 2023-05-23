@@ -75,7 +75,8 @@ struct ScriptGrammar: Grammar {
         case .groupEnd:
             return ": *"
         case .instructionStart:
-            return "(angleBetween|debug|destroy|distanceBetween|move|new|shootingStyle|shoot|stride|wait) *"
+            // TODO: Trouver une expression régulière plus simple
+            return "(angleBetween|debug|destroy|distanceBetween|move|new|point|shootingStyle|shoot|stride|wait) *"
         case .instructionArgument:
             return ", *([a-z][a-zA-Z]*) *: *"
         case .setStart:

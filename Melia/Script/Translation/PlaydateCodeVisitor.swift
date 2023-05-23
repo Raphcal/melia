@@ -241,6 +241,8 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             return visitStride(node)
         case "destroy":
             return ["    MELSpriteDealloc(sprite);\n    return;\n"]
+        case "point":
+            return visitNewPoint(node)
         default:
             return ["    // \(node.name)\n"]
         }
@@ -262,6 +264,17 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
         let animationName = node.arguments.first(where: { $0.name == NewSprite.animationArgument })?.value.accept(visitor: self).joined(separator: "") ?? "AnimationNameStand"
 
         return ["MELSubSpriteAlloc(sprite, ", definition,", ", animationName,")"]
+    }
+
+    func visitNewPoint(_ node: InstructionNode) -> [String] {
+        let width = node.arguments.first(where: { $0.name == "width" })
+        let height = node.arguments.first(where: { $0.name == "height" })
+        if width != nil || height != nil {
+            return ["(MELSize) {\n        .width = ", width?.value.accept(visitor: self).joined() ?? "0" , ",\n        .height = ", height?.value.accept(visitor: self).joined() ?? "0", "\n    }"]
+        }
+        let x = node.arguments.first(where: { $0.name == "x" })?.value.accept(visitor: self).joined() ?? "0"
+        let y = node.arguments.first(where: { $0.name == "y" })?.value.accept(visitor: self).joined() ?? "0"
+        return ["(MELPoint) {\n        .x = ", x , ",\n        .y = ", y, "\n    }"]
     }
 
     func visitStride(_ node: InstructionNode) -> [String] {
@@ -434,10 +447,6 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                     return ["MELPointMultiplyByDirection(", lhs, ", ", rhs, ")"]
                 case .divide:
                     return ["MELPointDivideByDirection(", lhs, ", ", rhs, ")"]
-                case .equals:
-                    return [lhs, " == ", rhs]
-                case .notEquals:
-                    return [lhs, " != ", rhs]
                 default:
                     break
                 }
@@ -467,6 +476,17 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                     return [lhs, " == ", rhs]
                 case .notEquals:
                     return [lhs, " != ", String(rhs[rhs.index(after: rhs.startIndex) ..< rhs.index(before: rhs.endIndex)])]
+                default:
+                    break
+                }
+            }
+        case .direction:
+            if rhsKind == .direction {
+                switch node.operator {
+                case .equals:
+                    return [lhs, " == ", rhs]
+                case .notEquals:
+                    return [lhs, " != ", rhs]
                 default:
                     break
                 }

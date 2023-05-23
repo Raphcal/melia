@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		6404BBCF29413C0900309C02 /* Absolute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6404BBCE29413C0900309C02 /* Absolute.swift */; };
+		640704E72A1A9FA1006EFF32 /* NewPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640704E62A1A9FA1006EFF32 /* NewPoint.swift */; };
 		64120D5629D21D1600C30A50 /* Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64120D5529D21D1600C30A50 /* Random.swift */; };
 		64120D5B29D21E2500C30A50 /* IntegerOperators.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64120D5A29D21E2500C30A50 /* IntegerOperators.swift */; };
 		64120D5D29D22A0F00C30A50 /* Stride.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64120D5C29D22A0F00C30A50 /* Stride.swift */; };
@@ -144,6 +145,7 @@
 
 /* Begin PBXFileReference section */
 		6404BBCE29413C0900309C02 /* Absolute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Absolute.swift; sourceTree = "<group>"; };
+		640704E62A1A9FA1006EFF32 /* NewPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPoint.swift; sourceTree = "<group>"; };
 		64120D5529D21D1600C30A50 /* Random.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Random.swift; sourceTree = "<group>"; };
 		64120D5A29D21E2500C30A50 /* IntegerOperators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegerOperators.swift; sourceTree = "<group>"; };
 		64120D5C29D22A0F00C30A50 /* Stride.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stride.swift; sourceTree = "<group>"; };
@@ -286,6 +288,7 @@
 				6454DAAC27FA1ED400D5E92B /* Jump.swift */,
 				6454DAB027FA1F0600D5E92B /* Move.swift */,
 				64A1CE5B28099AFE0086D752 /* Negative.swift */,
+				640704E62A1A9FA1006EFF32 /* NewPoint.swift */,
 				648ABC892922452800A74423 /* NewSprite.swift */,
 				64A1CE612809A1F10086D752 /* Operator.swift */,
 				64120D5529D21D1600C30A50 /* Random.swift */,
@@ -649,6 +652,7 @@
 				64A1CE3628073EF10086D752 /* LookUpError.swift in Sources */,
 				64A1CE42280769B10086D752 /* FoundToken.swift in Sources */,
 				64A1CE4B2808412C0086D752 /* Wait.swift in Sources */,
+				640704E72A1A9FA1006EFF32 /* NewPoint.swift in Sources */,
 				64A1CE2D2807266B0086D752 /* Variable.swift in Sources */,
 				64A1CE3428073ECE0086D752 /* DurationUnit.swift in Sources */,
 				64A1CE2B280726530086D752 /* Script.swift in Sources */,
