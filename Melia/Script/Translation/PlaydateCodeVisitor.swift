@@ -434,6 +434,10 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
                     return ["MELPointMultiplyByDirection(", lhs, ", ", rhs, ")"]
                 case .divide:
                     return ["MELPointDivideByDirection(", lhs, ", ", rhs, ")"]
+                case .equals:
+                    return [lhs, " == ", rhs]
+                case .notEquals:
+                    return [lhs, " != ", rhs]
                 default:
                     break
                 }
@@ -443,7 +447,6 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             }
         case .boolean:
             if rhsKind == .boolean {
-                
                 switch node.operator {
                 case .and:
                     return [lhs, " && ", rhs]

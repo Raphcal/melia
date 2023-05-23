@@ -267,7 +267,7 @@ struct PlaydateCodeGenerator {
 
     private var classDeclaration: String {
         return """
-            const MELSpriteClass \(pascalCasedScriptName)Class = (MELSpriteClass) {
+            static const MELSpriteClass \(pascalCasedScriptName)Class = (MELSpriteClass) {
                 .destroy = \(hasSubSprite ? "destroy" : "MELSpriteDealloc"),
                 .save = save,
             };
