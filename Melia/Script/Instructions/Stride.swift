@@ -92,11 +92,16 @@ struct Stride: Instruction, DeclareVariables {
     }
 }
 
+// FIXME: Remplacer par un visiteur
 extension TreeNode {
     var isStrideConstant: Bool {
         if let this = self as? ConstantNode {
             return this.isStrideConstant
         } else if let this = self as? BinaryOperationNode {
+            return this.isStrideConstant
+        } else if let this = self as? BracesNode {
+            return this.isStrideConstant
+        } else if let this = self as? UnaryOperationNode {
             return this.isStrideConstant
         } else if let this = self as? VariableNode {
             return this.isStrideConstant
@@ -112,6 +117,16 @@ extension ConstantNode {
 extension BinaryOperationNode {
     var isStrideConstant: Bool {
         return lhs.isStrideConstant && rhs.isStrideConstant
+    }
+}
+extension BracesNode {
+    var isStrideConstant: Bool {
+        return child.isStrideConstant
+    }
+}
+extension UnaryOperationNode {
+    var isStrideConstant: Bool {
+        return value.isStrideConstant
     }
 }
 extension VariableNode {

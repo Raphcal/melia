@@ -351,6 +351,13 @@ class PlaydateCodeVisitor: TreeNodeVisitor {
             rhs = "(\(rhs))"
         }
 
+        if lhsKind == .null {
+            print("lhs has null kind: \(lhs)")
+        }
+        if rhsKind == .null {
+            print("rhs has null kind: \(rhs)")
+        }
+
         switch lhsKind {
         case .integer, .decimal:
             switch rhsKind {

@@ -56,30 +56,6 @@ struct InstructionNode: TreeNode {
     func accept<V>(visitor: V) -> V.Result where V : TreeNodeVisitor {
         return visitor.visit(from: self)
     }
-
-    func kind(symbolTable: SymbolTable) -> ValueKind {
-        switch name {
-        case "new":
-            return .sprite
-        case "point":
-            return .point
-        case "shootingStyle":
-            return .shootingStyle
-        case "stride":
-            let fromKind = arguments.first { $0.name == Stride.fromArgument }?.value.kind(symbolTable: symbolTable) ?? .null
-            let toKind = arguments.first { $0.name == Stride.toArgument }?.value.kind(symbolTable: symbolTable) ?? .null
-            if fromKind == toKind {
-                // Seul cas permettant de renvoyer un type integer
-                return fromKind
-            } else if fromKind == .point || toKind == .point {
-                return .point
-            } else {
-                return .decimal
-            }
-        default:
-            return .null
-        }
-    }
 }
 
 struct ArgumentNode: TreeNode {
