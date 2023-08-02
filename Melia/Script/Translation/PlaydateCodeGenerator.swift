@@ -416,7 +416,7 @@ struct PlaydateCodeGenerator {
     }
 
     init(tree: TokenTree, for definition: MELSpriteDefinition? = nil) {
-        let def = definition ?? MELSpriteDefinition(name: nil, size: .zero, type: MELSpriteTypeDecor, palette: nil, animations: .empty, motionName: nil, loadScript: nil)
+        let def = definition ?? MELSpriteDefinition(name: nil, size: .zero, type: MELSpriteTypeDecor, palette: nil, animations: .empty, motionName: nil, loadScript: nil, distance: 1, exportable: 1, global: 0)
         let sprite = MELSpriteAllocStandalone(def)
 
         let reducedTree = definition != nil ? tree.reduceByInliningValues(from: sprite, symbolTable: tree.symbolTable) : tree
