@@ -10,18 +10,20 @@ import MeliceFramework
 /// Optimise l'arbre donné en faisant de l'inlining.
 class TokenTreeReducer: TreeNodeVisitor {
     var heap: [String: Value]
+    var definitions: MELSpriteDefinitionList
 
-    init(heap: [String: Value]) {
+    init(heap: [String: Value], definitions: MELSpriteDefinitionList = .empty) {
         self.heap = heap
+        self.definitions = definitions
     }
 
-    convenience init(sprite: MELSpriteRef, symbolTable: SymbolTable) {
+    convenience init(sprite: MELSpriteRef, symbolTable: SymbolTable, definitions: MELSpriteDefinitionList = .empty) {
         var heap: [String: Value] = ["self": .sprite(sprite)]
         heap.reserveCapacity(symbolTable.constants.count + 1)
         for (key, constant) in symbolTable.constants {
             heap[key] = constant.value
         }
-        self.init(heap: heap)
+        self.init(heap: heap, definitions: definitions)
     }
 
     func visit(from node: StateNode) -> TreeNode {
@@ -55,9 +57,21 @@ class TokenTreeReducer: TreeNodeVisitor {
     }
 
     func visit(from node: SetNode) -> TreeNode {
-        return SetNode(variable: node.variable, value: node.value.accept(visitor: self))
+        let value = node.value.accept(visitor: self)
+        if let instruction = value as? InstructionNode, instruction.name == "new" {
+            // FIXME: Gérer les strings pour les noms de définition
+            if let definitionIndex = instruction.arguments.integer(for: "definition"),
+               definitionIndex < definitions.count {
+                let definition = definitions[Int(definitionIndex)]
+                let sprite = MELSpriteAllocStandalone(definition)
+                heap[node.variable] = .sprite(sprite)
+            }
+        }
+        return SetNode(variable: node.variable, value: value)
     }
+
     
+
     func visit(from node: BinaryOperationNode) -> TreeNode {
         let lhs = node.lhs.accept(visitor: self)
         let rhs = node.rhs.accept(visitor: self)
@@ -288,8 +302,8 @@ class TokenTreeReducer: TreeNodeVisitor {
 
 
 extension TokenTree {
-    func reduceByInliningValues(from sprite: MELSpriteRef, symbolTable: SymbolTable) -> TokenTree {
-        return TokenTree(children: children.accept(visitor: TokenTreeReducer(sprite: sprite, symbolTable: symbolTable)))
+    func reduceByInliningValues(from sprite: MELSpriteRef, symbolTable: SymbolTable, definitions: MELSpriteDefinitionList = .empty) -> TokenTree {
+        return TokenTree(children: children.accept(visitor: TokenTreeReducer(sprite: sprite, symbolTable: symbolTable, definitions: definitions)))
     }
 
     func reduceByInliningValues(from heap: [String: Value]) -> TokenTree {

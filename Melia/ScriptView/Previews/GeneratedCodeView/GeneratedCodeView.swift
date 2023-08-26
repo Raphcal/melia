@@ -35,7 +35,7 @@ struct GeneratedCodeView: View {
 
     func regenerateCode() {
         DispatchQueue.parse.async {
-            let generator = PlaydateCodeGenerator(tree: TokenTree(tokens: tokens), for: sprites[definitionIndex])
+            let generator = PlaydateCodeGenerator(tree: TokenTree(tokens: tokens), for: sprites[definitionIndex], definitions: sprites)
             let code = selectedFile == .header ? generator.headerFile : generator.codeFile
             DispatchQueue.main.sync {
                 generatedCode = code

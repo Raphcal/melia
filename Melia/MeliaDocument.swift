@@ -85,7 +85,7 @@ class MeliaDocument: ReferenceFileDocument {
                     let definition = project.root.sprites.first {
                         $0.motionName != nil && String(utf8String: $0.motionName!) == key
                     }
-                    let generator = PlaydateCodeGenerator(tree: TokenTree(tokens: tokens), for: definition)
+                    let generator = PlaydateCodeGenerator(tree: TokenTree(tokens: tokens), for: definition, definitions: project.root.sprites)
 
                     fileWrappers["script\(scriptCount).h"] = .init(regularFileWithContents: generator.headerFile.data(using: .utf8)!)
                     fileWrappers["script\(scriptCount).c"] = .init(regularFileWithContents: generator.codeFile.data(using: .utf8)!)

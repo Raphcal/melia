@@ -67,6 +67,24 @@ struct ArgumentNode: TreeNode {
     }
 }
 
+extension Array where Element == ArgumentNode {
+    func integer(for name: String) -> Int32? {
+        for entry in self {
+            if entry.name == name, let value = entry.value as? ConstantNode {
+                switch value.value {
+                case let .integer(value):
+                    return value
+                case let .decimal(value):
+                    return Int32(value)
+                default:
+                    break
+                }
+            }
+        }
+        return nil
+    }
+}
+
 struct SetNode: TreeNode {
     var variable: String
     var value: TreeNode
