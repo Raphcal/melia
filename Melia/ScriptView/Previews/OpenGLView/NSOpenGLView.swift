@@ -37,6 +37,10 @@ extension OpenGLView: NSViewRepresentable {
             coordinator.startDisplayLink()
         }
 
+        if gestureListener is NoGestureListener {
+            view.gestureListener = coordinator.renderer
+        }
+
         view.willDrawListener = {
             coordinator.renderFrame()
             view.willDrawListener = nil
@@ -52,7 +56,11 @@ extension OpenGLView: NSViewRepresentable {
     func updateNSView(_ nsView: MELOpenGLView, context: Context) {
         let coordinator = context.coordinator
 
-        nsView.gestureListener = gestureListener
+        if gestureListener is NoGestureListener {
+            nsView.gestureListener = coordinator.renderer
+        } else {
+            nsView.gestureListener = gestureListener
+        }
         if gestureListener.listenToMoves != (coordinator.mouseMoveMonitor != nil) {
             listenToMouseMoveEvents(of: nsView, coordinator: coordinator)
             return

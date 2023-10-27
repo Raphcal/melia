@@ -39,6 +39,7 @@ struct ShootingStyle: Instruction {
 
         var definition = MELShootingStyleDefinition()
         definition.animationAngle = MEL_PI_2
+        definition.targetType = MELSpriteTypePlayer
 
         if let origin = context.arguments.string(for: ShootingStyle.originArgument) {
             switch origin {

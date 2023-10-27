@@ -24,9 +24,14 @@ struct RendererContext: Equatable {
     }
 }
 
-class Renderer {
+enum SpriteType: UInt32, CaseIterable {
+    case decoration, player, platform, bonus, destructible, enemy, collidable, font, friendlyShot, enemyShot
+}
+
+class Renderer: GestureListener {
     var mutableMap = MELMutableMapEmpty
     var sprite: MELSpriteRef?
+    var player: MELSpriteRef?
     var camera: MELPoint = .zero
     var definitionIndex = -1
     var script: Script = .empty
@@ -38,6 +43,8 @@ class Renderer {
     var melMapRenderer = MELMapRendererEmpty
     var renderer = MELRendererZero
     var background = MELSurfaceArray()
+
+    var groupForType: [Int32] = SpriteType.allCases.map { $0 == .player ? 1 : 0 }
 
     var oldTime: MELTimeInterval = 0
 
@@ -57,6 +64,7 @@ class Renderer {
         if sprite != nil {
             MELSpriteManagerRemoveAllSprites(&spriteManager)
             self.sprite = nil
+            self.player = nil
         }
         if !MELPaletteRefEquals(mutableMap.palette, context.map.palette) || mutableMap.nameAsString != context.map.nameAsString {
             // TODO: Ne décharger que melMapRenderer et spriteManager si seulement la carte a changé
@@ -68,7 +76,7 @@ class Renderer {
             textureAtlas = createAtlas(mutableMap.palette, context.spriteDefinitions)
 
             melMapRenderer = MELMapRendererMakeWithRendererAndMapAndAtlas(&renderer, &mutableMap.super, textureAtlas)
-            spriteManager = MELSpriteManagerMake(MELSpriteDefinitionListMakeWithListAndCopyFunction(context.spriteDefinitions, MELSpriteDefinitionMakeWithSpriteDefinition) , textureAtlas, melMapRenderer.layerSurfaces!, 0, nil)
+            spriteManager = MELSpriteManagerMake(MELSpriteDefinitionListMakeWithListAndCopyFunction(context.spriteDefinitions, MELSpriteDefinitionMakeWithSpriteDefinition) , textureAtlas, melMapRenderer.layerSurfaces!, 2, &groupForType)
         }
 
         let solid = mutableMap.layers.firstIndex(where: { $0.isSolid }) ?? 0
@@ -78,6 +86,10 @@ class Renderer {
             sprite.pointee.instance = context.instance
             self.sprite = sprite
             definitionIndex = context.definitionIndex
+        }
+        if let playerDefinition = spriteManager.definitions.first(where: { $0.type == MELSpriteType(SpriteType.player.rawValue) }) {
+            let player = MELSpriteAlloc(&spriteManager, playerDefinition, UInt32(solid))
+            self.player = player
         }
 
         if tokens != context.tokens {
@@ -176,5 +188,11 @@ class Renderer {
         }
 
         return textureAtlas
+    }
+
+    func onTap(at location: MELIntPoint, isPrimary: Bool) {
+        if let player = self.player {
+            MELSpriteSetFrameOrigin(player, MELPoint(location))
+        }
     }
 }
