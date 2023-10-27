@@ -94,6 +94,23 @@ enum Value: Equatable {
                     return .decimal(1)
                 }
             }
+        case .shootingStyle(let shootingStyle):
+            switch property {
+            case "shootInterval", "interval", "each":
+                return .decimal(shootingStyle.definition.shootInterval)
+            case "bulletAmount", "amount", "count":
+                return .integer(shootingStyle.definition.bulletAmount)
+            case "bulletSpeed", "speed":
+                return .decimal(shootingStyle.definition.bulletSpeed)
+            case "baseAngle":
+                return .decimal(shootingStyle.definition.baseAngle)
+            case "angleIncrement":
+                return .decimal(shootingStyle.definition.angleIncrement)
+            case "spaceArgument":
+                return .decimal(shootingStyle.definition.space)
+            default:
+                break
+            }
         default:
             break
         }
@@ -149,6 +166,40 @@ enum Value: Equatable {
                 animationRef.pointee.speed = MELTimeInterval(speed)
             }
             return .animation(animation)
+        case .shootingStyle(let shootingStyle):
+            switch property {
+            case "shootInterval", "interval", "each":
+                if case let .decimal(interval) = value {
+                    shootingStyle.definition.shootInterval = interval
+                }
+            case "bulletAmount", "amount", "count":
+                if case let .integer(amount) = value {
+                    shootingStyle.definition.bulletAmount = amount
+                    shootingStyle.style.pointee.bulletAmount = amount
+                }
+            case "bulletSpeed", "speed":
+                if case let .decimal(speed) = value {
+                    shootingStyle.definition.bulletSpeed = speed
+                }
+            case "baseAngle":
+                if case let .decimal(angle) = value {
+                    shootingStyle.definition.baseAngle = angle
+                    shootingStyle.style.withMemoryRebound(to: MELCircularShootingStyle.self, capacity: 1) { pointer in
+                        pointer.pointee.baseAngle = angle
+                    }
+                }
+            case "angleIncrement":
+                if case let .decimal(angle) = value {
+                    shootingStyle.definition.angleIncrement = angle
+                }
+            case "spaceArgument":
+                if case let .decimal(space) = value {
+                    shootingStyle.definition.space = space
+                }
+            default:
+                break
+            }
+            return .shootingStyle(shootingStyle)
         default:
             break
         }
