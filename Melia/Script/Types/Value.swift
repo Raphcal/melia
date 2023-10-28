@@ -23,6 +23,28 @@ enum Value: Equatable {
     case shootingStyle(_ value: ShootingStyleAndDefinition)
     case null
 
+    var integerValue: Int32? {
+        switch self {
+        case let .integer(value):
+            return value
+        case let .decimal(value):
+            return Int32(value)
+        default:
+            return nil
+        }
+    }
+
+    var decimalValue: Float? {
+        switch self {
+        case let .integer(value):
+            return Float(value)
+        case let .decimal(value):
+            return value
+        default:
+            return nil
+        }
+    }
+
     func value(for property: String) -> Value {
         switch self {
         case .point(let point):
@@ -120,13 +142,9 @@ enum Value: Equatable {
     func edited(bySetting value: Value, for property: String) -> Value {
         switch self {
         case .point(let point):
-            if property == "x" || property == "width", case let .integer(rhs) = value {
-                return .point(MELPoint(x: GLfloat(rhs), y: point.y))
-            } else if property == "x" || property == "width", case let .decimal(rhs) = value {
+            if property == "x" || property == "width", let rhs = value.decimalValue {
                 return .point(MELPoint(x: rhs, y: point.y))
-            } else if property == "y" || property == "height", case let .integer(rhs) = value {
-                return .point(MELPoint(x: point.x, y: GLfloat(rhs)))
-            } else if property == "y" || property == "height", case let .decimal(rhs) = value {
+            } else if property == "y" || property == "height", let rhs = value.decimalValue {
                 return .point(MELPoint(x: point.x, y: rhs))
             }
         case .sprite(let sprite):
@@ -156,44 +174,40 @@ enum Value: Equatable {
             return .sprite(sprite)
         case .animation(let animation):
             let animationRef = animation.getAnimationRef()
-            if property == "duration", case let .integer(duration) = value {
+            if property == "duration", let duration = value.decimalValue {
                 animationRef.pointee.speed = MELTimeInterval(animation.definition.frameCount) / (MELTimeInterval(duration) * MELTimeInterval(animation.definition.frequency))
-            } else if property == "duration", case let .decimal(duration) = value {
-                animationRef.pointee.speed = MELTimeInterval(animation.definition.frameCount) / (MELTimeInterval(duration) * MELTimeInterval(animation.definition.frequency))
-            } else if property == "speed", case let .integer(speed) = value {
-                animationRef.pointee.speed = MELTimeInterval(speed)
-            } else if property == "speed", case let .decimal(speed) = value {
+            } else if property == "speed", let speed = value.decimalValue {
                 animationRef.pointee.speed = MELTimeInterval(speed)
             }
             return .animation(animation)
         case .shootingStyle(let shootingStyle):
             switch property {
             case "shootInterval", "interval", "each":
-                if case let .decimal(interval) = value {
+                if let interval = value.decimalValue {
                     shootingStyle.definition.shootInterval = interval
                 }
             case "bulletAmount", "amount", "count":
-                if case let .integer(amount) = value {
+                if let amount = value.integerValue {
                     shootingStyle.definition.bulletAmount = amount
                     shootingStyle.style.pointee.bulletAmount = amount
                 }
             case "bulletSpeed", "speed":
-                if case let .decimal(speed) = value {
+                if let speed = value.decimalValue {
                     shootingStyle.definition.bulletSpeed = speed
                 }
             case "baseAngle":
-                if case let .decimal(angle) = value {
+                if let angle = value.decimalValue {
                     shootingStyle.definition.baseAngle = angle
                     shootingStyle.style.withMemoryRebound(to: MELCircularShootingStyle.self, capacity: 1) { pointer in
                         pointer.pointee.baseAngle = angle
                     }
                 }
             case "angleIncrement":
-                if case let .decimal(angle) = value {
+                if let angle = value.decimalValue {
                     shootingStyle.definition.angleIncrement = angle
                 }
             case "spaceArgument":
-                if case let .decimal(space) = value {
+                if let space = value.decimalValue {
                     shootingStyle.definition.space = space
                 }
             default:
