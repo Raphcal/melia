@@ -198,7 +198,7 @@ class TokenTreeReducer: TreeNodeVisitor {
                 node.operator == .substract,
                 rhs.name == lhsLhs.name,
                 lhs.operator == .add || lhs.operator == .substract {
-            return lhs.rhs
+            return lhs.operator == .add ? lhs.rhs : UnaryOperationNode(operator: "-", value: lhs.rhs).accept(visitor: self)
         }
         /// Simplification de `((2 + x) - x)` en `(2)`.
         else if let lhs = lhs as? BinaryOperationNode,
