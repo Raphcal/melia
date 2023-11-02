@@ -45,9 +45,7 @@ struct ScriptGrammar: Grammar {
             return Token.anyBinaryOperator + [.braceClose, .instructionArgument, .groupEnd, .newLine]
         case .addOrSubstract, .multiplyOrDivide, .unaryOperator, .bitshiftOperator :
             return Token.anyNumericValue + [.valueString]
-        case .andOrOr:
-            return [.valueBoolean, .valueVariable]
-        case .equalityOrComparison:
+        case .andOrOr, .equalityOrComparison:
             return Token.anyValue
         case .braceOpen:
             return Token.anyNumericValue + [.valueString]

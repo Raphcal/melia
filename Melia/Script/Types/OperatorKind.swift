@@ -37,7 +37,7 @@ enum OperatorKind {
         case "^":
             return .pow
         case "&&", "and":
-            return .add
+            return .and
         case "||", "or":
             return .or
         case "<":

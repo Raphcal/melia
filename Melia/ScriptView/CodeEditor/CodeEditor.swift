@@ -83,6 +83,7 @@ struct CodeEditor: NSViewRepresentable {
         let boldFont: NSFont
 
         var snapshot: CodeSnapshot?
+        var changedRange: Range<Int>?
 
         init(scriptName: String?, code: Binding<String?>, tokens: Binding<[FoundToken]>, undoManager: UndoManager?) {
             self.scriptName = scriptName
@@ -102,6 +103,7 @@ struct CodeEditor: NSViewRepresentable {
             undoManager?.removeAllActions()
 
             textView.string = self.code ?? ""
+            changedRange = nil
             DispatchQueue.main.async {
                 self.colorizeSyntax(textView: textView)
             }
@@ -111,6 +113,11 @@ struct CodeEditor: NSViewRepresentable {
             if let textView = notification.object as? NSTextView {
                 codeDidChange(textView: textView)
             }
+        }
+
+        func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
+            changedRange = affectedCharRange.location ..< (affectedCharRange.location + (replacementString?.count ?? 0))
+            return true
         }
 
         func codeDidChange(textView: NSTextView) {
@@ -137,6 +144,8 @@ struct CodeEditor: NSViewRepresentable {
             let tokens = tokenizer.tokenize(code: code)
             let grammar = tokenizer.grammar
 
+            let range = changedRange ?? 0 ..< code.count
+
             DispatchQueue.main.async {
                 guard let textStorage = textView.textStorage else {
                     print("No storage.")
@@ -145,7 +154,7 @@ struct CodeEditor: NSViewRepresentable {
 
                 self.tokens = tokens
                 for token in tokens {
-                    if token.range.endIndex < textView.string.count {
+                    if token.range.overlaps(range) && token.range.upperBound < textView.string.count {
                         let attributes = grammar.textAttributes(for: token.token, regularFont: regularFont, boldFont: boldFont)
                         let range = NSRange(location: token.range.startIndex, length: token.range.count)
                         textStorage.setAttributes(attributes, range: range)
