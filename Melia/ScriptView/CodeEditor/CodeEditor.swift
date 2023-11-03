@@ -116,7 +116,8 @@ struct CodeEditor: NSViewRepresentable {
         }
 
         func textView(_ textView: NSTextView, shouldChangeTextIn affectedCharRange: NSRange, replacementString: String?) -> Bool {
-            changedRange = affectedCharRange.location ..< (affectedCharRange.location + (replacementString?.count ?? 0))
+            // Recolorie le texte modifié et les 32 lettres avant et après.
+            changedRange = max(affectedCharRange.location - 32, 0) ..< (affectedCharRange.location + (replacementString?.count ?? 0) + 32)
             return true
         }
 
